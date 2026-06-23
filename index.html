@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deutsches Tagebuch – German Practice Diary</title>
+  <meta name="description" content="A daily German language practice diary app to help you reach B2 level. Track entries, vocabulary, streaks, and progress."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d0f1a;
+      --surface: #151929;
+      --surface2: #1e2440;
+      --border: #2a3050;
+      --accent: #5b8dee;
+      --accent2: #a78bfa;
+      --accent3: #34d399;
+      --accent4: #fb923c;
+      --text: #e2e8f0;
+      --text-muted: #8892a4;
+      --danger: #f87171;
+      --gold: #fbbf24;
+      --radius: 14px;
+      --shadow: 0 4px 32px rgba(0,0,0,0.5);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+    /* HEADER */
+    header{background:linear-gradient(135deg,#1a1f3c 0%,#0d0f1a 100%);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+    .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .logo{display:flex;align-items:center;gap:10px;font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .logo-flag{font-size:1.6rem}
+    .streak-badge{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,#78350f,#92400e);border:1px solid var(--gold);border-radius:999px;padding:6px 14px;font-size:.85rem;font-weight:600;color:var(--gold)}
+
+    /* NAV */
+    nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto}
+    .nav-inner{max-width:1100px;margin:0 auto;display:flex;gap:4px}
+    .nav-btn{background:none;border:none;color:var(--text-muted);padding:14px 18px;cursor:pointer;font-size:.9rem;font-weight:500;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;font-family:'Inter',sans-serif}
+    .nav-btn:hover{color:var(--text)}
+    .nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+    /* MAIN */
+    main{max-width:1100px;margin:0 auto;padding:28px 24px}
+    .section{display:none;animation:fadeIn .3s ease}
+    .section.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    /* CARDS */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;box-shadow:var(--shadow)}
+    .card-title{font-size:1.1rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+    .card-sub{font-size:.82rem;color:var(--text-muted);margin-bottom:18px}
+
+    /* GRID */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media(max-width:700px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+    /* STAT CARDS */
+    .stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center}
+    .stat-num{font-size:2.4rem;font-weight:800;line-height:1}
+    .stat-label{font-size:.8rem;color:var(--text-muted);margin-top:6px}
+
+    /* INPUTS */
+    textarea,input,select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:.92rem;outline:none;transition:border-color .2s;resize:vertical}
+    textarea:focus,input:focus{border-color:var(--accent)}
+    label{font-size:.84rem;font-weight:500;color:var(--text-muted);display:block;margin-bottom:6px}
+    .field{margin-bottom:16px}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:10px;border:none;cursor:pointer;font-size:.9rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .2s}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+    .btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+    .btn-success{background:linear-gradient(135deg,#059669,var(--accent3));color:#fff}
+    .btn-success:hover{opacity:.88;transform:translateY(-1px)}
+    .btn-danger{background:var(--danger);color:#fff}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+    .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-sm{padding:7px 14px;font-size:.8rem}
+
+    /* PROMPT BOX */
+    .prompt-box{background:linear-gradient(135deg,rgba(91,141,238,.12),rgba(167,139,250,.1));border:1px solid rgba(91,141,238,.3);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+    .prompt-label{font-size:.76rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+    .prompt-de{font-size:1rem;font-weight:600;color:var(--text)}
+    .prompt-en{font-size:.82rem;color:var(--text-muted)}
+
+    /* VOCAB */
+    .vocab-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:center;margin-bottom:10px}
+    .vocab-list{list-style:none}
+    .vocab-item{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 14px;margin-bottom:8px;animation:fadeIn .2s}
+    .vocab-de{font-weight:600;color:var(--accent)}
+    .vocab-en{color:var(--text-muted);font-size:.87rem}
+    .vocab-cat{font-size:.72rem;background:rgba(167,139,250,.18);color:var(--accent2);border-radius:999px;padding:2px 9px;margin-left:8px}
+    .delete-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;line-height:1;padding:4px;border-radius:5px;transition:color .2s}
+    .delete-btn:hover{color:var(--danger)}
+
+    /* DIARY ENTRIES */
+    .entry-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;animation:fadeIn .3s}
+    .entry-date{font-size:.78rem;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+    .entry-date span{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:2px 10px}
+    .entry-block{margin-bottom:10px}
+    .entry-block-label{font-size:.75rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+    .entry-text{font-size:.9rem;line-height:1.65;color:var(--text)}
+    .entry-actions{display:flex;gap:8px;margin-top:10px}
+    .empty-state{text-align:center;padding:48px 0;color:var(--text-muted)}
+    .empty-icon{font-size:3rem;margin-bottom:12px}
+
+    /* PROGRESS */
+    .progress-bar-wrap{background:var(--surface2);border-radius:999px;height:10px;overflow:hidden;margin-top:8px}
+    .progress-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s ease}
+    .level-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:.78rem;font-weight:700}
+    .badge-a1{background:rgba(52,211,153,.15);color:var(--accent3);border:1px solid rgba(52,211,153,.3)}
+    .badge-a2{background:rgba(91,141,238,.15);color:var(--accent);border:1px solid rgba(91,141,238,.3)}
+    .badge-b1{background:rgba(167,139,250,.15);color:var(--accent2);border:1px solid rgba(167,139,250,.3)}
+    .badge-b2{background:rgba(251,191,36,.15);color:var(--gold);border:1px solid rgba(251,191,36,.3)}
+
+    /* GRAMMAR TIP */
+    .tip-card{background:linear-gradient(135deg,rgba(52,211,153,.1),rgba(91,141,238,.1));border:1px solid rgba(52,211,153,.25);border-radius:var(--radius);padding:22px}
+    .tip-num{font-size:.75rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.5px}
+    .tip-rule{font-size:1.05rem;font-weight:700;margin:6px 0 4px;color:var(--text)}
+    .tip-example{font-size:.9rem;color:var(--text-muted);font-style:italic;margin-top:8px;padding:10px 14px;background:rgba(0,0,0,.2);border-radius:8px;border-left:3px solid var(--accent3)}
+
+    /* SPEAKING */
+    .speaking-topic{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+    .topic-title{font-weight:600;margin-bottom:6px}
+    .topic-hints{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .topic-hints li{background:rgba(91,141,238,.12);border:1px solid rgba(91,141,238,.2);border-radius:999px;padding:3px 12px;font-size:.8rem;color:var(--accent)}
+
+    /* CALENDAR HEATMAP */
+    .heatmap{display:flex;flex-wrap:wrap;gap:4px;margin-top:12px}
+    .heat-cell{width:14px;height:14px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;transition:transform .15s}
+    .heat-cell:hover{transform:scale(1.3)}
+    .heat-1{background:rgba(91,141,238,.3);border-color:rgba(91,141,238,.5)}
+    .heat-2{background:rgba(91,141,238,.6);border-color:rgba(91,141,238,.7)}
+    .heat-3{background:rgba(91,141,238,.9);border-color:var(--accent)}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:28px;right:28px;background:var(--surface2);border:1px solid var(--accent3);color:var(--text);padding:12px 20px;border-radius:10px;font-size:.88rem;opacity:0;transform:translateY(16px);transition:all .3s;z-index:999;box-shadow:var(--shadow)}
+    #toast.show{opacity:1;transform:translateY(0)}
+
+    /* HERO */
+    .hero{text-align:center;padding:36px 0 24px}
+    .hero h1{font-family:'Playfair Display',serif;font-size:2.6rem;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2;margin-bottom:10px}
+    .hero p{color:var(--text-muted);font-size:1rem;max-width:520px;margin:0 auto}
+    .date-display{font-size:.85rem;color:var(--text-muted);margin-top:8px}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+    .modal-overlay.open{opacity:1;pointer-events:all}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;transform:scale(.95);transition:transform .25s}
+    .modal-overlay.open .modal{transform:scale(1)}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .close-modal{background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;line-height:1}
+
+    /* TABS inside section */
+    .tab-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+    .tab{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 18px;cursor:pointer;font-size:.85rem;font-weight:500;color:var(--text-muted);transition:all .2s}
+    .tab.active,.tab:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+    .word-count{font-size:.78rem;color:var(--text-muted);text-align:right;margin-top:4px}
+    .char-counter{font-size:.75rem;color:var(--text-muted);text-align:right}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo"><span class="logo-flag">🇩🇪</span> Deutsches Tagebuch</div>
+    <div class="streak-badge" id="streakBadge">🔥 0 Day Streak</div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="showSection('dashboard')">📊 Dashboard</button>
+    <button class="nav-btn" onclick="showSection('diary')">📓 Diary</button>
+    <button class="nav-btn" onclick="showSection('vocab')">📚 Vocabulary</button>
+    <button class="nav-btn" onclick="showSection('speaking')">🎤 Speaking</button>
+    <button class="nav-btn" onclick="showSection('entries')">🗂 Past Entries</button>
+    <button class="nav-btn" onclick="showSection('grammar')">✏️ Grammar Tips</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- DASHBOARD -->
+<div id="section-dashboard" class="section active">
+  <div class="hero">
+    <h1>Dein Deutsches Tagebuch</h1>
+    <p>Your personal German language practice diary — write daily, track progress, speak confidently.</p>
+    <div class="date-display" id="todayDate"></div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:20px">
+    <div class="stat-card">
+      <div class="stat-num" id="statEntries" style="color:var(--accent)">0</div>
+      <div class="stat-label">📓 Total Diary Entries</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statWords" style="color:var(--accent2)">0</div>
+      <div class="stat-label">📚 Words Learned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statStreak" style="color:var(--gold)">0</div>
+      <div class="stat-label">🔥 Day Streak</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🎯 Level Progress</div>
+      <div class="card-sub">Based on your entries and vocabulary</div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:.85rem">A1 → A2</span>
+          <span class="level-badge badge-a1" id="currentLevel">Beginner</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+        <div style="font-size:.78rem;color:var(--text-muted);margin-top:8px" id="progressHint">Write 5 diary entries to reach A1!</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗓 Activity Heatmap</div>
+      <div class="card-sub">Last 12 weeks of practice</div>
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+  </div>
+
+  <div class="card tip-card">
+    <div class="tip-num">💡 Today's Grammar Tip</div>
+    <div class="tip-rule" id="dashTipRule"></div>
+    <div class="tip-example" id="dashTipExample"></div>
+  </div>
+
+  <div style="text-align:center;margin-top:24px">
+    <button class="btn btn-primary" onclick="showSection('diary')">✍️ Write Today's Diary Entry</button>
+  </div>
+</div>
+
+<!-- DIARY -->
+<div id="section-diary" class="section">
+  <div class="card">
+    <div class="card-title">📓 Heute's Tagebucheintrag <span style="font-size:.8rem;color:var(--text-muted);font-weight:400" id="diaryDate"></span></div>
+    <div class="card-sub">Answer all 3 prompts in German. Even simple sentences are fine!</div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Prompt 1 – Was habe ich heute gemacht?</div>
+      <div class="prompt-de">Was habe ich heute gemacht?</div>
+      <div class="prompt-en">What did I do today?</div>
+    </div>
+    <div class="field">
+      <textarea id="prompt1" rows="3" placeholder="Heute habe ich Java gelernt. Ich habe auch..."></textarea>
+      <div class="word-count" id="wc1">0 words</div>
+    </div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Prompt 2 – Was habe ich gelernt?</div>
+      <div class="prompt-de">Was habe ich heute gelernt?</div>
+      <div class="prompt-en">What did I learn today?</div>
+    </div>
+    <div class="field">
+      <textarea id="prompt2" rows="3" placeholder="Ich habe Docker gelernt. Ich habe auch neue deutsche Wörter gelernt..."></textarea>
+      <div class="word-count" id="wc2">0 words</div>
+    </div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Prompt 3 – Was werde ich morgen machen?</div>
+      <div class="prompt-de">Was werde ich morgen machen?</div>
+      <div class="prompt-en">What will I do tomorrow?</div>
+    </div>
+    <div class="field">
+      <textarea id="prompt3" rows="3" placeholder="Morgen werde ich Kubernetes lernen. Ich werde auch..."></textarea>
+      <div class="word-count" id="wc3">0 words</div>
+    </div>
+
+    <div class="field">
+      <label>📝 Free Writing (Optional) – Anything extra on your mind</label>
+      <textarea id="prompt4" rows="3" placeholder="Ich bin sehr müde heute. Aber ich bin glücklich..."></textarea>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-success" onclick="saveDiaryEntry()">💾 Save Entry</button>
+      <button class="btn btn-outline" onclick="clearDiary()">🗑 Clear</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔤 Useful Starter Phrases</div>
+    <div class="card-sub">Click to copy into your diary</div>
+    <div id="phraseList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+  </div>
+</div>
+
+<!-- VOCABULARY -->
+<div id="section-vocab" class="section">
+  <div class="card">
+    <div class="card-title">📚 Add New Words</div>
+    <div class="card-sub">Goal: 10 words/day. <span id="todayWordCount" style="color:var(--accent3);font-weight:600">0</span> added today.</div>
+    <div class="vocab-row">
+      <div class="field" style="margin:0">
+        <label>German Word / Phrase</label>
+        <input id="vocabDe" placeholder="die Datenbank" />
+      </div>
+      <div class="field" style="margin:0">
+        <label>English Translation</label>
+        <input id="vocabEn" placeholder="database" />
+      </div>
+      <button class="btn btn-primary" onclick="addVocab()" style="margin-top:22px">+ Add</button>
+    </div>
+    <div class="field" style="margin-top:8px">
+      <label>Category</label>
+      <select id="vocabCat">
+        <option value="General">🌐 General</option>
+        <option value="Tech">💻 Tech / IT</option>
+        <option value="Work">💼 Work</option>
+        <option value="Daily">🏠 Daily Life</option>
+        <option value="Verbs">⚡ Verbs</option>
+        <option value="Adjectives">🎨 Adjectives</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🃏 Quick Test (Flashcard)</div>
+    <div id="flashcard" style="text-align:center;padding:20px 0">
+      <div id="flashFront" style="font-size:2rem;font-weight:800;color:var(--accent);margin-bottom:12px">—</div>
+      <div id="flashBack" style="font-size:1.1rem;color:var(--text-muted);min-height:28px"></div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
+        <button class="btn btn-outline btn-sm" onclick="revealFlash()">👁 Reveal</button>
+        <button class="btn btn-primary btn-sm" onclick="nextFlash()">→ Next</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-row">
+    <div class="tab active" onclick="filterVocab('All',this)">All</div>
+    <div class="tab" onclick="filterVocab('Tech',this)">💻 Tech</div>
+    <div class="tab" onclick="filterVocab('Work',this)">💼 Work</div>
+    <div class="tab" onclick="filterVocab('Daily',this)">🏠 Daily</div>
+    <div class="tab" onclick="filterVocab('Verbs',this)">⚡ Verbs</div>
+    <div class="tab" onclick="filterVocab('Adjectives',this)">🎨 Adj</div>
+    <div class="tab" onclick="filterVocab('General',this)">🌐 General</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📖 Your Vocabulary List <span id="vocabCount" style="font-size:.8rem;color:var(--text-muted);font-weight:400"></span></div>
+    <ul class="vocab-list" id="vocabList"></ul>
+  </div>
+</div>
+
+<!-- SPEAKING -->
+<div id="section-speaking" class="section">
+  <div class="card">
+    <div class="card-title">🎤 Speaking Prompts</div>
+    <div class="card-sub">Record yourself for 2–3 minutes on one topic. Listen back monthly to track improvement.</div>
+    <div id="speakingTopics"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📝 Speaking Notes</div>
+    <div class="card-sub">Write key phrases or notes after your speaking practice</div>
+    <textarea id="speakNotes" rows="5" placeholder="Ich habe heute über meinen Beruf gesprochen..."></textarea>
+    <div style="margin-top:12px"><button class="btn btn-primary" onclick="saveSpeakNotes()">💾 Save Notes</button></div>
+    <div id="savedSpeakNotes" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<!-- PAST ENTRIES -->
+<div id="section-entries" class="section">
+  <div class="card">
+    <div class="card-title">🗂 Past Diary Entries</div>
+    <div class="card-sub">Your complete diary history. Keep going!</div>
+    <div id="entriesList"></div>
+  </div>
+</div>
+
+<!-- GRAMMAR TIPS -->
+<div id="section-grammar" class="section">
+  <div class="card">
+    <div class="card-title">✏️ German Grammar Tips</div>
+    <div class="card-sub">Essential rules to get you from A1 to B2</div>
+    <div id="allTips"></div>
+  </div>
+</div>
+
+</main>
+
+<div id="toast"></div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const GRAMMAR_TIPS = [
+  { rule: "Articles: der / die / das", example: "der Mann (the man), die Frau (the woman), das Kind (the child)" },
+  { rule: "Verb conjugation: sein (to be)", example: "Ich bin, Du bist, Er/Sie ist, Wir sind, Sie sind" },
+  { rule: "Present tense: regular verbs", example: "lernen → ich lerne, du lernst, er lernt (I learn, you learn, he learns)" },
+  { rule: "Negation with 'nicht'", example: "Ich arbeite nicht. (I don't work.) Sie kommt nicht. (She doesn't come.)" },
+  { rule: "Perfect tense with 'haben'", example: "Ich habe gelernt. (I have learned.) Er hat gearbeitet. (He has worked.)" },
+  { rule: "Perfect tense with 'sein'", example: "Ich bin gegangen. (I have gone.) Sie ist gefahren. (She has driven.)" },
+  { rule: "Modal verbs: können / müssen / wollen", example: "Ich kann Deutsch sprechen. (I can speak German.)" },
+  { rule: "Future tense with 'werden'", example: "Ich werde morgen lernen. (I will learn tomorrow.)" },
+  { rule: "Accusative case: den/einen", example: "Ich sehe den Mann. (I see the man.) — Mann becomes den in accusative." },
+  { rule: "Dative case: dem/einem", example: "Ich helfe dem Mann. (I help the man.) — Mann takes dem in dative." },
+  { rule: "Word order: verb always second", example: "Heute lerne ich Deutsch. (Today I learn German.) — verb stays 2nd." },
+  { rule: "Separable verbs: anfangen, aufhören", example: "Ich fange an. (I begin.) Er hört auf. (He stops.)" },
+  { rule: "Conjunction: weil (because) — verb last", example: "Ich lerne Deutsch, weil ich in Deutschland arbeiten möchte." },
+  { rule: "Possessive pronouns: mein/meine", example: "mein Laptop (my laptop), meine Arbeit (my work)" },
+  { rule: "Comparative: schneller, besser", example: "Ich spreche schneller als vorher. (I speak faster than before.)" },
+  { rule: "Reflexive verbs: sich freuen, sich vorstellen", example: "Ich freue mich. (I am happy.) Ich stelle mich vor. (I introduce myself.)" },
+  { rule: "Subordinate clauses with 'dass'", example: "Ich weiß, dass du Deutsch lernst. (I know that you learn German.)" },
+  { rule: "Passive voice: werden + Partizip II", example: "Die App wird entwickelt. (The app is being developed.)" },
+  { rule: "Konjunktiv II: würde + Infinitiv", example: "Ich würde gerne in Deutschland arbeiten. (I would like to work in Germany.)" },
+  { rule: "Two-way prepositions: in, auf, an, etc.", example: "in + Dative (location): Ich bin in der Schule. / in + Accusative (movement): Ich gehe in die Schule." }
+];
+
+const SPEAKING_TOPICS = [
+  { title: "Mein Beruf (My Job)", icon: "💼", hints: ["Ich bin Softwareentwickler", "Ich arbeite mit Java", "Meine Aufgaben sind...", "Ich arbeite von zu Hause"] },
+  { title: "Mein Alltag (My Daily Routine)", icon: "🌅", hints: ["Ich stehe um ... Uhr auf", "Ich frühstücke um...", "Am Abend lerne ich..."] },
+  { title: "Warum Deutschland? (Why Germany?)", icon: "🇩🇪", hints: ["Ich möchte in Deutschland arbeiten, weil...", "Die Technologiebranche in Deutschland...", "Mein Ziel ist..."] },
+  { title: "Meine Familie (My Family)", icon: "👨‍👩‍👧", hints: ["Ich habe...", "Meine Mutter ist...", "Wir wohnen in..."] },
+  { title: "Meine Hobbys (My Hobbies)", icon: "🎮", hints: ["In meiner Freizeit...", "Ich lese gerne...", "Ich lerne gerne..."] },
+  { title: "Technologie (Technology)", icon: "💻", hints: ["Ich arbeite mit Spring Boot", "Docker hilft bei der Bereitstellung", "Kubernetes orchestriert Container"] },
+];
+
+const STARTER_PHRASES = [
+  "Heute habe ich ", "Ich habe gelernt, dass ", "Ich bin müde, aber ", "Morgen werde ich ",
+  "Ich arbeite an ", "Es war interessant, weil ", "Ich bin froh, dass ", "Ich habe Probleme mit "
+];
+
+// ─── STORAGE ──────────────────────────────────────────────────────────────────
+function load(key, def) { try { return JSON.parse(localStorage.getItem(key)) ?? def; } catch { return def; } }
+function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+let diaryEntries = load('dt_entries', []);
+let vocab = load('dt_vocab', []);
+let speakNotesList = load('dt_speak', []);
+
+// ─── UTILITIES ────────────────────────────────────────────────────────────────
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function formatDate(d) { return new Date(d).toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' }); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── NAV ──────────────────────────────────────────────────────────────────────
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'entries') renderEntries();
+  if (id === 'vocab') renderVocab('All');
+  if (id === 'grammar') renderGrammar();
+  if (id === 'speaking') renderSpeaking();
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+function calcStreak() {
+  const dates = [...new Set(diaryEntries.map(e => e.date))].sort();
+  if (!dates.length) return 0;
+  let streak = 0, day = new Date(todayStr());
+  for (let i = dates.length - 1; i >= 0; i--) {
+    const d = new Date(dates[i]);
+    const diff = Math.round((day - d) / 86400000);
+    if (diff === 0 || diff === 1) { streak++; day = d; } else break;
+  }
+  return streak;
+}
+
+function getLevel(entries, words) {
+  const score = entries * 5 + words;
+  if (score >= 600) return { label: "B2 🎉", pct: 100, class: "badge-b2" };
+  if (score >= 350) return { label: "B1 ⭐", pct: 75 + Math.round((score-350)/10), class: "badge-b1" };
+  if (score >= 150) return { label: "A2", pct: 40 + Math.round((score-150)/4.25), class: "badge-a2" };
+  if (score >= 50)  return { label: "A1", pct: 10 + Math.round((score-50)/2), class: "badge-a1" };
+  return { label: "Starter", pct: Math.round(score/5*10), class: "badge-a1" };
+}
+
+function renderDashboard() {
+  const streak = calcStreak();
+  document.getElementById('statEntries').textContent = diaryEntries.length;
+  document.getElementById('statWords').textContent = vocab.length;
+  document.getElementById('statStreak').textContent = streak;
+  document.getElementById('streakBadge').textContent = `🔥 ${streak} Day Streak`;
+  document.getElementById('todayDate').textContent = formatDate(todayStr());
+
+  const lv = getLevel(diaryEntries.length, vocab.length);
+  document.getElementById('currentLevel').textContent = lv.label;
+  document.getElementById('currentLevel').className = 'level-badge ' + lv.class;
+  document.getElementById('progressBar').style.width = Math.min(lv.pct, 100) + '%';
+
+  const needed = 50 - (diaryEntries.length * 5 + vocab.length);
+  document.getElementById('progressHint').textContent =
+    needed > 0 ? `Add ${Math.ceil(needed/5)} entries or ${needed} vocab words to reach A1!`
+               : `Great progress! Keep going daily 💪`;
+
+  // Grammar tip
+  const tip = GRAMMAR_TIPS[new Date().getDate() % GRAMMAR_TIPS.length];
+  document.getElementById('dashTipRule').textContent = tip.rule;
+  document.getElementById('dashTipExample').textContent = tip.example;
+
+  // Heatmap
+  renderHeatmap();
+}
+
+function renderHeatmap() {
+  const hm = document.getElementById('heatmap');
+  hm.innerHTML = '';
+  const dates = new Set(diaryEntries.map(e => e.date));
+  const today = new Date();
+  for (let i = 83; i >= 0; i--) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split('T')[0];
+    const count = diaryEntries.filter(e => e.date === ds).length;
+    const cell = document.createElement('div');
+    cell.className = 'heat-cell' + (count >= 3 ? ' heat-3' : count === 2 ? ' heat-2' : count === 1 ? ' heat-1' : '');
+    cell.title = ds + (count ? ` (${count} entries)` : '');
+    hm.appendChild(cell);
+  }
+}
+
+// ─── DIARY ────────────────────────────────────────────────────────────────────
+function initDiary() {
+  document.getElementById('diaryDate').textContent = '— ' + formatDate(todayStr());
+
+  // Phrases
+  const pl = document.getElementById('phraseList');
+  pl.innerHTML = '';
+  STARTER_PHRASES.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-outline btn-sm';
+    btn.textContent = p;
+    btn.onclick = () => { navigator.clipboard?.writeText(p); showToast(`Copied: "${p}"`); };
+    pl.appendChild(btn);
+  });
+
+  // Word count listeners
+  ['prompt1','prompt2','prompt3'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    const wc = document.getElementById('wc'+(i+1));
+    el.addEventListener('input', () => {
+      const words = el.value.trim().split(/\s+/).filter(Boolean).length;
+      wc.textContent = words + ' words';
+    });
+  });
+}
+
+function saveDiaryEntry() {
+  const p1 = document.getElementById('prompt1').value.trim();
+  const p2 = document.getElementById('prompt2').value.trim();
+  const p3 = document.getElementById('prompt3').value.trim();
+  const p4 = document.getElementById('prompt4').value.trim();
+  if (!p1 && !p2 && !p3) { showToast('⚠️ Please fill at least one prompt!'); return; }
+  const entry = { date: todayStr(), ts: Date.now(), p1, p2, p3, p4 };
+  diaryEntries.unshift(entry);
+  save('dt_entries', diaryEntries);
+  clearDiary();
+  renderDashboard();
+  showToast('✅ Diary entry saved! Gut gemacht!');
+}
+
+function clearDiary() {
+  ['prompt1','prompt2','prompt3','prompt4'].forEach(id => document.getElementById(id).value = '');
+  ['wc1','wc2','wc3'].forEach(id => document.getElementById(id).textContent = '0 words');
+}
+
+// ─── PAST ENTRIES ─────────────────────────────────────────────────────────────
+function renderEntries() {
+  const el = document.getElementById('entriesList');
+  if (!diaryEntries.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📓</div><div>No entries yet. Write your first diary entry!</div></div>';
+    return;
+  }
+  el.innerHTML = diaryEntries.map((e, i) => `
+    <div class="entry-card">
+      <div class="entry-date"><span>📅 ${formatDate(e.date)}</span></div>
+      ${e.p1 ? `<div class="entry-block"><div class="entry-block-label">Was habe ich gemacht?</div><div class="entry-text">${escHtml(e.p1)}</div></div>` : ''}
+      ${e.p2 ? `<div class="entry-block"><div class="entry-block-label">Was habe ich gelernt?</div><div class="entry-text">${escHtml(e.p2)}</div></div>` : ''}
+      ${e.p3 ? `<div class="entry-block"><div class="entry-block-label">Was werde ich morgen machen?</div><div class="entry-text">${escHtml(e.p3)}</div></div>` : ''}
+      ${e.p4 ? `<div class="entry-block"><div class="entry-block-label">Freitext</div><div class="entry-text">${escHtml(e.p4)}</div></div>` : ''}
+      <div class="entry-actions"><button class="btn btn-danger btn-sm" onclick="deleteEntry(${i})">🗑 Delete</button></div>
+    </div>
+  `).join('');
+}
+
+function deleteEntry(i) {
+  if (!confirm('Delete this entry?')) return;
+  diaryEntries.splice(i, 1);
+  save('dt_entries', diaryEntries);
+  renderEntries(); renderDashboard();
+  showToast('Entry deleted.');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+// ─── VOCABULARY ───────────────────────────────────────────────────────────────
+let currentFilter = 'All';
+let flashIndex = 0;
+
+function addVocab() {
+  const de = document.getElementById('vocabDe').value.trim();
+  const en = document.getElementById('vocabEn').value.trim();
+  const cat = document.getElementById('vocabCat').value;
+  if (!de || !en) { showToast('⚠️ Enter both German and English!'); return; }
+  vocab.unshift({ de, en, cat, date: todayStr() });
+  save('dt_vocab', vocab);
+  document.getElementById('vocabDe').value = '';
+  document.getElementById('vocabEn').value = '';
+  updateTodayWordCount();
+  renderVocab(currentFilter);
+  updateFlashcard();
+  renderDashboard();
+  showToast(`✅ Added: ${de} = ${en}`);
+}
+
+function updateTodayWordCount() {
+  const count = vocab.filter(v => v.date === todayStr()).length;
+  document.getElementById('todayWordCount').textContent = count;
+}
+
+function renderVocab(filter) {
+  currentFilter = filter;
+  const list = filter === 'All' ? vocab : vocab.filter(v => v.cat === filter);
+  document.getElementById('vocabCount').textContent = `(${list.length} words)`;
+  const el = document.getElementById('vocabList');
+  if (!list.length) {
+    el.innerHTML = '<li style="text-align:center;padding:24px;color:var(--text-muted)">No words in this category yet.</li>';
+    return;
+  }
+  el.innerHTML = list.map((v, i) => `
+    <li class="vocab-item">
+      <div>
+        <span class="vocab-de">${escHtml(v.de)}</span>
+        <span class="vocab-cat">${v.cat}</span>
+        <br><span class="vocab-en">${escHtml(v.en)}</span>
+      </div>
+      <button class="delete-btn" onclick="deleteVocab('${v.de.replace(/'/g,"\\'")}')">✕</button>
+    </li>
+  `).join('');
+  updateTodayWordCount();
+}
+
+function deleteVocab(de) {
+  vocab = vocab.filter(v => v.de !== de);
+  save('dt_vocab', vocab);
+  renderVocab(currentFilter);
+  renderDashboard();
+  showToast('Word removed.');
+}
+
+function filterVocab(filter, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderVocab(filter);
+}
+
+function updateFlashcard() {
+  if (!vocab.length) { document.getElementById('flashFront').textContent = '—'; document.getElementById('flashBack').textContent = 'Add some words first!'; return; }
+  flashIndex = Math.floor(Math.random() * vocab.length);
+  document.getElementById('flashFront').textContent = vocab[flashIndex].de;
+  document.getElementById('flashBack').textContent = '';
+}
+
+function revealFlash() {
+  if (!vocab.length) return;
+  document.getElementById('flashBack').textContent = vocab[flashIndex]?.en ?? '';
+}
+
+function nextFlash() { updateFlashcard(); }
+
+// ─── SPEAKING ─────────────────────────────────────────────────────────────────
+function renderSpeaking() {
+  document.getElementById('speakingTopics').innerHTML = SPEAKING_TOPICS.map(t => `
+    <div class="speaking-topic">
+      <div class="topic-title">${t.icon} ${t.title}</div>
+      <ul class="topic-hints">${t.hints.map(h => `<li>${escHtml(h)}</li>`).join('')}</ul>
+    </div>
+  `).join('');
+
+  const notes = load('dt_speak', []);
+  const el = document.getElementById('savedSpeakNotes');
+  if (notes.length) {
+    el.innerHTML = '<div style="font-size:.85rem;color:var(--text-muted);margin-bottom:8px">📋 Saved Notes</div>' +
+      notes.map(n => `<div class="entry-card"><div class="entry-date"><span>📅 ${formatDate(n.date)}</span></div><div class="entry-text">${escHtml(n.text)}</div></div>`).join('');
+  }
+}
+
+function saveSpeakNotes() {
+  const text = document.getElementById('speakNotes').value.trim();
+  if (!text) { showToast('⚠️ Write your notes first!'); return; }
+  speakNotesList.unshift({ date: todayStr(), text });
+  save('dt_speak', speakNotesList);
+  document.getElementById('speakNotes').value = '';
+  renderSpeaking();
+  showToast('✅ Speaking notes saved!');
+}
+
+// ─── GRAMMAR ──────────────────────────────────────────────────────────────────
+function renderGrammar() {
+  document.getElementById('allTips').innerHTML = GRAMMAR_TIPS.map((t,i) => `
+    <div class="tip-card" style="margin-bottom:14px">
+      <div class="tip-num">Tip ${i+1}</div>
+      <div class="tip-rule">${t.rule}</div>
+      <div class="tip-example">${escHtml(t.example)}</div>
+    </div>
+  `).join('');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderDashboard();
+  initDiary();
+  updateFlashcard();
+  updateTodayWordCount();
+});
+</script>
+</body>
+</html>
