@@ -177,6 +177,13 @@
     .reflect-block{margin-bottom:8px}
     .reflect-block-label{font-size:.73rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
     .reflect-text{font-size:.9rem;line-height:1.6;color:var(--text)}
+
+    /* QUIZ */
+    .quiz-opt{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;text-align:left;cursor:pointer;transition:all .2s;font-weight:500;width:100%}
+    .quiz-opt:hover:not(:disabled){border-color:var(--accent);background:rgba(91,141,238,.1)}
+    .quiz-opt:disabled{cursor:default;opacity:0.8}
+    .quiz-opt.correct{background:rgba(52,211,153,.15);border-color:var(--accent3);color:var(--accent3)}
+    .quiz-opt.wrong{background:rgba(248,113,113,.15);border-color:var(--danger);color:var(--danger)}
   </style>
 </head>
 <body>
@@ -195,6 +202,7 @@
     <button class="nav-btn" onclick="showSection('vocab')">📚 Vocabulary</button>
     <button class="nav-btn" onclick="showSection('speaking')">🎤 Speaking</button>
     <button class="nav-btn" onclick="showSection('reflection')">🪞 Weekly Reflection</button>
+    <button class="nav-btn" onclick="showSection('quiz')">🧠 Quiz</button>
     <button class="nav-btn" onclick="showSection('entries')">🗂 Past Entries</button>
     <button class="nav-btn" onclick="showSection('grammar')">✏️ Grammar Tips</button>
   </div>
@@ -441,6 +449,52 @@
   </div>
 </div>
 
+<!-- QUIZ -->
+<div id="section-quiz" class="section">
+  <div class="card" id="quizMenu">
+    <div class="card-title">🧠 Test Your Knowledge</div>
+    <div class="card-sub">Choose a quiz to practice what you've learned. No backend required!</div>
+    <div class="grid-2">
+      <div class="roadmap-item" style="display:block" onclick="startQuiz('vocab')">
+        <div class="roadmap-label">📚 Vocabulary Quiz</div>
+        <div class="roadmap-sub">Test English / German translation</div>
+      </div>
+      <div class="roadmap-item" style="display:block" onclick="startQuiz('article')">
+        <div class="roadmap-label">🅰️ Article Quiz</div>
+        <div class="roadmap-sub">Practice der / die / das</div>
+      </div>
+      <div class="roadmap-item" style="display:block" onclick="startQuiz('sentence')">
+        <div class="roadmap-label">🧩 Sentence Order</div>
+        <div class="roadmap-sub">Build correct German sentences</div>
+      </div>
+      <div class="roadmap-item" style="display:block" onclick="startQuiz('weekly')">
+        <div class="roadmap-label">📅 Weekly Review</div>
+        <div class="roadmap-sub">Test words added in the last 7 days</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="quizActive" style="display:none">
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px">
+      <span class="vocab-cat" id="quizTypeLabel" style="font-size:.85rem;margin:0">Type</span>
+      <span style="font-weight:700;color:var(--text-muted)" id="quizProgress">1 / 10</span>
+    </div>
+    <div id="quizQuestion" style="font-size:1.3rem;font-weight:700;margin-bottom:20px;text-align:center">Question?</div>
+    <div id="quizOptions" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div style="margin-top:20px;display:flex;justify-content:space-between">
+      <button class="btn btn-outline btn-sm" onclick="quitQuiz()">Quit</button>
+      <button class="btn btn-primary" id="quizNextBtn" onclick="nextQuestion()" style="display:none">Next →</button>
+    </div>
+  </div>
+
+  <div class="card" id="quizResult" style="display:none;text-align:center">
+    <div style="font-size:3rem;margin-bottom:10px">🎉</div>
+    <div class="card-title" style="justify-content:center;font-size:1.4rem">Quiz Complete!</div>
+    <div style="font-size:1.2rem;margin:10px 0 20px">Your score: <span id="quizScore" style="color:var(--accent);font-weight:800">5 / 5</span></div>
+    <button class="btn btn-primary" onclick="quitQuiz()">Back to Menu</button>
+  </div>
+</div>
+
 <!-- GRAMMAR TIPS -->
 <div id="section-grammar" class="section">
   <div class="card">
@@ -521,6 +575,7 @@ function showSection(id) {
   if (id === 'grammar') renderGrammar();
   if (id === 'speaking') renderSpeaking();
   if (id === 'reflection') renderReflections();
+  if (id === 'quiz') quitQuiz();
 }
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
@@ -859,6 +914,134 @@ function renderGrammar() {
       <div class="tip-example">${escHtml(t.example)}</div>
     </div>
   `).join('');
+}
+
+// ─── QUIZ ─────────────────────────────────────────────────────────────────────
+const QUIZ_BANKS = {
+  article: [
+    { q: "___ Mann", options: ["der", "die", "das"], a: "der" },
+    { q: "___ Frau", options: ["der", "die", "das"], a: "die" },
+    { q: "___ Kind", options: ["der", "die", "das"], a: "das" },
+    { q: "___ Auto", options: ["der", "die", "das"], a: "das" },
+    { q: "___ Hund", options: ["der", "die", "das"], a: "der" },
+    { q: "___ Katze", options: ["der", "die", "das"], a: "die" },
+    { q: "___ Haus", options: ["der", "die", "das"], a: "das" },
+    { q: "___ Apfel", options: ["der", "die", "das"], a: "der" },
+    { q: "___ Sonne", options: ["der", "die", "das"], a: "die" },
+    { q: "___ Buch", options: ["der", "die", "das"], a: "das" },
+    { q: "___ Computer", options: ["der", "die", "das"], a: "der" },
+    { q: "___ Datenbank", options: ["der", "die", "das"], a: "die" }
+  ],
+  sentence: [
+    { q: "ich / Java / lerne", options: ["Ich lerne Java.", "Java ich lerne.", "Ich Java lerne.", "Lerne ich Java."], a: "Ich lerne Java." },
+    { q: "Entwickler / bin / ich", options: ["Ich bin Entwickler.", "Entwickler ich bin.", "Bin ich Entwickler.", "Ich Entwickler bin."], a: "Ich bin Entwickler." },
+    { q: "müde / bin / ich", options: ["Ich bin müde.", "Müde ich bin.", "Bin müde ich.", "Ich müde bin."], a: "Ich bin müde." },
+    { q: "wohnen / in / Berlin / wir", options: ["Wir wohnen in Berlin.", "In Berlin wir wohnen.", "Wohnen in Berlin wir.", "Wir in Berlin wohnen."], a: "Wir wohnen in Berlin." },
+    { q: "nicht / gut / schlafe / ich", options: ["Ich schlafe nicht gut.", "Ich nicht schlafe gut.", "Gut ich schlafe nicht.", "Schlafe ich nicht gut."], a: "Ich schlafe nicht gut." },
+    { q: "arbeiten / heute / wir", options: ["Wir arbeiten heute.", "Heute wir arbeiten.", "Wir heute arbeiten.", "Arbeiten wir heute."], a: "Wir arbeiten heute." }
+  ]
+};
+
+let quizState = { questions: [], idx: 0, score: 0 };
+
+function startQuiz(type) {
+  let questions = [];
+  if (type === 'vocab' || type === 'weekly') {
+    let source = vocab;
+    if (type === 'weekly') {
+      const wkTs = Date.now() - 7*86400000;
+      source = vocab.filter(v => new Date(v.date).getTime() > wkTs);
+      if (source.length < 4) source = vocab; // fallback if list too short
+    }
+    if (source.length < 4) {
+      showToast('⚠️ You need at least 4 vocabulary words to play this quiz!');
+      return;
+    }
+    source = [...source].sort(()=>0.5-Math.random());
+    const subset = source.slice(0, 10);
+    questions = subset.map(v => {
+      const isDeToEn = Math.random() > 0.5;
+      const q = isDeToEn ? v.de + " = ?" : v.en + " = ?";
+      const a = isDeToEn ? v.en : v.de;
+      
+      const distractors = [...vocab]
+        .filter(x => x.de !== v.de)
+        .sort(()=>0.5-Math.random())
+        .slice(0, 3)
+        .map(x => isDeToEn ? x.en : x.de);
+      
+      const opts = [a, ...distractors].sort(()=>0.5-Math.random());
+      return { q, options: opts, a };
+    });
+  } else {
+    questions = [...QUIZ_BANKS[type]].sort(()=>0.5-Math.random()).slice(0, 10);
+  }
+
+  quizState = { questions, idx: 0, score: 0 };
+  document.getElementById('quizMenu').style.display = 'none';
+  document.getElementById('quizResult').style.display = 'none';
+  document.getElementById('quizActive').style.display = 'block';
+  
+  const labels = { vocab: 'Vocabulary Quiz', article: 'Article Quiz', sentence: 'Sentence Order', weekly: 'Weekly Review' };
+  document.getElementById('quizTypeLabel').textContent = labels[type];
+  
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const c = quizState;
+  const q = c.questions[c.idx];
+  document.getElementById('quizProgress').textContent = \`\${c.idx + 1} / \${c.questions.length}\`;
+  document.getElementById('quizQuestion').textContent = q.q;
+  
+  const optsEl = document.getElementById('quizOptions');
+  optsEl.innerHTML = q.options.map((opt) => \`
+    <button class="quiz-opt" onclick="selectAnswer('\${opt.replace(/'/g,"\\\\'")}', this)">\${escHtml(opt)}</button>
+  \`).join('');
+  document.getElementById('quizNextBtn').style.display = 'none';
+}
+
+function selectAnswer(ans, btn) {
+  if (document.querySelector('.quiz-opt.correct') || document.querySelector('.quiz-opt.wrong')) return;
+  
+  const c = quizState;
+  const correctAns = c.questions[c.idx].a;
+  
+  document.querySelectorAll('.quiz-opt').forEach(b => {
+    if (b.textContent === correctAns) b.classList.add('correct');
+    else if (b === btn) b.classList.add('wrong');
+    b.disabled = true;
+  });
+  
+  if (ans === correctAns) {
+    c.score++;
+    showToast('✅ Richtig!');
+  } else {
+    showToast('❌ Falsch!');
+  }
+  
+  document.getElementById('quizNextBtn').style.display = 'block';
+}
+
+function nextQuestion() {
+  quizState.idx++;
+  if (quizState.idx >= quizState.questions.length) {
+    endQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function endQuiz() {
+  document.getElementById('quizActive').style.display = 'none';
+  document.getElementById('quizResult').style.display = 'block';
+  document.getElementById('quizScore').textContent = \`\${quizState.score} / \${quizState.questions.length}\`;
+}
+
+function quitQuiz() {
+  document.getElementById('quizActive').style.display = 'none';
+  document.getElementById('quizResult').style.display = 'none';
+  document.getElementById('quizMenu').style.display = 'block';
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
