@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deutsches Tagebuch – German Practice Diary</title>
+  <meta name="description" content="A daily German language practice diary app to help you reach B2 level. Track entries, vocabulary, streaks, and progress."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo"><span class="logo-flag">🇩🇪</span> Deutsches Tagebuch</div>
+    <div class="streak-badge" id="streakBadge">🔥 0 Day Streak</div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="showSection('dashboard')">📊 Dashboard</button>
+    <button class="nav-btn" onclick="showSection('diary')">📓 Diary</button>
+    <button class="nav-btn" onclick="showSection('vocab')">📚 Vocabulary</button>
+    <button class="nav-btn" onclick="showSection('speaking')">🎤 Speaking</button>
+    <button class="nav-btn" onclick="showSection('reflection')">🪞 Weekly Reflection</button>
+    <button class="nav-btn" onclick="showSection('quiz')">🧠 Quiz</button>
+    <button class="nav-btn" onclick="showSection('entries')">🗂 Past Entries</button>
+    <button class="nav-btn" onclick="showSection('grammar')">✏️ Grammar Tips</button>
+  </div>
+
+<button class="nav-btn" onclick="showSection('sentencebuilder')">🧩 Sentence Builder</button>
+<button class="nav-btn" onclick="showSection('srs')">🔄 SRS Review</button>
+<button class="nav-btn" onclick="showSection('dictation')">🎧 Dictation</button>
+</nav>
+
+<main>
+
+<!-- DASHBOARD -->
+<div id="section-dashboard" class="section active">
+  <div class="hero">
+    <h1>Dein Deutsches Tagebuch</h1>
+    <p>Your personal German language practice diary — write daily, track progress, speak confidently.</p>
+    <div class="date-display" id="todayDate"></div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:20px">
+    <div class="stat-card">
+      <div class="stat-num" id="statEntries" style="color:var(--accent)">0</div>
+      <div class="stat-label">📓 Total Diary Entries</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statWords" style="color:var(--accent2)">0</div>
+      <div class="stat-label">📚 Words Learned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statStreak" style="color:var(--gold)">0</div>
+      <div class="stat-label">🔥 Day Streak</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🎯 Level Roadmap</div>
+      <div class="card-sub">Click to mark a level as completed ✅</div>
+      <div class="roadmap" id="roadmap"></div>
+      <div style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:.85rem">Overall Progress</span>
+          <span class="level-badge badge-a1" id="currentLevel">Beginner</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+        <div style="font-size:.78rem;color:var(--text-muted);margin-top:8px" id="progressHint">Write 5 diary entries to reach A1!</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗓 Activity Heatmap</div>
+      <div class="card-sub">Last 12 weeks of practice</div>
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+  </div>
+
+  <div class="card tip-card">
+    <div class="tip-num">💡 Today's Grammar Tip</div>
+    <div class="tip-rule" id="dashTipRule"></div>
+    <div class="tip-example" id="dashTipExample"></div>
+  </div>
+
+  <div style="text-align:center;margin-top:24px">
+    <button class="btn btn-primary" onclick="showSection('diary')">✍️ Write Today's Diary Entry</button>
+  </div>
+</div>
+
+<!-- DIARY -->
+<div id="section-diary" class="section">
+  <div class="card">
+    <div class="card-title">📓 Heute's Tagebucheintrag <span style="font-size:.8rem;color:var(--text-muted);font-weight:400" id="diaryDate"></span></div>
+    <div class="card-sub">Answer all 3 prompts in German. Even simple sentences are fine!</div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Prompt 1 – Was habe ich heute gemacht?</div>
+      <div class="prompt-de">Was habe ich heute gemacht?</div>
+      <div class="prompt-en">What did I do today?</div>
+    </div>
+    <div class="field">
+      <textarea id="prompt1" rows="3" placeholder="Heute habe ich Java gelernt. Ich habe auch..."></textarea>
+      <div class="word-count" id="wc1">0 words</div>
+    </div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Prompt 2 – Was habe ich gelernt?</div>
+      <div class="prompt-de">Was habe ich heute gelernt?</div>
+      <div class="prompt-en">What did I learn today?</div>
+    </div>
+    <div class="field">
+      <textarea id="prompt2" rows="3" placeholder="Ich habe Docker gelernt. Ich habe auch neue deutsche Wörter gelernt..."></textarea>
+      <div class="word-count" id="wc2">0 words</div>
+    </div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Prompt 3 – Was werde ich morgen machen?</div>
+      <div class="prompt-de">Was werde ich morgen machen?</div>
+      <div class="prompt-en">What will I do tomorrow?</div>
+    </div>
+    <div class="field">
+      <textarea id="prompt3" rows="3" placeholder="Morgen werde ich Kubernetes lernen. Ich werde auch..."></textarea>
+      <div class="word-count" id="wc3">0 words</div>
+    </div>
+
+    <div class="field">
+      <label>📝 Free Writing (Optional) – Anything extra on your mind</label>
+      <textarea id="prompt4" rows="3" placeholder="Ich bin sehr müde heute. Aber ich bin glücklich..."></textarea>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-success" onclick="saveDiaryEntry()">💾 Save Entry</button>
+      <button class="btn btn-outline" onclick="clearDiary()">🗑 Clear</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔤 Useful Starter Phrases</div>
+    <div class="card-sub">Click to copy into your diary</div>
+    <div id="phraseList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+  </div>
+</div>
+
+<!-- VOCABULARY -->
+<div id="section-vocab" class="section">
+  <div class="card">
+    <div class="card-title">📚 Add New Words</div>
+    <div class="card-sub">Goal: 10 words/day. <span id="todayWordCount" style="color:var(--accent3);font-weight:600">0</span> added today.</div>
+    <div class="vocab-row">
+      <div class="field" style="margin:0">
+        <label>German Word / Phrase</label>
+        <input id="vocabDe" placeholder="die Datenbank" />
+      </div>
+      <div class="field" style="margin:0">
+        <label>English Translation</label>
+        <input id="vocabEn" placeholder="database" />
+      </div>
+      <button class="btn btn-primary" onclick="addVocab()" style="margin-top:22px">+ Add</button>
+    </div>
+    <div class="field" style="margin-top:8px">
+      <label>Category</label>
+      <select id="vocabCat">
+        <option value="General">🌐 General</option>
+        <option value="Java">☕ Java</option>
+        <option value="SpringBoot">🌱 Spring Boot</option>
+        <option value="Database">🗄️ Database</option>
+        <option value="Cloud">☁️ Cloud / AWS</option>
+        <option value="Kubernetes">⚙️ Kubernetes / Docker</option>
+        <option value="Work">💼 Work / Office</option>
+        <option value="Daily">🏠 Daily Life</option>
+        <option value="Verbs">⚡ Verbs</option>
+      </select>
+    </div>
+    
+  </div>
+  
+  <div class="card" style="margin-bottom:20px;background:var(--surface2)">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-weight:700">💼 Germany IT Job Dataset</div>
+        <div style="font-size:0.8rem;color:var(--text-muted)">Import 15 essential tech keywords to bypass typing correctly!</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="importItVocab()">Import</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🃏 Quick Test (Flashcard)</div>
+    <div id="flashcard" style="text-align:center;padding:20px 0">
+      <div id="flashFront" style="font-size:2rem;font-weight:800;color:var(--accent);margin-bottom:12px">—</div>
+      <div id="flashBack" style="font-size:1.1rem;color:var(--text-muted);min-height:28px"></div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
+        <button class="btn btn-outline btn-sm" onclick="revealFlash()">👁 Reveal</button>
+        <button class="btn btn-primary btn-sm" onclick="nextFlash()">→ Next</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-row">
+    <div class="tab active" onclick="filterVocab('All',this)">All</div>
+    <div class="tab" onclick="filterVocab('Java',this)">☕ Java</div>
+    <div class="tab" onclick="filterVocab('SpringBoot',this)">🌱 Spring Boot</div>
+    <div class="tab" onclick="filterVocab('Database',this)">🗄️ Database</div>
+    <div class="tab" onclick="filterVocab('Cloud',this)">☁️ Cloud</div>
+    <div class="tab" onclick="filterVocab('Kubernetes',this)">⚙️ K8s/Docker</div>
+    <div class="tab" onclick="filterVocab('Work',this)">💼 Work</div>
+    <div class="tab" onclick="filterVocab('Daily',this)">🏠 Daily</div>
+    <div class="tab" onclick="filterVocab('Verbs',this)">⚡ Verbs</div>
+    <div class="tab" onclick="filterVocab('General',this)">🌐 General</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📖 Your Vocabulary List <span id="vocabCount" style="font-size:.8rem;color:var(--text-muted);font-weight:400"></span></div>
+    <ul class="vocab-list" id="vocabList"></ul>
+  </div>
+</div>
+
+<!-- SPEAKING -->
+<div id="section-speaking" class="section">
+  <div class="card">
+    <div class="card-title">🎤 Speaking Prompts</div>
+    <div class="card-sub">Record yourself for 2–3 minutes on one topic. Listen back monthly to track improvement.</div>
+    <div id="speakingTopics"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🗣️ Pronunciation Checker</div>
+    <div class="card-sub">Speak a sentence and see if the browser understands you! (Chrome required)</div>
+    <div style="margin-bottom:10px">
+      <input id="targetPronunciation" placeholder="Type a German word or sentence to practice..." />
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn btn-primary" onclick="checkPronunciation()">🎤 Listen</button>
+      <span id="pronunciationResult" style="font-weight:600;font-size:0.9rem"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🎙️ Monthly Speaking Challenge</div>
+    <div class="card-sub">Record your 2-minute speech locally to hear your progress later. No backend! Safe in browser.</div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+      <button class="btn btn-danger" id="btnRecord" onclick="toggleRecording()">🔴 Start Recording</button>
+      <span id="recordingStatus" style="color:var(--danger);font-weight:700;display:none;animation:pulse 1s infinite">Recording... ⏺</span>
+    </div>
+    <div id="audioList" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📝 Speaking Notes</div>
+    <div class="card-sub">Write key phrases or notes after your speaking practice</div>
+    <textarea id="speakNotes" rows="5" placeholder="Ich habe heute über meinen Beruf gesprochen..."></textarea>
+    <div style="margin-top:12px"><button class="btn btn-primary" onclick="saveSpeakNotes()">💾 Save Notes</button></div>
+    <div id="savedSpeakNotes" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<style>
+  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+</style>
+
+<!-- WEEKLY REFLECTION -->
+<div id="section-reflection" class="section">
+  <div class="card">
+    <div class="card-title">🪞 Weekly Reflection</div>
+    <div class="card-sub">Every Sunday — review your week, track what improved and set goals for next week.</div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Was hat sich verbessert? (What improved?)</div>
+      <div class="prompt-de">Was hat sich diese Woche verbessert?</div>
+      <div class="prompt-en">What improved this week?</div>
+    </div>
+    <div class="field">
+      <textarea id="ref1" rows="3" placeholder="Meine Grammatik hat sich verbessert. Ich spreche jetzt langsamer aber klarer..."></textarea>
+    </div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Was war schwierig? (What was difficult?)</div>
+      <div class="prompt-de">Was war diese Woche schwierig?</div>
+      <div class="prompt-en">What was difficult this week?</div>
+    </div>
+    <div class="field">
+      <textarea id="ref2" rows="3" placeholder="Der Akkusativ war schwierig. Ich muss mehr Übungen machen..."></textarea>
+    </div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Was ist mein Ziel für nächste Woche? (Next week's goal?)</div>
+      <div class="prompt-de">Was ist mein Ziel für nächste Woche?</div>
+      <div class="prompt-en">What is my goal for next week?</div>
+    </div>
+    <div class="field">
+      <textarea id="ref3" rows="3" placeholder="Nächste Woche möchte ich 70 neue Wörter lernen. Ich möchte auch täglich sprechen..."></textarea>
+    </div>
+
+    <button class="btn btn-success" onclick="saveReflection()">💾 Save Reflection</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Past Reflections</div>
+    <div id="reflectionList"></div>
+  </div>
+</div>
+
+<!-- PAST ENTRIES -->
+<div id="section-entries" class="section">
+  <div class="card">
+    <div class="card-title">🗂 Past Diary Entries</div>
+    <div class="card-sub">Your complete diary history. Keep going!</div>
+    <div id="entriesList"></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="section-quiz" class="section">
+  <div class="card" id="quizMenu">
+    <div class="card-title">🧠 Test Your Knowledge</div>
+    <div class="card-sub">Choose a quiz to practice what you've learned. No backend required!</div>
+    <div class="grid-2">
+      <div class="roadmap-item" style="display:block" onclick="startQuiz('vocab')">
+        <div class="roadmap-label">📚 Vocabulary Quiz</div>
+        <div class="roadmap-sub">Test English / German translation</div>
+      </div>
+      <div class="roadmap-item" style="display:block" onclick="startQuiz('article')">
+        <div class="roadmap-label">🅰️ Article Quiz</div>
+        <div class="roadmap-sub">Practice der / die / das</div>
+      </div>
+      <div class="roadmap-item" style="display:block" onclick="startQuiz('sentence')">
+        <div class="roadmap-label">🧩 Sentence Order</div>
+        <div class="roadmap-sub">Build correct German sentences</div>
+      </div>
+      <div class="roadmap-item" style="display:block" onclick="startQuiz('weekly')">
+        <div class="roadmap-label">📅 Weekly Review</div>
+        <div class="roadmap-sub">Test words added in the last 7 days</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="quizActive" style="display:none">
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px">
+      <span class="vocab-cat" id="quizTypeLabel" style="font-size:.85rem;margin:0">Type</span>
+      <span style="font-weight:700;color:var(--text-muted)" id="quizProgress">1 / 10</span>
+    </div>
+    <div id="quizQuestion" style="font-size:1.3rem;font-weight:700;margin-bottom:20px;text-align:center">Question?</div>
+    <div id="quizOptions" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div style="margin-top:20px;display:flex;justify-content:space-between">
+      <button class="btn btn-outline btn-sm" onclick="quitQuiz()">Quit</button>
+      <button class="btn btn-primary" id="quizNextBtn" onclick="nextQuestion()" style="display:none">Next →</button>
+    </div>
+  </div>
+
+  <div class="card" id="quizResult" style="display:none;text-align:center">
+    <div style="font-size:3rem;margin-bottom:10px">🎉</div>
+    <div class="card-title" style="justify-content:center;font-size:1.4rem">Quiz Complete!</div>
+    <div style="font-size:1.2rem;margin:10px 0 20px">Your score: <span id="quizScore" style="color:var(--accent);font-weight:800">5 / 5</span></div>
+    <button class="btn btn-primary" onclick="quitQuiz()">Back to Menu</button>
+  </div>
+</div>
+
+<!-- GRAMMAR TIPS -->
+<div id="section-grammar" class="section">
+  <div class="card">
+    <div class="card-title">✏️ German Grammar Tips</div>
+    <div class="card-sub">Essential rules to get you from A1 to B2</div>
+    <div id="allTips"></div>
+  </div>
+</div>
+
+
+<div id="section-sentencebuilder" class="section">
+<div class="card"><div class="card-title">Sentence Builder</div>
+<input id="sbSub" placeholder="Ich"><input id="sbVerb" placeholder="lerne"><input id="sbObj" placeholder="Deutsch">
+<button class="btn btn-primary" onclick="buildSentence()">Build</button>
+<p id="sbResult"></p></div></div>
+
+<div id="section-srs" class="section">
+<div class="card"><div class="card-title">SRS Due Today</div>
+<div id="srsDue"></div></div></div>
+
+<div id="section-dictation" class="section">
+<div class="card"><div class="card-title">Dictation Quiz</div>
+<button class="btn btn-primary" onclick="startDictation()">Speak Word</button>
+<input id="dictationAnswer" placeholder="Type word">
+<button class="btn btn-success" onclick="checkDictation()">Check</button>
+<p id="dictationResult"></p></div></div>
+</main>
+
+<div id="toast"></div>
+
+<script src="script.js"></script></body>
+</html>
