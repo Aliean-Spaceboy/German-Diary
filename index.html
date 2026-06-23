@@ -56,7 +56,16 @@
     /* GRID */
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    @media(max-width:700px){.grid-2,.grid-3{grid-template-columns:1fr}}
+    @media(max-width:700px){
+      .grid-2,.grid-3{grid-template-columns:1fr}
+      .vocab-row{grid-template-columns:1fr !important;gap:12px}
+      .vocab-row button{width:100%;margin-top:0 !important}
+      .hero h1{font-size:2rem !important}
+      header, nav, main{padding-left:16px !important;padding-right:16px !important}
+      .streak-badge{font-size:0.75rem;padding:4px 10px}
+      .logo{font-size:1.15rem}
+      .nav-btn{padding:12px 14px}
+    }
 
     /* STAT CARDS */
     .stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center}
