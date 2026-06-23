@@ -842,7 +842,26 @@ function nextFlash() { updateFlashcard(); }
 
 // ─── SPEAKING ─────────────────────────────────────────────────────────────────
 function renderSpeaking() {
-  document.getElementById('speakingTopics').innerHTML = SPEAKING_TOPICS.map(t => `
+  let dynamicHtml = '';
+  if (vocab.length >= 4) {
+    const randomWords = [...vocab].sort(()=>0.5-Math.random()).slice(0, 4).map(v => v.de);
+    dynamicHtml = `
+      <div class="speaking-topic" style="border-color:var(--accent);background:linear-gradient(135deg,rgba(91,141,238,0.1),transparent)">
+        <div class="topic-title">✨ Dynamic Story (Auto-Updated)</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px">Try to talk for 1 minute using these 4 random words from your list:</div>
+        <ul class="topic-hints">${randomWords.map(h => `<li>${escHtml(h)}</li>`).join('')}</ul>
+      </div>
+    `;
+  } else {
+    dynamicHtml = `
+      <div class="speaking-topic" style="border-color:var(--accent);background:linear-gradient(135deg,rgba(91,141,238,0.1),transparent)">
+        <div class="topic-title">✨ Dynamic Story (Auto-Updated)</div>
+        <div style="font-size:0.8rem;color:var(--text-muted)">Add at least 4 vocabulary words to unlock the dynamic story generator!</div>
+      </div>
+    `;
+  }
+
+  document.getElementById('speakingTopics').innerHTML = dynamicHtml + SPEAKING_TOPICS.map(t => `
     <div class="speaking-topic">
       <div class="topic-title">${t.icon} ${t.title}</div>
       <ul class="topic-hints">${t.hints.map(h => `<li>${escHtml(h)}</li>`).join('')}</ul>
