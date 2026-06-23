@@ -7,193 +7,7 @@
   <meta name="description" content="A daily German language practice diary app to help you reach B2 level. Track entries, vocabulary, streaks, and progress."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --bg: #0d0f1a;
-      --surface: #151929;
-      --surface2: #1e2440;
-      --border: #2a3050;
-      --accent: #5b8dee;
-      --accent2: #a78bfa;
-      --accent3: #34d399;
-      --accent4: #fb923c;
-      --text: #e2e8f0;
-      --text-muted: #8892a4;
-      --danger: #f87171;
-      --gold: #fbbf24;
-      --radius: 14px;
-      --shadow: 0 4px 32px rgba(0,0,0,0.5);
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-
-    /* HEADER */
-    header{background:linear-gradient(135deg,#1a1f3c 0%,#0d0f1a 100%);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
-    .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
-    .logo{display:flex;align-items:center;gap:10px;font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .logo-flag{font-size:1.6rem}
-    .streak-badge{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,#78350f,#92400e);border:1px solid var(--gold);border-radius:999px;padding:6px 14px;font-size:.85rem;font-weight:600;color:var(--gold)}
-
-    /* NAV */
-    nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto}
-    .nav-inner{max-width:1100px;margin:0 auto;display:flex;gap:4px}
-    .nav-btn{background:none;border:none;color:var(--text-muted);padding:14px 18px;cursor:pointer;font-size:.9rem;font-weight:500;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;font-family:'Inter',sans-serif}
-    .nav-btn:hover{color:var(--text)}
-    .nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
-
-    /* MAIN */
-    main{max-width:1100px;margin:0 auto;padding:28px 24px}
-    .section{display:none;animation:fadeIn .3s ease}
-    .section.active{display:block}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-    /* CARDS */
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;box-shadow:var(--shadow)}
-    .card-title{font-size:1.1rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-    .card-sub{font-size:.82rem;color:var(--text-muted);margin-bottom:18px}
-
-    /* GRID */
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    @media(max-width:700px){
-      .grid-2,.grid-3{grid-template-columns:1fr}
-      .vocab-row{grid-template-columns:1fr !important;gap:12px}
-      .vocab-row button{width:100%;margin-top:0 !important}
-      .hero h1{font-size:2rem !important}
-      header, nav, main{padding-left:16px !important;padding-right:16px !important}
-      .streak-badge{font-size:0.75rem;padding:4px 10px}
-      .logo{font-size:1.15rem}
-      .nav-btn{padding:12px 14px}
-    }
-
-    /* STAT CARDS */
-    .stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center}
-    .stat-num{font-size:2.4rem;font-weight:800;line-height:1}
-    .stat-label{font-size:.8rem;color:var(--text-muted);margin-top:6px}
-
-    /* INPUTS */
-    textarea,input,select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:.92rem;outline:none;transition:border-color .2s;resize:vertical}
-    textarea:focus,input:focus{border-color:var(--accent)}
-    label{font-size:.84rem;font-weight:500;color:var(--text-muted);display:block;margin-bottom:6px}
-    .field{margin-bottom:16px}
-
-    /* BUTTONS */
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:10px;border:none;cursor:pointer;font-size:.9rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .2s}
-    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-    .btn-primary:hover{opacity:.88;transform:translateY(-1px)}
-    .btn-success{background:linear-gradient(135deg,#059669,var(--accent3));color:#fff}
-    .btn-success:hover{opacity:.88;transform:translateY(-1px)}
-    .btn-danger{background:var(--danger);color:#fff}
-    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
-    .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
-    .btn-sm{padding:7px 14px;font-size:.8rem}
-
-    /* PROMPT BOX */
-    .prompt-box{background:linear-gradient(135deg,rgba(91,141,238,.12),rgba(167,139,250,.1));border:1px solid rgba(91,141,238,.3);border-radius:10px;padding:14px 16px;margin-bottom:12px}
-    .prompt-label{font-size:.76rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
-    .prompt-de{font-size:1rem;font-weight:600;color:var(--text)}
-    .prompt-en{font-size:.82rem;color:var(--text-muted)}
-
-    /* VOCAB */
-    .vocab-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:center;margin-bottom:10px}
-    .vocab-list{list-style:none}
-    .vocab-item{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 14px;margin-bottom:8px;animation:fadeIn .2s}
-    .vocab-de{font-weight:600;color:var(--accent)}
-    .vocab-en{color:var(--text-muted);font-size:.87rem}
-    .vocab-cat{font-size:.72rem;background:rgba(167,139,250,.18);color:var(--accent2);border-radius:999px;padding:2px 9px;margin-left:8px}
-    .delete-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;line-height:1;padding:4px;border-radius:5px;transition:color .2s}
-    .delete-btn:hover{color:var(--danger)}
-
-    /* DIARY ENTRIES */
-    .entry-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;animation:fadeIn .3s}
-    .entry-date{font-size:.78rem;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
-    .entry-date span{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:2px 10px}
-    .entry-block{margin-bottom:10px}
-    .entry-block-label{font-size:.75rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-    .entry-text{font-size:.9rem;line-height:1.65;color:var(--text)}
-    .entry-actions{display:flex;gap:8px;margin-top:10px}
-    .empty-state{text-align:center;padding:48px 0;color:var(--text-muted)}
-    .empty-icon{font-size:3rem;margin-bottom:12px}
-
-    /* PROGRESS */
-    .progress-bar-wrap{background:var(--surface2);border-radius:999px;height:10px;overflow:hidden;margin-top:8px}
-    .progress-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s ease}
-    .level-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:.78rem;font-weight:700}
-    .badge-a1{background:rgba(52,211,153,.15);color:var(--accent3);border:1px solid rgba(52,211,153,.3)}
-    .badge-a2{background:rgba(91,141,238,.15);color:var(--accent);border:1px solid rgba(91,141,238,.3)}
-    .badge-b1{background:rgba(167,139,250,.15);color:var(--accent2);border:1px solid rgba(167,139,250,.3)}
-    .badge-b2{background:rgba(251,191,36,.15);color:var(--gold);border:1px solid rgba(251,191,36,.3)}
-
-    /* GRAMMAR TIP */
-    .tip-card{background:linear-gradient(135deg,rgba(52,211,153,.1),rgba(91,141,238,.1));border:1px solid rgba(52,211,153,.25);border-radius:var(--radius);padding:22px}
-    .tip-num{font-size:.75rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.5px}
-    .tip-rule{font-size:1.05rem;font-weight:700;margin:6px 0 4px;color:var(--text)}
-    .tip-example{font-size:.9rem;color:var(--text-muted);font-style:italic;margin-top:8px;padding:10px 14px;background:rgba(0,0,0,.2);border-radius:8px;border-left:3px solid var(--accent3)}
-
-    /* SPEAKING */
-    .speaking-topic{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
-    .topic-title{font-weight:600;margin-bottom:6px}
-    .topic-hints{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-    .topic-hints li{background:rgba(91,141,238,.12);border:1px solid rgba(91,141,238,.2);border-radius:999px;padding:3px 12px;font-size:.8rem;color:var(--accent)}
-
-    /* CALENDAR HEATMAP */
-    .heatmap{display:flex;flex-wrap:wrap;gap:4px;margin-top:12px}
-    .heat-cell{width:14px;height:14px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;transition:transform .15s}
-    .heat-cell:hover{transform:scale(1.3)}
-    .heat-1{background:rgba(91,141,238,.3);border-color:rgba(91,141,238,.5)}
-    .heat-2{background:rgba(91,141,238,.6);border-color:rgba(91,141,238,.7)}
-    .heat-3{background:rgba(91,141,238,.9);border-color:var(--accent)}
-
-    /* TOAST */
-    #toast{position:fixed;bottom:28px;right:28px;background:var(--surface2);border:1px solid var(--accent3);color:var(--text);padding:12px 20px;border-radius:10px;font-size:.88rem;opacity:0;transform:translateY(16px);transition:all .3s;z-index:999;box-shadow:var(--shadow)}
-    #toast.show{opacity:1;transform:translateY(0)}
-
-    /* HERO */
-    .hero{text-align:center;padding:36px 0 24px}
-    .hero h1{font-family:'Playfair Display',serif;font-size:2.6rem;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2;margin-bottom:10px}
-    .hero p{color:var(--text-muted);font-size:1rem;max-width:520px;margin:0 auto}
-    .date-display{font-size:.85rem;color:var(--text-muted);margin-top:8px}
-
-    /* MODAL */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
-    .modal-overlay.open{opacity:1;pointer-events:all}
-    .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;transform:scale(.95);transition:transform .25s}
-    .modal-overlay.open .modal{transform:scale(1)}
-    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-    .close-modal{background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;line-height:1}
-
-    /* TABS inside section */
-    .tab-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-    .tab{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 18px;cursor:pointer;font-size:.85rem;font-weight:500;color:var(--text-muted);transition:all .2s}
-    .tab.active,.tab:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
-
-    .word-count{font-size:.78rem;color:var(--text-muted);text-align:right;margin-top:4px}
-    .char-counter{font-size:.75rem;color:var(--text-muted);text-align:right}
-
-    /* LEVEL ROADMAP */
-    .roadmap{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
-    .roadmap-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;cursor:pointer;transition:all .2s;flex:1;min-width:100px}
-    .roadmap-item.done{border-color:var(--accent3);background:rgba(52,211,153,.1)}
-    .roadmap-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;transition:all .2s}
-    .roadmap-item.done .roadmap-check{background:var(--accent3);border-color:var(--accent3);color:#fff}
-    .roadmap-label{font-weight:700;font-size:.95rem}
-    .roadmap-sub{font-size:.72rem;color:var(--text-muted)}
-
-    /* WEEKLY REFLECTION */
-    .reflect-entry{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
-    .reflect-week{font-size:.78rem;color:var(--accent2);font-weight:700;margin-bottom:10px}
-    .reflect-block{margin-bottom:8px}
-    .reflect-block-label{font-size:.73rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
-    .reflect-text{font-size:.9rem;line-height:1.6;color:var(--text)}
-
-    /* QUIZ */
-    .quiz-opt{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--text);font-family:'Inter',sans-serif;font-size:1rem;text-align:left;cursor:pointer;transition:all .2s;font-weight:500;width:100%}
-    .quiz-opt:hover:not(:disabled){border-color:var(--accent);background:rgba(91,141,238,.1)}
-    .quiz-opt:disabled{cursor:default;opacity:0.8}
-    .quiz-opt.correct{background:rgba(52,211,153,.15);border-color:var(--accent3);color:var(--accent3)}
-    .quiz-opt.wrong{background:rgba(248,113,113,.15);border-color:var(--danger);color:var(--danger)}
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -206,14 +20,26 @@
 
 <nav>
   <div class="nav-inner">
-    <button class="nav-btn active" onclick="showSection('dashboard')">📊 Dashboard</button>
-    <button class="nav-btn" onclick="showSection('diary')">📓 Diary</button>
-    <button class="nav-btn" onclick="showSection('vocab')">📚 Vocabulary</button>
-    <button class="nav-btn" onclick="showSection('speaking')">🎤 Speaking</button>
-    <button class="nav-btn" onclick="showSection('reflection')">🪞 Weekly Reflection</button>
-    <button class="nav-btn" onclick="showSection('quiz')">🧠 Quiz</button>
-    <button class="nav-btn" onclick="showSection('entries')">🗂 Past Entries</button>
-    <button class="nav-btn" onclick="showSection('grammar')">✏️ Grammar Tips</button>
+    <button class="nav-btn active" onclick="showSection('dashboard')">&#128202; Dashboard</button>
+    <button class="nav-btn" onclick="showSection('diary')">&#128211; Diary</button>
+    <button class="nav-btn" onclick="showSection('vocab')">&#128218; Vocabulary</button>
+    <button class="nav-btn" onclick="showSection('speaking')">&#127892; Speaking</button>
+    <button class="nav-btn" onclick="showSection('quiz')">&#129504; Quiz</button>
+    
+    <div class="dropdown">
+      <button class="nav-btn drop-btn" onclick="toggleDropdown(event)">&#9776; More <span style="font-size:0.7rem">&#9660;</span></button>
+      <div class="dropdown-content" id="moreDropdown">
+        <button class="nav-btn" onclick="showSection('reflection')">&#129694; Weekly Reflection</button>
+        <button class="nav-btn" onclick="showSection('entries')">&#128450; Past Entries</button>
+        <button class="nav-btn" onclick="showSection('grammar')">&#9999;&#65039; Grammar Tips</button>
+        <button class="nav-btn" onclick="showSection('sentencebuilder')">&#127959;&#65039; Sentence Builder</button>
+        <button class="nav-btn" onclick="showSection('srs')">&#128259; SRS Review</button>
+        <button class="nav-btn" onclick="showSection('dictation')">&#127911; Dictation</button>
+        <button class="nav-btn" onclick="showSection('reading')">&#128214; Reading Practice</button>
+        
+        
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -230,15 +56,30 @@
   <div class="grid-3" style="margin-bottom:20px">
     <div class="stat-card">
       <div class="stat-num" id="statEntries" style="color:var(--accent)">0</div>
-      <div class="stat-label">📓 Total Diary Entries</div>
+      <div class="stat-label">?? Total Diary Entries</div>
     </div>
     <div class="stat-card">
       <div class="stat-num" id="statWords" style="color:var(--accent2)">0</div>
-      <div class="stat-label">📚 Words Learned</div>
+      <div class="stat-label">?? Words Learned</div>
     </div>
     <div class="stat-card">
       <div class="stat-num" id="statStreak" style="color:var(--gold)">0</div>
-      <div class="stat-label">🔥 Day Streak</div>
+      <div class="stat-label">?? Day Streak</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,rgba(91,141,238,0.1),transparent);border-color:var(--accent)">
+      <div class="card-title">?? Word of the Day</div>
+      <div style="font-size:1.8rem;font-weight:800;color:var(--accent);margin-top:10px" id="wotdDe">Laden...</div>
+      <div style="font-size:1rem;color:var(--text-muted);margin-bottom:10px" id="wotdEn">Loading...</div>
+      <button class="btn btn-outline btn-sm" onclick="speakWord(document.getElementById('wotdDe').innerText)">?? Listen</button>
+    </div>
+    <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,rgba(167,139,250,0.1),transparent);border-color:var(--accent2)">
+      <div class="card-title">?? Sentence of the Day</div>
+      <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-top:10px" id="sotdDe">Laden...</div>
+      <div style="font-size:0.9rem;color:var(--text-muted);margin-bottom:10px;margin-top:6px" id="sotdEn">Loading...</div>
+      <button class="btn btn-outline btn-sm" onclick="speakWord(document.getElementById('sotdDe').innerText)">?? Listen</button>
     </div>
   </div>
 
@@ -272,9 +113,96 @@
   <div style="text-align:center;margin-top:24px">
     <button class="btn btn-primary" onclick="showSection('diary')">✍️ Write Today's Diary Entry</button>
   </div>
+
+  <div class="card" style="margin-top:24px; border-color:var(--danger)">
+    <div class="card-title">?? Data Backup & Restore</div>
+    <div class="card-sub">Your data is stored locally in your browser. If you clear your history, it will be deleted! Export a backup regularly.</div>
+    <div style="display:flex; gap:12px; margin-top:14px; align-items:center; flex-wrap:wrap">
+      <button class="btn btn-outline" style="border-color:var(--success); color:var(--success)" onclick="exportData()">?? Export Backup (JSON)</button>
+      <div style="position:relative; overflow:hidden; display:inline-block">
+        <button class="btn btn-outline" style="border-color:var(--danger); color:var(--danger)">?? Import Backup</button>
+                <input type="file" accept=".json" onchange="importData(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+      </div>
+    </div>
+  </div>
+
+  <!-- WIKI BUTTON -->
+  <div style="margin-top:14px; text-align:center">
+    <button class="btn btn-primary" onclick="toggleWiki()" style="width:100%; font-size:1.1rem">&#128214; Wiki (Study Guide)</button>
+  </div>
+  
+  <div id="wikiContent" style="display:none; margin-top:14px; background:var(--surface); border:1px solid var(--accent); border-radius:12px; padding:20px; text-align:left">
+    <div style="font-size:1.1rem; line-height:1.6; color:var(--text)">
+      
+      <p style="margin-bottom:30px; font-weight:500; color:var(--text-muted)">This application is designed to take you from a complete beginner (A1) to professional fluency (B2). To get the fastest results, follow this daily routine.</p>
+
+      <h3 style="color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:8px; margin-bottom:15px">&#9201;&#65039; The Optimal Daily Routine (20-30 Minutes)</h3>
+      <ol style="margin-bottom:30px; padding-left:20px; display:flex; flex-direction:column; gap:10px">
+        <li><b>Check the Dashboard (2 mins):</b> Read the Word and Sentence of the Day. Click the "Listen" button and repeat the pronunciation out loud.</li>
+        <li><b>Review Vocabulary & SRS (5 mins):</b> Open <i>More ? SRS Review</i>. Review flashcards due today. Add 5 to 10 new words you encountered at work to the Vocabulary tab.</li>
+        <li><b>Write Your Diary (10 mins):</b> Open the Diary tab. Do the Sentence Builder prompt first. Answer the 3 standard prompts. When saving, strictly follow the Grammar Checklist.</li>
+        <li><b>Take a Quick Quiz (5 mins):</b> Alternate daily: MCQ (Mon/Wed), Listening (Tue/Thu), Grammar & Verbs (Fri).</li>
+      </ol>
+
+      <div style="background:var(--surface2); border-left:4px solid var(--gold); padding:15px; margin-bottom:40px; border-radius:8px">
+        <b>&#128161; Weekly Habit:</b> Every Sunday, open the <i>Weekly Reflection</i> tab to review your progress, and export a <b>Data Backup</b> from your Dashboard to keep your words safe!
+      </div>
+
+      <h3 style="color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:8px; margin-bottom:20px">&#128200; How to Adapt Your Routine for Each Level</h3>
+      
+      <div style="margin-bottom:25px; padding:15px; border:1px solid var(--border); border-radius:10px">
+        <h4 style="margin-top:0; color:#34d399">&#128994; A1 Level (Beginner)</h4>
+        <p style="margin:8px 0"><b>Goal:</b> Build basic vocabulary and get used to sounds.</p>
+        <ul style="padding-left:20px; margin:0">
+          <li><b>Vocab:</b> Add everyday words (Haus, essen). Pay attention to Gender Colors (Blue = der, Red = die, Green = das).</li>
+          <li><b>Diary:</b> Just write 1 simple sentence per prompt (e.g., <i>Ich lerne Deutsch</i>).</li>
+          <li><b>Tools:</b> Use the Sentence Builder manually and test the Pronunciation Checker.</li>
+        </ul>
+      </div>
+
+      <div style="margin-bottom:25px; padding:15px; border:1px solid var(--border); border-radius:10px">
+        <h4 style="margin-top:0; color:#fbbf24">&#128993; A2 Level (Elementary)</h4>
+        <p style="margin:8px 0"><b>Goal:</b> Connect sentences and understand spoken German.</p>
+        <ul style="padding-left:20px; margin:0">
+          <li><b>Vocab:</b> Group words into categories (Verbs, Daily Life).</li>
+          <li><b>Diary:</b> Write 2 sentences per prompt. Combine them using <i>und, aber, weil</i>.</li>
+          <li><b>Tools:</b> Focus heavily on the Dictation Quiz to train your ear.</li>
+        </ul>
+      </div>
+
+      <div style="margin-bottom:25px; padding:15px; border:1px solid var(--border); border-radius:10px">
+        <h4 style="margin-top:0; color:#f97316">&#128992; B1 Level (Intermediate)</h4>
+        <p style="margin:8px 0"><b>Goal:</b> Professional vocabulary and holding conversations.</p>
+        <ul style="padding-left:20px; margin:0">
+          <li><b>Vocab:</b> Import the IT Job Dataset. Focus on Tech/Software vocabulary.</li>
+          <li><b>Diary:</b> Write in the past tense (Perfekt/Pr�teritum). Write 3+ sentences per prompt.</li>
+          <li><b>Tools:</b> Start doing the Monthly Speaking Challenge (talk for 1 minute).</li>
+        </ul>
+      </div>
+
+      <div style="margin-bottom:20px; padding:15px; border:1px solid var(--border); border-radius:10px">
+        <h4 style="margin-top:0; color:#ef4444">&#128308; B2 Level (Fluent)</h4>
+        <p style="margin:8px 0"><b>Goal:</b> Complex grammar and spontaneous speaking.</p>
+        <ul style="padding-left:20px; margin:0">
+          <li><b>Reading:</b> Read the Reading Practice stories daily to master tech context.</li>
+          <li><b>Tools:</b> Grind the Irregular Verbs trainer and Grammar Quiz.</li>
+          <li><b>Diary:</b> Write full paragraphs. The Grammar Checklist is critical here.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  
+  </div>
+
+  
+  </div>
+
 </div>
 
 <!-- DIARY -->
+
 <div id="section-diary" class="section">
   <div class="card">
     <div class="card-title">📓 Heute's Tagebucheintrag <span style="font-size:.8rem;color:var(--text-muted);font-weight:400" id="diaryDate"></span></div>
@@ -310,9 +238,18 @@
       <div class="word-count" id="wc3">0 words</div>
     </div>
 
+    <div class="prompt-box" style="border-color:var(--accent3);background:rgba(52,211,153,0.05)">
+      <div class="prompt-label" style="color:var(--accent3)">?? Daily Sentence Builder</div>
+      <div class="prompt-de">Build a sentence using: <span id="builderWord" style="font-weight:800;color:var(--accent3);font-size:1.1rem;text-decoration:underline">...</span></div>
+      <div class="prompt-en">Practice your vocabulary!</div>
+    </div>
     <div class="field">
-      <label>📝 Free Writing (Optional) – Anything extra on your mind</label>
-      <textarea id="prompt4" rows="3" placeholder="Ich bin sehr müde heute. Aber ich bin glücklich..."></textarea>
+      <textarea id="prompt4" rows="2" placeholder="Ich lerne..."></textarea>
+    </div>
+    
+    <div class="field">
+      <label>?? Free Writing (Optional)</label>
+      <textarea id="prompt5" rows="3" placeholder="Ich bin sehr m�de heute..."></textarea>
     </div>
 
     <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -358,16 +295,52 @@
         <option value="Verbs">⚡ Verbs</option>
       </select>
     </div>
+    
+  </div>
+  
+  <div class="card" style="margin-bottom:20px;background:var(--surface2)">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-weight:700">💼 Germany IT Job Dataset</div>
+        <div style="font-size:0.8rem;color:var(--text-muted)">Import 15 essential tech keywords to bypass typing correctly!</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="importItVocab()">Import</button>
+    </div>
+  </div>
+
+  
+  <div class="card" style="margin-bottom:20px;background:var(--surface2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-weight:700">?? Bulk CSV Importers</div>
+        <div style="font-size:0.8rem;color:var(--text-muted)">Upload .csv files (Format: German,English) to load thousands of words/sentences!</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap">
+        <div style="position:relative; overflow:hidden; display:inline-block">
+          <button class="btn btn-outline btn-sm">Upload Vocab (CSV)</button>
+          <input type="file" accept=".csv" onchange="importCsv(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+        </div>
+        <div style="position:relative; overflow:hidden; display:inline-block">
+          <button class="btn btn-outline btn-sm" style="border-color:var(--gold); color:var(--gold)">Upload Sentences (CSV)</button>
+          <input type="file" accept=".csv" onchange="importSentenceCsv(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="card">
-    <div class="card-title">🃏 Quick Test (Flashcard)</div>
+    <div class="card-title">&#129300; Quick Test (Flashcard)</div>
     <div id="flashcard" style="text-align:center;padding:20px 0">
       <div id="flashFront" style="font-size:2rem;font-weight:800;color:var(--accent);margin-bottom:12px">—</div>
       <div id="flashBack" style="font-size:1.1rem;color:var(--text-muted);min-height:28px"></div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
         <button class="btn btn-outline btn-sm" onclick="revealFlash()">👁 Reveal</button>
-        <button class="btn btn-primary btn-sm" onclick="nextFlash()">→ Next</button>
+        <div id="srsButtons" style="display:none;width:100%;gap:10px;justify-content:center;margin-top:8px">
+          <button class="btn btn-danger btn-sm" style="flex:1" onclick="submitSrs('hard')">Hard (1d)</button>
+          <button class="btn btn-primary btn-sm" style="flex:1" onclick="submitSrs('good')">Good (3d)</button>
+          <button class="btn btn-success btn-sm" style="flex:1" onclick="submitSrs('easy')">Easy (7d)</button>
+        </div>
+        <button id="nextFlashBtn" class="btn btn-primary btn-sm" onclick="nextFlash()" style="display:none">Skip ?</button>
       </div>
     </div>
   </div>
@@ -399,6 +372,28 @@
     <div id="speakingTopics"></div>
   </div>
   <div class="card">
+    <div class="card-title">🗣️ Pronunciation Checker</div>
+    <div class="card-sub">Speak a sentence and see if the browser understands you! (Chrome required)</div>
+    <div style="margin-bottom:10px">
+      <input id="targetPronunciation" placeholder="Type a German word or sentence to practice..." />
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn btn-primary" onclick="checkPronunciation()">🎤 Listen</button>
+      <span id="pronunciationResult" style="font-weight:600;font-size:0.9rem"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🎙️ Monthly Speaking Challenge</div>
+    <div class="card-sub">Record your 2-minute speech locally to hear your progress later. No backend! Safe in browser.</div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+      <button class="btn btn-danger" id="btnRecord" onclick="toggleRecording()">🔴 Start Recording</button>
+      <span id="recordingStatus" style="color:var(--danger);font-weight:700;display:none;animation:pulse 1s infinite">Recording... ⏺</span>
+    </div>
+    <div id="audioList" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <div class="card">
     <div class="card-title">📝 Speaking Notes</div>
     <div class="card-sub">Write key phrases or notes after your speaking practice</div>
     <textarea id="speakNotes" rows="5" placeholder="Ich habe heute über meinen Beruf gesprochen..."></textarea>
@@ -406,6 +401,10 @@
     <div id="savedSpeakNotes" style="margin-top:16px"></div>
   </div>
 </div>
+
+<style>
+  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+</style>
 
 <!-- WEEKLY REFLECTION -->
 <div id="section-reflection" class="section">
@@ -477,9 +476,23 @@
         <div class="roadmap-sub">Build correct German sentences</div>
       </div>
       <div class="roadmap-item" style="display:block" onclick="startQuiz('weekly')">
-        <div class="roadmap-label">📅 Weekly Review</div>
+        <div class="roadmap-label">?? Weekly Review</div>
         <div class="roadmap-sub">Test words added in the last 7 days</div>
       </div>
+      <div class="roadmap-item" style="display:block;border-color:var(--accent);background:rgba(91,141,238,0.1)" onclick="startQuiz('listening')">
+        <div class="roadmap-label">?? Listening Quiz</div>
+        <div class="roadmap-sub">Train your ear! Type or select what you hear</div>
+      </div>
+      
+      <div class="roadmap-item" style="display:block;border-color:var(--success);background:rgba(52,211,153,0.1)" onclick="startQuiz('grammar')">
+        <div class="roadmap-label">&#129513; Grammar Quiz (B2)</div>
+        <div class="roadmap-sub">Test cases (Dativ/Akkusativ) and prepositions.</div>
+      </div>
+      <div class="roadmap-item" style="display:block;border-color:var(--gold);background:rgba(251,191,36,0.1)" onclick="startQuiz('verbs')">
+        <div class="roadmap-label">&#9881;&#65039; Irregular Verbs</div>
+        <div class="roadmap-sub">Master the past tenses of strong verbs!</div>
+      </div>
+</div>
     </div>
   </div>
 
@@ -513,576 +526,135 @@
   </div>
 </div>
 
+
+
+
+</div>
+
+
+
+<!-- RESTORED SECTIONS -->
+
+
+
+
+
+
+
+<div id="section-reading" class="section">
+  <div class="card">
+    <div class="card-title">&#128214; B2 Reading Practice (Leseverstehen)</div>
+    <div class="card-sub">Read the text and answer the True/False questions.</div>
+    
+    <div style="margin-bottom: 20px; display:flex; gap:10px">
+      <button class="btn btn-outline" onclick="loadStory(0)">Story 1</button>
+      <button class="btn btn-outline" onclick="loadStory(1)">Story 2</button>
+      <button class="btn btn-outline" onclick="loadStory(2)">Story 3</button>
+        <button class="btn btn-outline" id="storyBtn3" onclick="loadStory(3)" style="display:none">Story 4</button>
+        <button class="btn btn-outline" id="storyBtn4" onclick="loadStory(4)" style="display:none">Story 5</button>
+        
+        <div style="position:relative; overflow:hidden; display:inline-block; margin-left:auto">
+          <button class="btn btn-outline btn-sm" style="border-color:var(--accent); color:var(--accent)">Upload Stories (JSON)</button>
+          <input type="file" accept=".json" onchange="importStoryJson(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+        </div>
+      </div>
+
+    <div id="readingContent" style="display:none; background:var(--surface2); padding:20px; border-radius:12px; margin-bottom:20px; font-size:1.1rem; line-height:1.6">
+      <h3 id="storyTitle" style="margin-top:0; color:var(--accent)"></h3>
+      <div id="storyText" style="color:var(--text)"></div>
+    </div>
+
+    <div id="readingQuestions" style="display:none">
+      <h4 style="margin-bottom:10px">Fragen zum Text (Questions)</h4>
+      <div id="q1Box" style="margin-bottom:14px; padding:12px; border:1px solid var(--border); border-radius:8px">
+        <div id="q1Text" style="font-weight:600; margin-bottom:8px"></div>
+        <button class="btn btn-outline btn-sm" onclick="checkReading(1, true)">Richtig (True)</button>
+        <button class="btn btn-outline btn-sm" onclick="checkReading(1, false)">Falsch (False)</button>
+        <span id="q1Res" style="margin-left:10px; font-weight:bold"></span>
+      </div>
+      <div id="q2Box" style="margin-bottom:14px; padding:12px; border:1px solid var(--border); border-radius:8px">
+        <div id="q2Text" style="font-weight:600; margin-bottom:8px"></div>
+        <button class="btn btn-outline btn-sm" onclick="checkReading(2, true)">Richtig (True)</button>
+        <button class="btn btn-outline btn-sm" onclick="checkReading(2, false)">Falsch (False)</button>
+        <span id="q2Res" style="margin-left:10px; font-weight:bold"></span>
+      </div>
+      <div id="q3Box" style="margin-bottom:14px; padding:12px; border:1px solid var(--border); border-radius:8px">
+        <div id="q3Text" style="font-weight:600; margin-bottom:8px"></div>
+        <button class="btn btn-outline btn-sm" onclick="checkReading(3, true)">Richtig (True)</button>
+        <button class="btn btn-outline btn-sm" onclick="checkReading(3, false)">Falsch (False)</button>
+        <span id="q3Res" style="margin-left:10px; font-weight:bold"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="section-sentencebuilder" class="section">
+  <div class="card">
+    <div class="card-title">&#127959;&#65039; Sentence Builder</div>
+    <div class="card-sub">Practice forming sentences manually.</div>
+    <div class="field"><input id="sbSub" placeholder="Subject (e.g. Ich)"></div>
+    <div class="field"><input id="sbVerb" placeholder="Verb (e.g. lerne)"></div>
+    <div class="field"><input id="sbObj" placeholder="Object (e.g. Deutsch)"></div>
+    <button class="btn btn-primary" onclick="buildSentence()">Build Sentence</button>
+    <div id="sbResult" style="margin-top:14px; font-size:1.2rem; font-weight:700; color:var(--accent)"></div>
+  </div>
+</div>
+
+<div id="section-srs" class="section">
+  <div class="card">
+    <div class="card-title">&#128259; SRS Due Today</div>
+    <div class="card-sub">Words scheduled for review today.</div>
+    <div id="srsDueList"></div>
+  </div>
+</div>
+
+<div id="section-dictation" class="section">
+  <div class="card">
+    <div class="card-title">&#127911; Dictation Quiz</div>
+    <div class="card-sub">Listen to the word and type it correctly.</div>
+    <div style="margin-bottom:12px">
+      <button class="btn btn-outline" onclick="startDictation()">?? Listen to Word</button>
+    </div>
+    <div class="field">
+      <input id="dictationAnswer" placeholder="Type what you hear...">
+    </div>
+    <button class="btn btn-success" onclick="checkDictation()">Check Answer</button>
+    <div id="dictationResult" style="margin-top:14px; font-weight:bold"></div>
+  </div>
+</div>
+
 </main>
 
 <div id="toast"></div>
 
-<script>
-// ─── DATA ─────────────────────────────────────────────────────────────────────
-const GRAMMAR_TIPS = [
-  { rule: "Articles: der / die / das", example: "der Mann (the man), die Frau (the woman), das Kind (the child)" },
-  { rule: "Verb conjugation: sein (to be)", example: "Ich bin, Du bist, Er/Sie ist, Wir sind, Sie sind" },
-  { rule: "Present tense: regular verbs", example: "lernen → ich lerne, du lernst, er lernt (I learn, you learn, he learns)" },
-  { rule: "Negation with 'nicht'", example: "Ich arbeite nicht. (I don't work.) Sie kommt nicht. (She doesn't come.)" },
-  { rule: "Perfect tense with 'haben'", example: "Ich habe gelernt. (I have learned.) Er hat gearbeitet. (He has worked.)" },
-  { rule: "Perfect tense with 'sein'", example: "Ich bin gegangen. (I have gone.) Sie ist gefahren. (She has driven.)" },
-  { rule: "Modal verbs: können / müssen / wollen", example: "Ich kann Deutsch sprechen. (I can speak German.)" },
-  { rule: "Future tense with 'werden'", example: "Ich werde morgen lernen. (I will learn tomorrow.)" },
-  { rule: "Accusative case: den/einen", example: "Ich sehe den Mann. (I see the man.) — Mann becomes den in accusative." },
-  { rule: "Dative case: dem/einem", example: "Ich helfe dem Mann. (I help the man.) — Mann takes dem in dative." },
-  { rule: "Word order: verb always second", example: "Heute lerne ich Deutsch. (Today I learn German.) — verb stays 2nd." },
-  { rule: "Separable verbs: anfangen, aufhören", example: "Ich fange an. (I begin.) Er hört auf. (He stops.)" },
-  { rule: "Conjunction: weil (because) — verb last", example: "Ich lerne Deutsch, weil ich in Deutschland arbeiten möchte." },
-  { rule: "Possessive pronouns: mein/meine", example: "mein Laptop (my laptop), meine Arbeit (my work)" },
-  { rule: "Comparative: schneller, besser", example: "Ich spreche schneller als vorher. (I speak faster than before.)" },
-  { rule: "Reflexive verbs: sich freuen, sich vorstellen", example: "Ich freue mich. (I am happy.) Ich stelle mich vor. (I introduce myself.)" },
-  { rule: "Subordinate clauses with 'dass'", example: "Ich weiß, dass du Deutsch lernst. (I know that you learn German.)" },
-  { rule: "Passive voice: werden + Partizip II", example: "Die App wird entwickelt. (The app is being developed.)" },
-  { rule: "Konjunktiv II: würde + Infinitiv", example: "Ich würde gerne in Deutschland arbeiten. (I would like to work in Germany.)" },
-  { rule: "Two-way prepositions: in, auf, an, etc.", example: "in + Dative (location): Ich bin in der Schule. / in + Accusative (movement): Ich gehe in die Schule." }
-];
-
-const SPEAKING_TOPICS = [
-  { title: "Mein Beruf (My Job)", icon: "💼", hints: ["Ich bin Softwareentwickler", "Ich arbeite mit Java", "Meine Aufgaben sind...", "Ich arbeite von zu Hause"] },
-  { title: "Mein Alltag (My Daily Routine)", icon: "🌅", hints: ["Ich stehe um ... Uhr auf", "Ich frühstücke um...", "Am Abend lerne ich..."] },
-  { title: "Warum Deutschland? (Why Germany?)", icon: "🇩🇪", hints: ["Ich möchte in Deutschland arbeiten, weil...", "Die Technologiebranche in Deutschland...", "Mein Ziel ist..."] },
-  { title: "Meine Familie (My Family)", icon: "👨‍👩‍👧", hints: ["Ich habe...", "Meine Mutter ist...", "Wir wohnen in..."] },
-  { title: "Meine Hobbys (My Hobbies)", icon: "🎮", hints: ["In meiner Freizeit...", "Ich lese gerne...", "Ich lerne gerne..."] },
-  { title: "Technologie (Technology)", icon: "💻", hints: ["Ich arbeite mit Spring Boot", "Docker hilft bei der Bereitstellung", "Kubernetes orchestriert Container"] },
-];
-
-const STARTER_PHRASES = [
-  "Heute habe ich ", "Ich habe gelernt, dass ", "Ich bin müde, aber ", "Morgen werde ich ",
-  "Ich arbeite an ", "Es war interessant, weil ", "Ich bin froh, dass ", "Ich habe Probleme mit "
-];
-
-// ─── STORAGE ──────────────────────────────────────────────────────────────────
-function load(key, def) { try { return JSON.parse(localStorage.getItem(key)) ?? def; } catch { return def; } }
-function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
-
-let diaryEntries = load('dt_entries', []);
-let vocab = load('dt_vocab', []);
-let speakNotesList = load('dt_speak', []);
-
-// ─── UTILITIES ────────────────────────────────────────────────────────────────
-function todayStr() { return new Date().toISOString().split('T')[0]; }
-function formatDate(d) { return new Date(d).toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' }); }
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// ─── NAV ──────────────────────────────────────────────────────────────────────
-function showSection(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('section-' + id).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b => {
-    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + id + "'")) {
-      b.classList.add('active');
-    }
-  });
-  if (id === 'entries') renderEntries();
-  if (id === 'vocab') { renderVocab('All'); document.querySelectorAll('.tab')[0]?.classList.add('active'); }
-  if (id === 'grammar') renderGrammar();
-  if (id === 'speaking') renderSpeaking();
-  if (id === 'reflection') renderReflections();
-  if (id === 'quiz') quitQuiz();
-}
-
-// ─── DASHBOARD ────────────────────────────────────────────────────────────────
-function calcStreak() {
-  const dates = [...new Set(diaryEntries.map(e => e.date))].sort();
-  if (!dates.length) return 0;
-  let streak = 0, day = new Date(todayStr());
-  for (let i = dates.length - 1; i >= 0; i--) {
-    const d = new Date(dates[i]);
-    const diff = Math.round((day - d) / 86400000);
-    if (diff === 0 || diff === 1) { streak++; day = d; } else break;
-  }
-  return streak;
-}
-
-function getLevel(entries, words) {
-  const score = entries * 5 + words;
-  if (score >= 600) return { label: "B2 🎉", pct: 100, class: "badge-b2" };
-  if (score >= 350) return { label: "B1 ⭐", pct: 75 + Math.round((score-350)/10), class: "badge-b1" };
-  if (score >= 150) return { label: "A2", pct: 40 + Math.round((score-150)/4.25), class: "badge-a2" };
-  if (score >= 50)  return { label: "A1", pct: 10 + Math.round((score-50)/2), class: "badge-a1" };
-  return { label: "Starter", pct: Math.round(score/5*10), class: "badge-a1" };
-}
-
-function renderDashboard() {
-  const streak = calcStreak();
-  document.getElementById('statEntries').textContent = diaryEntries.length;
-  document.getElementById('statWords').textContent = vocab.length;
-  document.getElementById('statStreak').textContent = streak;
-  document.getElementById('streakBadge').textContent = `🔥 ${streak} Day Streak`;
-  document.getElementById('todayDate').textContent = formatDate(todayStr());
-
-  const lv = getLevel(diaryEntries.length, vocab.length);
-  document.getElementById('currentLevel').textContent = lv.label;
-  document.getElementById('currentLevel').className = 'level-badge ' + lv.class;
-  document.getElementById('progressBar').style.width = Math.min(lv.pct, 100) + '%';
-
-  const needed = 50 - (diaryEntries.length * 5 + vocab.length);
-  document.getElementById('progressHint').textContent =
-    needed > 0 ? `Add ${Math.ceil(needed/5)} entries or ${needed} vocab words to reach A1!`
-               : `Great progress! Keep going daily 💪`;
-
-  // Grammar tip
-  const tip = GRAMMAR_TIPS[new Date().getDate() % GRAMMAR_TIPS.length];
-  document.getElementById('dashTipRule').textContent = tip.rule;
-  document.getElementById('dashTipExample').textContent = tip.example;
-
-  // Roadmap
-  renderRoadmap();
-
-  // Heatmap
-  renderHeatmap();
-}
-
-// ─── LEVEL ROADMAP ────────────────────────────────────────────────────────────
-const LEVELS = [
-  { id:'A1', label:'A1', sub:'~6 months', badge:'badge-a1' },
-  { id:'A2', label:'A2', sub:'~12 months', badge:'badge-a2' },
-  { id:'B1', label:'B1', sub:'~18 months', badge:'badge-b1' },
-  { id:'B2', label:'B2', sub:'~24 months', badge:'badge-b2' },
-];
-
-function renderRoadmap() {
-  const done = load('dt_roadmap', {});
-  const el = document.getElementById('roadmap');
-  el.innerHTML = LEVELS.map(lv => `
-    <div class="roadmap-item ${done[lv.id] ? 'done' : ''}" onclick="toggleLevel('${lv.id}')">
-      <div class="roadmap-check">${done[lv.id] ? '✓' : ''}</div>
-      <div>
-        <div class="roadmap-label">${lv.label}</div>
-        <div class="roadmap-sub">${lv.sub}</div>
-      </div>
+<script src="script.js"></script>
+<!-- DIARY CHECKLIST MODAL -->
+<div id="diaryChecklistModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center">
+  <div style="background:var(--surface); padding:24px; border-radius:12px; max-width:400px; width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2)">
+    <h3 style="margin-top:0; color:var(--accent)">?? B2 Grammar Check</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem">Before you save, please review your German sentences to prevent bad habits!</p>
+    
+    <label style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; cursor:pointer">
+      <input type="checkbox" id="chk1" style="margin-top:4px">
+      <span><b>Nouns:</b> Did you capitalize ALL nouns? (e.g. das <b>A</b>uto, die <b>Z</b>eit)</span>
+    </label>
+    
+    <label style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; cursor:pointer">
+      <input type="checkbox" id="chk2" style="margin-top:4px">
+      <span><b>Verb Position:</b> Is the main verb in the 2nd position? (e.g. Heute <b>gehe</b> ich...)</span>
+    </label>
+    
+    <label style="display:flex; align-items:flex-start; gap:10px; margin-bottom:16px; cursor:pointer">
+      <input type="checkbox" id="chk3" style="margin-top:4px">
+      <span><b>Subordinate Clauses:</b> If you used <i>weil, dass, wenn</i>, is the verb at the very end?</span>
+    </label>
+    
+    <div style="display:flex; justify-content:flex-end; gap:10px">
+      <button class="btn btn-outline" onclick="document.getElementById('diaryChecklistModal').style.display='none'">Back to Edit</button>
+      <button class="btn btn-success" onclick="confirmDiarySave()">Save Entry</button>
     </div>
-  `).join('');
-}
+  </div>
+</div>
 
-function toggleLevel(id) {
-  const done = load('dt_roadmap', {});
-  done[id] = !done[id];
-  save('dt_roadmap', done);
-  renderRoadmap();
-  showToast(done[id] ? `🎉 ${id} marked complete! Glückwunsch!` : `${id} unmarked.`);
-}
-
-function renderHeatmap() {
-  const hm = document.getElementById('heatmap');
-  hm.innerHTML = '';
-  const dates = new Set(diaryEntries.map(e => e.date));
-  const today = new Date();
-  for (let i = 83; i >= 0; i--) {
-    const d = new Date(today); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
-    const count = diaryEntries.filter(e => e.date === ds).length;
-    const cell = document.createElement('div');
-    cell.className = 'heat-cell' + (count >= 3 ? ' heat-3' : count === 2 ? ' heat-2' : count === 1 ? ' heat-1' : '');
-    cell.title = ds + (count ? ` (${count} entries)` : '');
-    hm.appendChild(cell);
-  }
-}
-
-// ─── DIARY ────────────────────────────────────────────────────────────────────
-function initDiary() {
-  document.getElementById('diaryDate').textContent = '— ' + formatDate(todayStr());
-
-  // Phrases
-  const pl = document.getElementById('phraseList');
-  pl.innerHTML = '';
-  STARTER_PHRASES.forEach(p => {
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-outline btn-sm';
-    btn.textContent = p;
-    btn.onclick = () => { navigator.clipboard?.writeText(p); showToast(`Copied: "${p}"`); };
-    pl.appendChild(btn);
-  });
-
-  // Word count listeners
-  ['prompt1','prompt2','prompt3'].forEach((id,i) => {
-    const el = document.getElementById(id);
-    const wc = document.getElementById('wc'+(i+1));
-    el.addEventListener('input', () => {
-      const words = el.value.trim().split(/\s+/).filter(Boolean).length;
-      wc.textContent = words + ' words';
-    });
-  });
-}
-
-function saveDiaryEntry() {
-  const p1 = document.getElementById('prompt1').value.trim();
-  const p2 = document.getElementById('prompt2').value.trim();
-  const p3 = document.getElementById('prompt3').value.trim();
-  const p4 = document.getElementById('prompt4').value.trim();
-  if (!p1 && !p2 && !p3) { showToast('⚠️ Please fill at least one prompt!'); return; }
-  const entry = { date: todayStr(), ts: Date.now(), p1, p2, p3, p4 };
-  diaryEntries.unshift(entry);
-  save('dt_entries', diaryEntries);
-  clearDiary();
-  renderDashboard();
-  showToast('✅ Diary entry saved! Gut gemacht!');
-}
-
-function clearDiary() {
-  ['prompt1','prompt2','prompt3','prompt4'].forEach(id => document.getElementById(id).value = '');
-  ['wc1','wc2','wc3'].forEach(id => document.getElementById(id).textContent = '0 words');
-}
-
-// ─── PAST ENTRIES ─────────────────────────────────────────────────────────────
-function renderEntries() {
-  const el = document.getElementById('entriesList');
-  if (!diaryEntries.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📓</div><div>No entries yet. Write your first diary entry!</div></div>';
-    return;
-  }
-  el.innerHTML = diaryEntries.map((e, i) => `
-    <div class="entry-card">
-      <div class="entry-date"><span>📅 ${formatDate(e.date)}</span></div>
-      ${e.p1 ? `<div class="entry-block"><div class="entry-block-label">Was habe ich gemacht?</div><div class="entry-text">${escHtml(e.p1)}</div></div>` : ''}
-      ${e.p2 ? `<div class="entry-block"><div class="entry-block-label">Was habe ich gelernt?</div><div class="entry-text">${escHtml(e.p2)}</div></div>` : ''}
-      ${e.p3 ? `<div class="entry-block"><div class="entry-block-label">Was werde ich morgen machen?</div><div class="entry-text">${escHtml(e.p3)}</div></div>` : ''}
-      ${e.p4 ? `<div class="entry-block"><div class="entry-block-label">Freitext</div><div class="entry-text">${escHtml(e.p4)}</div></div>` : ''}
-      <div class="entry-actions"><button class="btn btn-danger btn-sm" onclick="deleteEntry(${i})">🗑 Delete</button></div>
-    </div>
-  `).join('');
-}
-
-function deleteEntry(i) {
-  if (!confirm('Delete this entry?')) return;
-  diaryEntries.splice(i, 1);
-  save('dt_entries', diaryEntries);
-  renderEntries(); renderDashboard();
-  showToast('Entry deleted.');
-}
-
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-}
-
-// ─── VOCABULARY ───────────────────────────────────────────────────────────────
-let currentFilter = 'All';
-let flashIndex = 0;
-
-function addVocab() {
-  const de = document.getElementById('vocabDe').value.trim();
-  const en = document.getElementById('vocabEn').value.trim();
-  const cat = document.getElementById('vocabCat').value;
-  if (!de || !en) { showToast('⚠️ Enter both German and English!'); return; }
-  vocab.unshift({ de, en, cat, date: todayStr() });
-  save('dt_vocab', vocab);
-  document.getElementById('vocabDe').value = '';
-  document.getElementById('vocabEn').value = '';
-  updateTodayWordCount();
-  renderVocab(currentFilter);
-  updateFlashcard();
-  renderDashboard();
-  showToast(`✅ Added: ${de} = ${en}`);
-}
-
-function updateTodayWordCount() {
-  const count = vocab.filter(v => v.date === todayStr()).length;
-  document.getElementById('todayWordCount').textContent = count;
-}
-
-function renderVocab(filter) {
-  currentFilter = filter;
-  const list = filter === 'All' ? vocab : vocab.filter(v => v.cat === filter);
-  document.getElementById('vocabCount').textContent = `(${list.length} words)`;
-  const el = document.getElementById('vocabList');
-  if (!list.length) {
-    el.innerHTML = '<li style="text-align:center;padding:24px;color:var(--text-muted)">No words in this category yet.</li>';
-    return;
-  }
-  el.innerHTML = list.map((v, i) => `
-    <li class="vocab-item">
-      <div>
-        <span class="vocab-de">${escHtml(v.de)}</span>
-        <span class="vocab-cat">${v.cat}</span>
-        <br><span class="vocab-en">${escHtml(v.en)}</span>
-      </div>
-      <button class="delete-btn" onclick="deleteVocab('${v.de.replace(/'/g,"\\'")}')">✕</button>
-    </li>
-  `).join('');
-  updateTodayWordCount();
-}
-
-function deleteVocab(de) {
-  vocab = vocab.filter(v => v.de !== de);
-  save('dt_vocab', vocab);
-  renderVocab(currentFilter);
-  renderDashboard();
-  showToast('Word removed.');
-}
-
-function filterVocab(filter, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderVocab(filter);
-}
-
-function updateFlashcard() {
-  if (!vocab.length) { document.getElementById('flashFront').textContent = '—'; document.getElementById('flashBack').textContent = 'Add some words first!'; return; }
-  flashIndex = Math.floor(Math.random() * vocab.length);
-  document.getElementById('flashFront').textContent = vocab[flashIndex].de;
-  document.getElementById('flashBack').textContent = '';
-}
-
-function revealFlash() {
-  if (!vocab.length) return;
-  document.getElementById('flashBack').textContent = vocab[flashIndex]?.en ?? '';
-}
-
-function nextFlash() { updateFlashcard(); }
-
-// ─── SPEAKING ─────────────────────────────────────────────────────────────────
-function renderSpeaking() {
-  let dynamicHtml = '';
-  if (vocab.length >= 4) {
-    const randomWords = [...vocab].sort(()=>0.5-Math.random()).slice(0, 4).map(v => v.de);
-    dynamicHtml = `
-      <div class="speaking-topic" style="border-color:var(--accent);background:linear-gradient(135deg,rgba(91,141,238,0.1),transparent)">
-        <div class="topic-title">✨ Dynamic Story (Auto-Updated)</div>
-        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px">Try to talk for 1 minute using these 4 random words from your list:</div>
-        <ul class="topic-hints">${randomWords.map(h => `<li>${escHtml(h)}</li>`).join('')}</ul>
-      </div>
-    `;
-  } else {
-    dynamicHtml = `
-      <div class="speaking-topic" style="border-color:var(--accent);background:linear-gradient(135deg,rgba(91,141,238,0.1),transparent)">
-        <div class="topic-title">✨ Dynamic Story (Auto-Updated)</div>
-        <div style="font-size:0.8rem;color:var(--text-muted)">Add at least 4 vocabulary words to unlock the dynamic story generator!</div>
-      </div>
-    `;
-  }
-
-  document.getElementById('speakingTopics').innerHTML = dynamicHtml + SPEAKING_TOPICS.map(t => `
-    <div class="speaking-topic">
-      <div class="topic-title">${t.icon} ${t.title}</div>
-      <ul class="topic-hints">${t.hints.map(h => `<li>${escHtml(h)}</li>`).join('')}</ul>
-    </div>
-  `).join('');
-
-  const notes = load('dt_speak', []);
-  const el = document.getElementById('savedSpeakNotes');
-  if (notes.length) {
-    el.innerHTML = '<div style="font-size:.85rem;color:var(--text-muted);margin-bottom:8px">📋 Saved Notes</div>' +
-      notes.map(n => `<div class="entry-card"><div class="entry-date"><span>📅 ${formatDate(n.date)}</span></div><div class="entry-text">${escHtml(n.text)}</div></div>`).join('');
-  }
-}
-
-function saveSpeakNotes() {
-  const text = document.getElementById('speakNotes').value.trim();
-  if (!text) { showToast('⚠️ Write your notes first!'); return; }
-  speakNotesList.unshift({ date: todayStr(), text });
-  save('dt_speak', speakNotesList);
-  document.getElementById('speakNotes').value = '';
-  renderSpeaking();
-  showToast('✅ Speaking notes saved!');
-}
-
-// ─── WEEKLY REFLECTION ────────────────────────────────────────────────────────
-let reflections = load('dt_reflect', []);
-
-function saveReflection() {
-  const r1 = document.getElementById('ref1').value.trim();
-  const r2 = document.getElementById('ref2').value.trim();
-  const r3 = document.getElementById('ref3').value.trim();
-  if (!r1 && !r2 && !r3) { showToast('⚠️ Fill at least one reflection prompt!'); return; }
-  const weekLabel = getWeekLabel();
-  reflections.unshift({ date: todayStr(), week: weekLabel, r1, r2, r3 });
-  save('dt_reflect', reflections);
-  document.getElementById('ref1').value = '';
-  document.getElementById('ref2').value = '';
-  document.getElementById('ref3').value = '';
-  renderReflections();
-  showToast('✅ Reflection saved! Sehr gut!');
-}
-
-function getWeekLabel() {
-  const d = new Date();
-  const start = new Date(d); start.setDate(d.getDate() - d.getDay() + 1);
-  const end = new Date(start); end.setDate(start.getDate() + 6);
-  const fmt = dt => dt.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
-  return `Week of ${fmt(start)} – ${fmt(end)}`;
-}
-
-function renderReflections() {
-  const el = document.getElementById('reflectionList');
-  if (!reflections.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🪞</div><div>No reflections yet. Do your first one this Sunday!</div></div>';
-    return;
-  }
-  el.innerHTML = reflections.map((r, i) => `
-    <div class="reflect-entry">
-      <div class="reflect-week">📅 ${r.week || formatDate(r.date)}</div>
-      ${r.r1 ? `<div class="reflect-block"><div class="reflect-block-label">Was hat sich verbessert?</div><div class="reflect-text">${escHtml(r.r1)}</div></div>` : ''}
-      ${r.r2 ? `<div class="reflect-block"><div class="reflect-block-label">Was war schwierig?</div><div class="reflect-text">${escHtml(r.r2)}</div></div>` : ''}
-      ${r.r3 ? `<div class="reflect-block"><div class="reflect-block-label">Ziel für nächste Woche</div><div class="reflect-text">${escHtml(r.r3)}</div></div>` : ''}
-      <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="deleteReflection(${i})">🗑 Delete</button>
-    </div>
-  `).join('');
-}
-
-function deleteReflection(i) {
-  if (!confirm('Delete this reflection?')) return;
-  reflections.splice(i, 1);
-  save('dt_reflect', reflections);
-  renderReflections();
-  showToast('Reflection deleted.');
-}
-
-// ─── GRAMMAR ──────────────────────────────────────────────────────────────────
-function renderGrammar() {
-  document.getElementById('allTips').innerHTML = GRAMMAR_TIPS.map((t,i) => `
-    <div class="tip-card" style="margin-bottom:14px">
-      <div class="tip-num">Tip ${i+1}</div>
-      <div class="tip-rule">${t.rule}</div>
-      <div class="tip-example">${escHtml(t.example)}</div>
-    </div>
-  `).join('');
-}
-
-// ─── QUIZ ─────────────────────────────────────────────────────────────────────
-const QUIZ_BANKS = {
-  article: [
-    { q: "___ Mann", options: ["der", "die", "das"], a: "der" },
-    { q: "___ Frau", options: ["der", "die", "das"], a: "die" },
-    { q: "___ Kind", options: ["der", "die", "das"], a: "das" },
-    { q: "___ Auto", options: ["der", "die", "das"], a: "das" },
-    { q: "___ Hund", options: ["der", "die", "das"], a: "der" },
-    { q: "___ Katze", options: ["der", "die", "das"], a: "die" },
-    { q: "___ Haus", options: ["der", "die", "das"], a: "das" },
-    { q: "___ Apfel", options: ["der", "die", "das"], a: "der" },
-    { q: "___ Sonne", options: ["der", "die", "das"], a: "die" },
-    { q: "___ Buch", options: ["der", "die", "das"], a: "das" },
-    { q: "___ Computer", options: ["der", "die", "das"], a: "der" },
-    { q: "___ Datenbank", options: ["der", "die", "das"], a: "die" }
-  ],
-  sentence: [
-    { q: "ich / Java / lerne", options: ["Ich lerne Java.", "Java ich lerne.", "Ich Java lerne.", "Lerne ich Java."], a: "Ich lerne Java." },
-    { q: "Entwickler / bin / ich", options: ["Ich bin Entwickler.", "Entwickler ich bin.", "Bin ich Entwickler.", "Ich Entwickler bin."], a: "Ich bin Entwickler." },
-    { q: "müde / bin / ich", options: ["Ich bin müde.", "Müde ich bin.", "Bin müde ich.", "Ich müde bin."], a: "Ich bin müde." },
-    { q: "wohnen / in / Berlin / wir", options: ["Wir wohnen in Berlin.", "In Berlin wir wohnen.", "Wohnen in Berlin wir.", "Wir in Berlin wohnen."], a: "Wir wohnen in Berlin." },
-    { q: "nicht / gut / schlafe / ich", options: ["Ich schlafe nicht gut.", "Ich nicht schlafe gut.", "Gut ich schlafe nicht.", "Schlafe ich nicht gut."], a: "Ich schlafe nicht gut." },
-    { q: "arbeiten / heute / wir", options: ["Wir arbeiten heute.", "Heute wir arbeiten.", "Wir heute arbeiten.", "Arbeiten wir heute."], a: "Wir arbeiten heute." }
-  ]
-};
-
-let quizState = { questions: [], idx: 0, score: 0 };
-
-function startQuiz(type) {
-  let questions = [];
-  if (type === 'vocab' || type === 'weekly') {
-    let source = vocab;
-    if (type === 'weekly') {
-      const wkTs = Date.now() - 7*86400000;
-      source = vocab.filter(v => new Date(v.date).getTime() > wkTs);
-      if (source.length < 4) source = vocab; // fallback if list too short
-    }
-    if (source.length < 4) {
-      showToast('⚠️ You need at least 4 vocabulary words to play this quiz!');
-      return;
-    }
-    source = [...source].sort(()=>0.5-Math.random());
-    const subset = source.slice(0, 10);
-    questions = subset.map(v => {
-      const isDeToEn = Math.random() > 0.5;
-      const q = isDeToEn ? v.de + " = ?" : v.en + " = ?";
-      const a = isDeToEn ? v.en : v.de;
-      
-      const distractors = [...vocab]
-        .filter(x => x.de !== v.de)
-        .sort(()=>0.5-Math.random())
-        .slice(0, 3)
-        .map(x => isDeToEn ? x.en : x.de);
-      
-      const opts = [a, ...distractors].sort(()=>0.5-Math.random());
-      return { q, options: opts, a };
-    });
-  } else {
-    questions = [...QUIZ_BANKS[type]].sort(()=>0.5-Math.random()).slice(0, 10);
-  }
-
-  quizState = { questions, idx: 0, score: 0 };
-  document.getElementById('quizMenu').style.display = 'none';
-  document.getElementById('quizResult').style.display = 'none';
-  document.getElementById('quizActive').style.display = 'block';
-  
-  const labels = { vocab: 'Vocabulary Quiz', article: 'Article Quiz', sentence: 'Sentence Order', weekly: 'Weekly Review' };
-  document.getElementById('quizTypeLabel').textContent = labels[type];
-  
-  renderQuestion();
-}
-
-function renderQuestion() {
-  const c = quizState;
-  const q = c.questions[c.idx];
-  document.getElementById('quizProgress').textContent = `${c.idx + 1} / ${c.questions.length}`;
-  document.getElementById('quizQuestion').textContent = q.q;
-  
-  const optsEl = document.getElementById('quizOptions');
-  optsEl.innerHTML = q.options.map((opt) => `
-    <button class="quiz-opt" onclick="selectAnswer('${opt.replace(/'/g,"\\'")}', this)">${escHtml(opt)}</button>
-  `).join('');
-  document.getElementById('quizNextBtn').style.display = 'none';
-}
-
-function selectAnswer(ans, btn) {
-  if (document.querySelector('.quiz-opt.correct') || document.querySelector('.quiz-opt.wrong')) return;
-  
-  const c = quizState;
-  const correctAns = c.questions[c.idx].a;
-  
-  document.querySelectorAll('.quiz-opt').forEach(b => {
-    if (b.textContent === correctAns) b.classList.add('correct');
-    else if (b === btn) b.classList.add('wrong');
-    b.disabled = true;
-  });
-  
-  if (ans === correctAns) {
-    c.score++;
-    showToast('✅ Richtig!');
-  } else {
-    showToast('❌ Falsch!');
-  }
-  
-  document.getElementById('quizNextBtn').style.display = 'block';
-}
-
-function nextQuestion() {
-  quizState.idx++;
-  if (quizState.idx >= quizState.questions.length) {
-    endQuiz();
-  } else {
-    renderQuestion();
-  }
-}
-
-function endQuiz() {
-  document.getElementById('quizActive').style.display = 'none';
-  document.getElementById('quizResult').style.display = 'block';
-  document.getElementById('quizScore').textContent = `${quizState.score} / ${quizState.questions.length}`;
-}
-
-function quitQuiz() {
-  document.getElementById('quizActive').style.display = 'none';
-  document.getElementById('quizResult').style.display = 'none';
-  document.getElementById('quizMenu').style.display = 'block';
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  renderDashboard();
-  initDiary();
-  updateFlashcard();
-  updateTodayWordCount();
-});
-</script>
 </body>
 </html>
