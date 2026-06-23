@@ -578,7 +578,11 @@ function showSection(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('section-' + id).classList.add('active');
-  event.target.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + id + "'")) {
+      b.classList.add('active');
+    }
+  });
   if (id === 'entries') renderEntries();
   if (id === 'vocab') { renderVocab('All'); document.querySelectorAll('.tab')[0]?.classList.add('active'); }
   if (id === 'grammar') renderGrammar();
@@ -1000,13 +1004,13 @@ function startQuiz(type) {
 function renderQuestion() {
   const c = quizState;
   const q = c.questions[c.idx];
-  document.getElementById('quizProgress').textContent = \`\${c.idx + 1} / \${c.questions.length}\`;
+  document.getElementById('quizProgress').textContent = `${c.idx + 1} / ${c.questions.length}`;
   document.getElementById('quizQuestion').textContent = q.q;
   
   const optsEl = document.getElementById('quizOptions');
-  optsEl.innerHTML = q.options.map((opt) => \`
-    <button class="quiz-opt" onclick="selectAnswer('\${opt.replace(/'/g,"\\\\'")}', this)">\${escHtml(opt)}</button>
-  \`).join('');
+  optsEl.innerHTML = q.options.map((opt) => `
+    <button class="quiz-opt" onclick="selectAnswer('${opt.replace(/'/g,"\\'")}', this)">${escHtml(opt)}</button>
+  `).join('');
   document.getElementById('quizNextBtn').style.display = 'none';
 }
 
@@ -1044,7 +1048,7 @@ function nextQuestion() {
 function endQuiz() {
   document.getElementById('quizActive').style.display = 'none';
   document.getElementById('quizResult').style.display = 'block';
-  document.getElementById('quizScore').textContent = \`\${quizState.score} / \${quizState.questions.length}\`;
+  document.getElementById('quizScore').textContent = `${quizState.score} / ${quizState.questions.length}`;
 }
 
 function quitQuiz() {
