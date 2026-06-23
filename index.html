@@ -161,6 +161,22 @@
 
     .word-count{font-size:.78rem;color:var(--text-muted);text-align:right;margin-top:4px}
     .char-counter{font-size:.75rem;color:var(--text-muted);text-align:right}
+
+    /* LEVEL ROADMAP */
+    .roadmap{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+    .roadmap-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;cursor:pointer;transition:all .2s;flex:1;min-width:100px}
+    .roadmap-item.done{border-color:var(--accent3);background:rgba(52,211,153,.1)}
+    .roadmap-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;transition:all .2s}
+    .roadmap-item.done .roadmap-check{background:var(--accent3);border-color:var(--accent3);color:#fff}
+    .roadmap-label{font-weight:700;font-size:.95rem}
+    .roadmap-sub{font-size:.72rem;color:var(--text-muted)}
+
+    /* WEEKLY REFLECTION */
+    .reflect-entry{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+    .reflect-week{font-size:.78rem;color:var(--accent2);font-weight:700;margin-bottom:10px}
+    .reflect-block{margin-bottom:8px}
+    .reflect-block-label{font-size:.73rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+    .reflect-text{font-size:.9rem;line-height:1.6;color:var(--text)}
   </style>
 </head>
 <body>
@@ -178,6 +194,7 @@
     <button class="nav-btn" onclick="showSection('diary')">📓 Diary</button>
     <button class="nav-btn" onclick="showSection('vocab')">📚 Vocabulary</button>
     <button class="nav-btn" onclick="showSection('speaking')">🎤 Speaking</button>
+    <button class="nav-btn" onclick="showSection('reflection')">🪞 Weekly Reflection</button>
     <button class="nav-btn" onclick="showSection('entries')">🗂 Past Entries</button>
     <button class="nav-btn" onclick="showSection('grammar')">✏️ Grammar Tips</button>
   </div>
@@ -210,11 +227,12 @@
 
   <div class="grid-2">
     <div class="card">
-      <div class="card-title">🎯 Level Progress</div>
-      <div class="card-sub">Based on your entries and vocabulary</div>
-      <div>
+      <div class="card-title">🎯 Level Roadmap</div>
+      <div class="card-sub">Click to mark a level as completed ✅</div>
+      <div class="roadmap" id="roadmap"></div>
+      <div style="margin-top:14px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-size:.85rem">A1 → A2</span>
+          <span style="font-size:.85rem">Overall Progress</span>
           <span class="level-badge badge-a1" id="currentLevel">Beginner</span>
         </div>
         <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
@@ -313,11 +331,14 @@
       <label>Category</label>
       <select id="vocabCat">
         <option value="General">🌐 General</option>
-        <option value="Tech">💻 Tech / IT</option>
-        <option value="Work">💼 Work</option>
+        <option value="Java">☕ Java</option>
+        <option value="SpringBoot">🌱 Spring Boot</option>
+        <option value="Database">🗄️ Database</option>
+        <option value="Cloud">☁️ Cloud / AWS</option>
+        <option value="Kubernetes">⚙️ Kubernetes / Docker</option>
+        <option value="Work">💼 Work / Office</option>
         <option value="Daily">🏠 Daily Life</option>
         <option value="Verbs">⚡ Verbs</option>
-        <option value="Adjectives">🎨 Adjectives</option>
       </select>
     </div>
   </div>
@@ -336,11 +357,14 @@
 
   <div class="tab-row">
     <div class="tab active" onclick="filterVocab('All',this)">All</div>
-    <div class="tab" onclick="filterVocab('Tech',this)">💻 Tech</div>
+    <div class="tab" onclick="filterVocab('Java',this)">☕ Java</div>
+    <div class="tab" onclick="filterVocab('SpringBoot',this)">🌱 Spring Boot</div>
+    <div class="tab" onclick="filterVocab('Database',this)">🗄️ Database</div>
+    <div class="tab" onclick="filterVocab('Cloud',this)">☁️ Cloud</div>
+    <div class="tab" onclick="filterVocab('Kubernetes',this)">⚙️ K8s/Docker</div>
     <div class="tab" onclick="filterVocab('Work',this)">💼 Work</div>
     <div class="tab" onclick="filterVocab('Daily',this)">🏠 Daily</div>
     <div class="tab" onclick="filterVocab('Verbs',this)">⚡ Verbs</div>
-    <div class="tab" onclick="filterVocab('Adjectives',this)">🎨 Adj</div>
     <div class="tab" onclick="filterVocab('General',this)">🌐 General</div>
   </div>
 
@@ -363,6 +387,48 @@
     <textarea id="speakNotes" rows="5" placeholder="Ich habe heute über meinen Beruf gesprochen..."></textarea>
     <div style="margin-top:12px"><button class="btn btn-primary" onclick="saveSpeakNotes()">💾 Save Notes</button></div>
     <div id="savedSpeakNotes" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<!-- WEEKLY REFLECTION -->
+<div id="section-reflection" class="section">
+  <div class="card">
+    <div class="card-title">🪞 Weekly Reflection</div>
+    <div class="card-sub">Every Sunday — review your week, track what improved and set goals for next week.</div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Was hat sich verbessert? (What improved?)</div>
+      <div class="prompt-de">Was hat sich diese Woche verbessert?</div>
+      <div class="prompt-en">What improved this week?</div>
+    </div>
+    <div class="field">
+      <textarea id="ref1" rows="3" placeholder="Meine Grammatik hat sich verbessert. Ich spreche jetzt langsamer aber klarer..."></textarea>
+    </div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Was war schwierig? (What was difficult?)</div>
+      <div class="prompt-de">Was war diese Woche schwierig?</div>
+      <div class="prompt-en">What was difficult this week?</div>
+    </div>
+    <div class="field">
+      <textarea id="ref2" rows="3" placeholder="Der Akkusativ war schwierig. Ich muss mehr Übungen machen..."></textarea>
+    </div>
+
+    <div class="prompt-box">
+      <div class="prompt-label">Was ist mein Ziel für nächste Woche? (Next week's goal?)</div>
+      <div class="prompt-de">Was ist mein Ziel für nächste Woche?</div>
+      <div class="prompt-en">What is my goal for next week?</div>
+    </div>
+    <div class="field">
+      <textarea id="ref3" rows="3" placeholder="Nächste Woche möchte ich 70 neue Wörter lernen. Ich möchte auch täglich sprechen..."></textarea>
+    </div>
+
+    <button class="btn btn-success" onclick="saveReflection()">💾 Save Reflection</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Past Reflections</div>
+    <div id="reflectionList"></div>
   </div>
 </div>
 
@@ -451,9 +517,10 @@ function showSection(id) {
   document.getElementById('section-' + id).classList.add('active');
   event.target.classList.add('active');
   if (id === 'entries') renderEntries();
-  if (id === 'vocab') renderVocab('All');
+  if (id === 'vocab') { renderVocab('All'); document.querySelectorAll('.tab')[0]?.classList.add('active'); }
   if (id === 'grammar') renderGrammar();
   if (id === 'speaking') renderSpeaking();
+  if (id === 'reflection') renderReflections();
 }
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
@@ -501,8 +568,41 @@ function renderDashboard() {
   document.getElementById('dashTipRule').textContent = tip.rule;
   document.getElementById('dashTipExample').textContent = tip.example;
 
+  // Roadmap
+  renderRoadmap();
+
   // Heatmap
   renderHeatmap();
+}
+
+// ─── LEVEL ROADMAP ────────────────────────────────────────────────────────────
+const LEVELS = [
+  { id:'A1', label:'A1', sub:'~6 months', badge:'badge-a1' },
+  { id:'A2', label:'A2', sub:'~12 months', badge:'badge-a2' },
+  { id:'B1', label:'B1', sub:'~18 months', badge:'badge-b1' },
+  { id:'B2', label:'B2', sub:'~24 months', badge:'badge-b2' },
+];
+
+function renderRoadmap() {
+  const done = load('dt_roadmap', {});
+  const el = document.getElementById('roadmap');
+  el.innerHTML = LEVELS.map(lv => `
+    <div class="roadmap-item ${done[lv.id] ? 'done' : ''}" onclick="toggleLevel('${lv.id}')">
+      <div class="roadmap-check">${done[lv.id] ? '✓' : ''}</div>
+      <div>
+        <div class="roadmap-label">${lv.label}</div>
+        <div class="roadmap-sub">${lv.sub}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleLevel(id) {
+  const done = load('dt_roadmap', {});
+  done[id] = !done[id];
+  save('dt_roadmap', done);
+  renderRoadmap();
+  showToast(done[id] ? `🎉 ${id} marked complete! Glückwunsch!` : `${id} unmarked.`);
 }
 
 function renderHeatmap() {
@@ -697,6 +797,57 @@ function saveSpeakNotes() {
   document.getElementById('speakNotes').value = '';
   renderSpeaking();
   showToast('✅ Speaking notes saved!');
+}
+
+// ─── WEEKLY REFLECTION ────────────────────────────────────────────────────────
+let reflections = load('dt_reflect', []);
+
+function saveReflection() {
+  const r1 = document.getElementById('ref1').value.trim();
+  const r2 = document.getElementById('ref2').value.trim();
+  const r3 = document.getElementById('ref3').value.trim();
+  if (!r1 && !r2 && !r3) { showToast('⚠️ Fill at least one reflection prompt!'); return; }
+  const weekLabel = getWeekLabel();
+  reflections.unshift({ date: todayStr(), week: weekLabel, r1, r2, r3 });
+  save('dt_reflect', reflections);
+  document.getElementById('ref1').value = '';
+  document.getElementById('ref2').value = '';
+  document.getElementById('ref3').value = '';
+  renderReflections();
+  showToast('✅ Reflection saved! Sehr gut!');
+}
+
+function getWeekLabel() {
+  const d = new Date();
+  const start = new Date(d); start.setDate(d.getDate() - d.getDay() + 1);
+  const end = new Date(start); end.setDate(start.getDate() + 6);
+  const fmt = dt => dt.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+  return `Week of ${fmt(start)} – ${fmt(end)}`;
+}
+
+function renderReflections() {
+  const el = document.getElementById('reflectionList');
+  if (!reflections.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🪞</div><div>No reflections yet. Do your first one this Sunday!</div></div>';
+    return;
+  }
+  el.innerHTML = reflections.map((r, i) => `
+    <div class="reflect-entry">
+      <div class="reflect-week">📅 ${r.week || formatDate(r.date)}</div>
+      ${r.r1 ? `<div class="reflect-block"><div class="reflect-block-label">Was hat sich verbessert?</div><div class="reflect-text">${escHtml(r.r1)}</div></div>` : ''}
+      ${r.r2 ? `<div class="reflect-block"><div class="reflect-block-label">Was war schwierig?</div><div class="reflect-text">${escHtml(r.r2)}</div></div>` : ''}
+      ${r.r3 ? `<div class="reflect-block"><div class="reflect-block-label">Ziel für nächste Woche</div><div class="reflect-text">${escHtml(r.r3)}</div></div>` : ''}
+      <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="deleteReflection(${i})">🗑 Delete</button>
+    </div>
+  `).join('');
+}
+
+function deleteReflection(i) {
+  if (!confirm('Delete this reflection?')) return;
+  reflections.splice(i, 1);
+  save('dt_reflect', reflections);
+  renderReflections();
+  showToast('Reflection deleted.');
 }
 
 // ─── GRAMMAR ──────────────────────────────────────────────────────────────────
