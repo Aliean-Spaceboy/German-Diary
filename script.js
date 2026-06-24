@@ -42,7 +42,1010 @@ function load(key, def) { try { return JSON.parse(localStorage.getItem(key)) ?? 
 function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
 let diaryEntries = load('dt_entries', []);
+const DEFAULT_VOCAB = [
+  { de: 'wie', en: 'as', level: 0, nextReview: Date.now() },
+  { de: 'ich', en: 'I', level: 0, nextReview: Date.now() },
+  { de: 'seine', en: 'his', level: 0, nextReview: Date.now() },
+  { de: 'dass', en: 'that', level: 0, nextReview: Date.now() },
+  { de: 'er', en: 'he', level: 0, nextReview: Date.now() },
+  { de: 'war', en: 'was', level: 0, nextReview: Date.now() },
+  { de: 'für', en: 'for', level: 0, nextReview: Date.now() },
+  { de: 'auf', en: 'on', level: 0, nextReview: Date.now() },
+  { de: 'sind', en: 'are', level: 0, nextReview: Date.now() },
+  { de: 'mit', en: 'with', level: 0, nextReview: Date.now() },
+  { de: 'sie', en: 'they', level: 0, nextReview: Date.now() },
+  { de: 'sein', en: 'be', level: 0, nextReview: Date.now() },
+  { de: 'bei', en: 'at', level: 0, nextReview: Date.now() },
+  { de: 'ein', en: 'one', level: 0, nextReview: Date.now() },
+  { de: 'haben', en: 'have', level: 0, nextReview: Date.now() },
+  { de: 'dies', en: 'this', level: 0, nextReview: Date.now() },
+  { de: 'aus', en: 'from', level: 0, nextReview: Date.now() },
+  { de: 'durch', en: 'by', level: 0, nextReview: Date.now() },
+  { de: 'heiß', en: 'hot', level: 0, nextReview: Date.now() },
+  { de: 'Wort', en: 'word', level: 0, nextReview: Date.now() },
+  { de: 'aber', en: 'but', level: 0, nextReview: Date.now() },
+  { de: 'was', en: 'what', level: 0, nextReview: Date.now() },
+  { de: 'einige', en: 'some', level: 0, nextReview: Date.now() },
+  { de: 'ist', en: 'is', level: 0, nextReview: Date.now() },
+  { de: 'es', en: 'it', level: 0, nextReview: Date.now() },
+  { de: 'Sie', en: 'you', level: 0, nextReview: Date.now() },
+  { de: 'oder', en: 'or', level: 0, nextReview: Date.now() },
+  { de: 'hatte', en: 'had', level: 0, nextReview: Date.now() },
+  { de: 'die', en: 'the', level: 0, nextReview: Date.now() },
+  { de: 'von', en: 'of', level: 0, nextReview: Date.now() },
+  { de: 'zu', en: 'to', level: 0, nextReview: Date.now() },
+  { de: 'und', en: 'and', level: 0, nextReview: Date.now() },
+  { de: 'ein', en: 'a', level: 0, nextReview: Date.now() },
+  { de: 'bei', en: 'in', level: 0, nextReview: Date.now() },
+  { de: 'wir', en: 'we', level: 0, nextReview: Date.now() },
+  { de: 'können', en: 'can', level: 0, nextReview: Date.now() },
+  { de: 'aus', en: 'out', level: 0, nextReview: Date.now() },
+  { de: 'andere', en: 'other', level: 0, nextReview: Date.now() },
+  { de: 'waren', en: 'were', level: 0, nextReview: Date.now() },
+  { de: 'die', en: 'which', level: 0, nextReview: Date.now() },
+  { de: 'tun', en: 'do', level: 0, nextReview: Date.now() },
+  { de: 'ihre', en: 'their', level: 0, nextReview: Date.now() },
+  { de: 'Zeit', en: 'time', level: 0, nextReview: Date.now() },
+  { de: 'wenn', en: 'if', level: 0, nextReview: Date.now() },
+  { de: 'werden', en: 'will', level: 0, nextReview: Date.now() },
+  { de: 'wie', en: 'how', level: 0, nextReview: Date.now() },
+  { de: 'sagte', en: 'said', level: 0, nextReview: Date.now() },
+  { de: 'ein', en: 'an', level: 0, nextReview: Date.now() },
+  { de: 'jeder', en: 'each', level: 0, nextReview: Date.now() },
+  { de: 'sagen', en: 'tell', level: 0, nextReview: Date.now() },
+  { de: 'tut', en: 'does', level: 0, nextReview: Date.now() },
+  { de: 'Satz', en: 'set', level: 0, nextReview: Date.now() },
+  { de: 'drei', en: 'three', level: 0, nextReview: Date.now() },
+  { de: 'wollen', en: 'want', level: 0, nextReview: Date.now() },
+  { de: 'Luft', en: 'air', level: 0, nextReview: Date.now() },
+  { de: 'gut', en: 'well', level: 0, nextReview: Date.now() },
+  { de: 'auch', en: 'also', level: 0, nextReview: Date.now() },
+  { de: 'spielen', en: 'play', level: 0, nextReview: Date.now() },
+  { de: 'klein', en: 'small', level: 0, nextReview: Date.now() },
+  { de: 'Ende', en: 'end', level: 0, nextReview: Date.now() },
+  { de: 'setzen', en: 'put', level: 0, nextReview: Date.now() },
+  { de: 'Zuhause', en: 'home', level: 0, nextReview: Date.now() },
+  { de: 'lesen', en: 'read', level: 0, nextReview: Date.now() },
+  { de: 'seits', en: 'hand', level: 0, nextReview: Date.now() },
+  { de: 'Hafen', en: 'port', level: 0, nextReview: Date.now() },
+  { de: 'groß', en: 'large', level: 0, nextReview: Date.now() },
+  { de: 'buchstabieren', en: 'spell', level: 0, nextReview: Date.now() },
+  { de: 'hinzufügen', en: 'add', level: 0, nextReview: Date.now() },
+  { de: 'auch', en: 'even', level: 0, nextReview: Date.now() },
+  { de: 'Lande', en: 'land', level: 0, nextReview: Date.now() },
+  { de: 'hier', en: 'here', level: 0, nextReview: Date.now() },
+  { de: 'muss', en: 'must', level: 0, nextReview: Date.now() },
+  { de: 'groß', en: 'big', level: 0, nextReview: Date.now() },
+  { de: 'hoch', en: 'high', level: 0, nextReview: Date.now() },
+  { de: 'so', en: 'such', level: 0, nextReview: Date.now() },
+  { de: 'folgen', en: 'follow', level: 0, nextReview: Date.now() },
+  { de: 'Akt', en: 'act', level: 0, nextReview: Date.now() },
+  { de: 'warum', en: 'why', level: 0, nextReview: Date.now() },
+  { de: 'fragen', en: 'ask', level: 0, nextReview: Date.now() },
+  { de: 'Männer', en: 'men', level: 0, nextReview: Date.now() },
+  { de: 'Veränderung', en: 'change', level: 0, nextReview: Date.now() },
+  { de: 'ging', en: 'went', level: 0, nextReview: Date.now() },
+  { de: 'Licht', en: 'light', level: 0, nextReview: Date.now() },
+  { de: 'Art', en: 'kind', level: 0, nextReview: Date.now() },
+  { de: 'aus', en: 'off', level: 0, nextReview: Date.now() },
+  { de: 'müssen', en: 'need', level: 0, nextReview: Date.now() },
+  { de: 'Haus', en: 'house', level: 0, nextReview: Date.now() },
+  { de: 'Bild', en: 'picture', level: 0, nextReview: Date.now() },
+  { de: 'versuchen', en: 'try', level: 0, nextReview: Date.now() },
+  { de: 'uns', en: 'us', level: 0, nextReview: Date.now() },
+  { de: 'wieder', en: 'again', level: 0, nextReview: Date.now() },
+  { de: 'Tier', en: 'animal', level: 0, nextReview: Date.now() },
+  { de: 'Punkt', en: 'point', level: 0, nextReview: Date.now() },
+  { de: 'Mutter', en: 'mother', level: 0, nextReview: Date.now() },
+  { de: 'Welt', en: 'world', level: 0, nextReview: Date.now() },
+  { de: 'in der Nähe von', en: 'near', level: 0, nextReview: Date.now() },
+  { de: 'bauen', en: 'build', level: 0, nextReview: Date.now() },
+  { de: 'selbst', en: 'self', level: 0, nextReview: Date.now() },
+  { de: 'Erde', en: 'earth', level: 0, nextReview: Date.now() },
+  { de: 'Vater', en: 'father', level: 0, nextReview: Date.now() },
+  { de: 'jeder', en: 'any', level: 0, nextReview: Date.now() },
+  { de: 'neu', en: 'new', level: 0, nextReview: Date.now() },
+  { de: 'Arbeit', en: 'work', level: 0, nextReview: Date.now() },
+  { de: 'Teil', en: 'part', level: 0, nextReview: Date.now() },
+  { de: 'nehmen', en: 'take', level: 0, nextReview: Date.now() },
+  { de: 'erhalten', en: 'get', level: 0, nextReview: Date.now() },
+  { de: 'Ort', en: 'place', level: 0, nextReview: Date.now() },
+  { de: 'gemacht', en: 'made', level: 0, nextReview: Date.now() },
+  { de: 'leben', en: 'live', level: 0, nextReview: Date.now() },
+  { de: 'wo', en: 'where', level: 0, nextReview: Date.now() },
+  { de: 'nach', en: 'after', level: 0, nextReview: Date.now() },
+  { de: 'zurück', en: 'back', level: 0, nextReview: Date.now() },
+  { de: 'wenig', en: 'little', level: 0, nextReview: Date.now() },
+  { de: 'nur', en: 'only', level: 0, nextReview: Date.now() },
+  { de: 'Runde', en: 'round', level: 0, nextReview: Date.now() },
+  { de: 'Mann', en: 'man', level: 0, nextReview: Date.now() },
+  { de: 'Jahr', en: 'year', level: 0, nextReview: Date.now() },
+  { de: 'kam', en: 'came', level: 0, nextReview: Date.now() },
+  { de: 'zeigen', en: 'show', level: 0, nextReview: Date.now() },
+  { de: 'jeder', en: 'every', level: 0, nextReview: Date.now() },
+  { de: 'gut', en: 'good', level: 0, nextReview: Date.now() },
+  { de: 'mir', en: 'me', level: 0, nextReview: Date.now() },
+  { de: 'geben', en: 'give', level: 0, nextReview: Date.now() },
+  { de: 'unsere', en: 'our', level: 0, nextReview: Date.now() },
+  { de: 'unter', en: 'under', level: 0, nextReview: Date.now() },
+  { de: 'Name', en: 'name', level: 0, nextReview: Date.now() },
+  { de: 'sehr', en: 'very', level: 0, nextReview: Date.now() },
+  { de: 'durch', en: 'through', level: 0, nextReview: Date.now() },
+  { de: 'nur', en: 'just', level: 0, nextReview: Date.now() },
+  { de: 'Formular', en: 'form', level: 0, nextReview: Date.now() },
+  { de: 'Satz', en: 'sentence', level: 0, nextReview: Date.now() },
+  { de: 'groß', en: 'great', level: 0, nextReview: Date.now() },
+  { de: 'denken', en: 'think', level: 0, nextReview: Date.now() },
+  { de: 'sagen', en: 'say', level: 0, nextReview: Date.now() },
+  { de: 'Hilfe', en: 'help', level: 0, nextReview: Date.now() },
+  { de: 'niedrig', en: 'low', level: 0, nextReview: Date.now() },
+  { de: 'Linie', en: 'line', level: 0, nextReview: Date.now() },
+  { de: 'abweichen', en: 'differ', level: 0, nextReview: Date.now() },
+  { de: 'wiederum', en: 'turn', level: 0, nextReview: Date.now() },
+  { de: 'Ursache', en: 'cause', level: 0, nextReview: Date.now() },
+  { de: 'viel', en: 'much', level: 0, nextReview: Date.now() },
+  { de: 'bedeuten', en: 'mean', level: 0, nextReview: Date.now() },
+  { de: 'vor', en: 'before', level: 0, nextReview: Date.now() },
+  { de: 'Umzug', en: 'move', level: 0, nextReview: Date.now() },
+  { de: 'Recht', en: 'right', level: 0, nextReview: Date.now() },
+  { de: 'Junge', en: 'boy', level: 0, nextReview: Date.now() },
+  { de: 'alt', en: 'old', level: 0, nextReview: Date.now() },
+  { de: 'zu', en: 'too', level: 0, nextReview: Date.now() },
+  { de: 'gleich', en: 'same', level: 0, nextReview: Date.now() },
+  { de: 'sie', en: 'she', level: 0, nextReview: Date.now() },
+  { de: 'alle', en: 'all', level: 0, nextReview: Date.now() },
+  { de: 'da', en: 'there', level: 0, nextReview: Date.now() },
+  { de: 'wenn', en: 'when', level: 0, nextReview: Date.now() },
+  { de: 'nach oben', en: 'up', level: 0, nextReview: Date.now() },
+  { de: 'Verwendung', en: 'use', level: 0, nextReview: Date.now() },
+  { de: 'Ihre', en: 'your', level: 0, nextReview: Date.now() },
+  { de: 'Weg', en: 'way', level: 0, nextReview: Date.now() },
+  { de: 'über', en: 'about', level: 0, nextReview: Date.now() },
+  { de: 'viele', en: 'many', level: 0, nextReview: Date.now() },
+  { de: 'dann', en: 'then', level: 0, nextReview: Date.now() },
+  { de: 'sie', en: 'them', level: 0, nextReview: Date.now() },
+  { de: 'schreiben', en: 'write', level: 0, nextReview: Date.now() },
+  { de: 'würde', en: 'would', level: 0, nextReview: Date.now() },
+  { de: 'wie', en: 'like', level: 0, nextReview: Date.now() },
+  { de: 'so', en: 'so', level: 0, nextReview: Date.now() },
+  { de: 'diese', en: 'these', level: 0, nextReview: Date.now() },
+  { de: 'sie', en: 'her', level: 0, nextReview: Date.now() },
+  { de: 'lange', en: 'long', level: 0, nextReview: Date.now() },
+  { de: 'machen', en: 'make', level: 0, nextReview: Date.now() },
+  { de: 'Sache', en: 'thing', level: 0, nextReview: Date.now() },
+  { de: 'sehen', en: 'see', level: 0, nextReview: Date.now() },
+  { de: 'ihm', en: 'him', level: 0, nextReview: Date.now() },
+  { de: 'zwei', en: 'two', level: 0, nextReview: Date.now() },
+  { de: 'hat', en: 'has', level: 0, nextReview: Date.now() },
+  { de: 'suchen', en: 'look', level: 0, nextReview: Date.now() },
+  { de: 'mehr', en: 'more', level: 0, nextReview: Date.now() },
+  { de: 'Tag', en: 'day', level: 0, nextReview: Date.now() },
+  { de: 'könnte', en: 'could', level: 0, nextReview: Date.now() },
+  { de: 'gehen', en: 'go', level: 0, nextReview: Date.now() },
+  { de: 'kommen', en: 'come', level: 0, nextReview: Date.now() },
+  { de: 'tat', en: 'did', level: 0, nextReview: Date.now() },
+  { de: 'Anzahl', en: 'number', level: 0, nextReview: Date.now() },
+  { de: 'klingen', en: 'sound', level: 0, nextReview: Date.now() },
+  { de: 'nicht', en: 'no', level: 0, nextReview: Date.now() },
+  { de: 'am meisten', en: 'most', level: 0, nextReview: Date.now() },
+  { de: 'Menschen', en: 'people', level: 0, nextReview: Date.now() },
+  { de: 'meine', en: 'my', level: 0, nextReview: Date.now() },
+  { de: 'über', en: 'over', level: 0, nextReview: Date.now() },
+  { de: 'wissen', en: 'know', level: 0, nextReview: Date.now() },
+  { de: 'Wasser', en: 'water', level: 0, nextReview: Date.now() },
+  { de: 'als', en: 'than', level: 0, nextReview: Date.now() },
+  { de: 'Anruf', en: 'call', level: 0, nextReview: Date.now() },
+  { de: 'erste', en: 'first', level: 0, nextReview: Date.now() },
+  { de: 'die', en: 'who', level: 0, nextReview: Date.now() },
+  { de: 'können', en: 'may', level: 0, nextReview: Date.now() },
+  { de: 'nach unten', en: 'down', level: 0, nextReview: Date.now() },
+  { de: 'Seite', en: 'side', level: 0, nextReview: Date.now() },
+  { de: 'gewesen', en: 'been', level: 0, nextReview: Date.now() },
+  { de: 'jetzt', en: 'now', level: 0, nextReview: Date.now() },
+  { de: 'finden', en: 'find', level: 0, nextReview: Date.now() },
+  { de: 'Kopf', en: 'head', level: 0, nextReview: Date.now() },
+  { de: 'stehen', en: 'stand', level: 0, nextReview: Date.now() },
+  { de: 'besitzen', en: 'own', level: 0, nextReview: Date.now() },
+  { de: 'Seite', en: 'page', level: 0, nextReview: Date.now() },
+  { de: 'sollte', en: 'should', level: 0, nextReview: Date.now() },
+  { de: 'Land', en: 'country', level: 0, nextReview: Date.now() },
+  { de: 'gefunden', en: 'found', level: 0, nextReview: Date.now() },
+  { de: 'Antwort', en: 'answer', level: 0, nextReview: Date.now() },
+  { de: 'Schule', en: 'school', level: 0, nextReview: Date.now() },
+  { de: 'wachsen', en: 'grow', level: 0, nextReview: Date.now() },
+  { de: 'Studie', en: 'study', level: 0, nextReview: Date.now() },
+  { de: 'noch', en: 'still', level: 0, nextReview: Date.now() },
+  { de: 'lernen', en: 'learn', level: 0, nextReview: Date.now() },
+  { de: 'Anlage', en: 'plant', level: 0, nextReview: Date.now() },
+  { de: 'Abdeckung', en: 'cover', level: 0, nextReview: Date.now() },
+  { de: 'Lebensmittel', en: 'food', level: 0, nextReview: Date.now() },
+  { de: 'Sonne', en: 'sun', level: 0, nextReview: Date.now() },
+  { de: 'vier', en: 'four', level: 0, nextReview: Date.now() },
+  { de: 'zwischen', en: 'between', level: 0, nextReview: Date.now() },
+  { de: 'Zustand', en: 'state', level: 0, nextReview: Date.now() },
+  { de: 'halten', en: 'keep', level: 0, nextReview: Date.now() },
+  { de: 'Auge', en: 'eye', level: 0, nextReview: Date.now() },
+  { de: 'nie', en: 'never', level: 0, nextReview: Date.now() },
+  { de: 'letzte', en: 'last', level: 0, nextReview: Date.now() },
+  { de: 'lassen', en: 'let', level: 0, nextReview: Date.now() },
+  { de: 'Gedanken', en: 'thought', level: 0, nextReview: Date.now() },
+  { de: 'Stadt', en: 'city', level: 0, nextReview: Date.now() },
+  { de: 'Baum', en: 'tree', level: 0, nextReview: Date.now() },
+  { de: 'überqueren', en: 'cross', level: 0, nextReview: Date.now() },
+  { de: 'Bauernhof', en: 'farm', level: 0, nextReview: Date.now() },
+  { de: 'schwer', en: 'hard', level: 0, nextReview: Date.now() },
+  { de: 'Beginn', en: 'start', level: 0, nextReview: Date.now() },
+  { de: 'Macht', en: 'might', level: 0, nextReview: Date.now() },
+  { de: 'Geschichte', en: 'story', level: 0, nextReview: Date.now() },
+  { de: 'Säge', en: 'saw', level: 0, nextReview: Date.now() },
+  { de: 'weit', en: 'far', level: 0, nextReview: Date.now() },
+  { de: 'Meer', en: 'sea', level: 0, nextReview: Date.now() },
+  { de: 'ziehen', en: 'draw', level: 0, nextReview: Date.now() },
+  { de: 'links', en: 'left', level: 0, nextReview: Date.now() },
+  { de: 'spät', en: 'late', level: 0, nextReview: Date.now() },
+  { de: 'laufen', en: 'run', level: 0, nextReview: Date.now() },
+  { de: 'unterlassen Sie', en: 'don’t', level: 0, nextReview: Date.now() },
+  { de: 'während', en: 'while', level: 0, nextReview: Date.now() },
+  { de: 'Presse', en: 'press', level: 0, nextReview: Date.now() },
+  { de: 'Schließen', en: 'close', level: 0, nextReview: Date.now() },
+  { de: 'Nacht', en: 'night', level: 0, nextReview: Date.now() },
+  { de: 'realen', en: 'real', level: 0, nextReview: Date.now() },
+  { de: 'Leben', en: 'life', level: 0, nextReview: Date.now() },
+  { de: 'wenige', en: 'few', level: 0, nextReview: Date.now() },
+  { de: 'Norden', en: 'north', level: 0, nextReview: Date.now() },
+  { de: 'Buch', en: 'book', level: 0, nextReview: Date.now() },
+  { de: 'tragen', en: 'carry', level: 0, nextReview: Date.now() },
+  { de: 'nahm', en: 'took', level: 0, nextReview: Date.now() },
+  { de: 'Wissenschaft', en: 'science', level: 0, nextReview: Date.now() },
+  { de: 'essen', en: 'eat', level: 0, nextReview: Date.now() },
+  { de: 'Zimmer', en: 'room', level: 0, nextReview: Date.now() },
+  { de: 'Freund', en: 'friend', level: 0, nextReview: Date.now() },
+  { de: 'begann', en: 'began', level: 0, nextReview: Date.now() },
+  { de: 'Idee', en: 'idea', level: 0, nextReview: Date.now() },
+  { de: 'Fisch', en: 'fish', level: 0, nextReview: Date.now() },
+  { de: 'berg', en: 'mountain', level: 0, nextReview: Date.now() },
+  { de: 'Stopp', en: 'stop', level: 0, nextReview: Date.now() },
+  { de: 'einmal', en: 'once', level: 0, nextReview: Date.now() },
+  { de: 'Basis', en: 'base', level: 0, nextReview: Date.now() },
+  { de: 'hören', en: 'hear', level: 0, nextReview: Date.now() },
+  { de: 'Pferd', en: 'horse', level: 0, nextReview: Date.now() },
+  { de: 'Schnitt', en: 'cut', level: 0, nextReview: Date.now() },
+  { de: 'sicher', en: 'sure', level: 0, nextReview: Date.now() },
+  { de: 'beobachten', en: 'watch', level: 0, nextReview: Date.now() },
+  { de: 'Farbe', en: 'color', level: 0, nextReview: Date.now() },
+  { de: 'Gesicht', en: 'face', level: 0, nextReview: Date.now() },
+  { de: 'Holz', en: 'wood', level: 0, nextReview: Date.now() },
+  { de: 'Haupt-', en: 'main', level: 0, nextReview: Date.now() },
+  { de: 'geöffnet', en: 'open', level: 0, nextReview: Date.now() },
+  { de: 'scheinen', en: 'seem', level: 0, nextReview: Date.now() },
+  { de: 'zusammen', en: 'together', level: 0, nextReview: Date.now() },
+  { de: 'nächste', en: 'next', level: 0, nextReview: Date.now() },
+  { de: 'weiß', en: 'white', level: 0, nextReview: Date.now() },
+  { de: 'Kinder', en: 'children', level: 0, nextReview: Date.now() },
+  { de: 'Start', en: 'begin', level: 0, nextReview: Date.now() },
+  { de: 'bekam', en: 'got', level: 0, nextReview: Date.now() },
+  { de: 'gehen', en: 'walk', level: 0, nextReview: Date.now() },
+  { de: 'Beispiel', en: 'example', level: 0, nextReview: Date.now() },
+  { de: 'erleichtern', en: 'ease', level: 0, nextReview: Date.now() },
+  { de: 'Papier', en: 'paper', level: 0, nextReview: Date.now() },
+  { de: 'Gruppe', en: 'group', level: 0, nextReview: Date.now() },
+  { de: 'immer', en: 'always', level: 0, nextReview: Date.now() },
+  { de: 'Musik', en: 'music', level: 0, nextReview: Date.now() },
+  { de: 'diejenigen', en: 'those', level: 0, nextReview: Date.now() },
+  { de: 'beide', en: 'both', level: 0, nextReview: Date.now() },
+  { de: 'Marke', en: 'mark', level: 0, nextReview: Date.now() },
+  { de: 'oft', en: 'often', level: 0, nextReview: Date.now() },
+  { de: 'Schreiben', en: 'letter', level: 0, nextReview: Date.now() },
+  { de: 'bis', en: 'until', level: 0, nextReview: Date.now() },
+  { de: 'Meile', en: 'mile', level: 0, nextReview: Date.now() },
+  { de: 'Fluss', en: 'river', level: 0, nextReview: Date.now() },
+  { de: 'Auto', en: 'car', level: 0, nextReview: Date.now() },
+  { de: 'Füße', en: 'feet', level: 0, nextReview: Date.now() },
+  { de: 'Pflege', en: 'care', level: 0, nextReview: Date.now() },
+  { de: 'zweite', en: 'second', level: 0, nextReview: Date.now() },
+  { de: 'genug', en: 'enough', level: 0, nextReview: Date.now() },
+  { de: 'Ebene', en: 'plain', level: 0, nextReview: Date.now() },
+  { de: 'Mädchen', en: 'girl', level: 0, nextReview: Date.now() },
+  { de: 'üblich', en: 'usual', level: 0, nextReview: Date.now() },
+  { de: 'jung', en: 'young', level: 0, nextReview: Date.now() },
+  { de: 'bereit', en: 'ready', level: 0, nextReview: Date.now() },
+  { de: 'oben', en: 'above', level: 0, nextReview: Date.now() },
+  { de: 'je', en: 'ever', level: 0, nextReview: Date.now() },
+  { de: 'rot', en: 'red', level: 0, nextReview: Date.now() },
+  { de: 'Liste', en: 'list', level: 0, nextReview: Date.now() },
+  { de: 'obwohl', en: 'though', level: 0, nextReview: Date.now() },
+  { de: 'fühlen', en: 'feel', level: 0, nextReview: Date.now() },
+  { de: 'Vortrag', en: 'talk', level: 0, nextReview: Date.now() },
+  { de: 'Vogel', en: 'bird', level: 0, nextReview: Date.now() },
+  { de: 'bald', en: 'soon', level: 0, nextReview: Date.now() },
+  { de: 'Körper', en: 'body', level: 0, nextReview: Date.now() },
+  { de: 'Hund', en: 'dog', level: 0, nextReview: Date.now() },
+  { de: 'Familie', en: 'family', level: 0, nextReview: Date.now() },
+  { de: 'direkt', en: 'direct', level: 0, nextReview: Date.now() },
+  { de: 'Pose', en: 'pose', level: 0, nextReview: Date.now() },
+  { de: 'verlassen', en: 'leave', level: 0, nextReview: Date.now() },
+  { de: 'Lied', en: 'song', level: 0, nextReview: Date.now() },
+  { de: 'messen', en: 'measure', level: 0, nextReview: Date.now() },
+  { de: 'Tür', en: 'door', level: 0, nextReview: Date.now() },
+  { de: 'Produkt', en: 'product', level: 0, nextReview: Date.now() },
+  { de: 'schwarz', en: 'black', level: 0, nextReview: Date.now() },
+  { de: 'kurz', en: 'short', level: 0, nextReview: Date.now() },
+  { de: 'Zahl', en: 'numeral', level: 0, nextReview: Date.now() },
+  { de: 'Klasse', en: 'class', level: 0, nextReview: Date.now() },
+  { de: 'Wind', en: 'wind', level: 0, nextReview: Date.now() },
+  { de: 'Frage', en: 'question', level: 0, nextReview: Date.now() },
+  { de: 'passieren', en: 'happen', level: 0, nextReview: Date.now() },
+  { de: 'vollständig', en: 'complete', level: 0, nextReview: Date.now() },
+  { de: 'Schiff', en: 'ship', level: 0, nextReview: Date.now() },
+  { de: 'Bereich', en: 'area', level: 0, nextReview: Date.now() },
+  { de: 'Hälfte', en: 'half', level: 0, nextReview: Date.now() },
+  { de: 'Stein', en: 'rock', level: 0, nextReview: Date.now() },
+  { de: 'bestellen', en: 'order', level: 0, nextReview: Date.now() },
+  { de: 'Feuer', en: 'fire', level: 0, nextReview: Date.now() },
+  { de: 'Süden', en: 'south', level: 0, nextReview: Date.now() },
+  { de: 'Problem', en: 'problem', level: 0, nextReview: Date.now() },
+  { de: 'Stück', en: 'piece', level: 0, nextReview: Date.now() },
+  { de: 'sagte', en: 'told', level: 0, nextReview: Date.now() },
+  { de: 'wusste', en: 'knew', level: 0, nextReview: Date.now() },
+  { de: 'passieren', en: 'pass', level: 0, nextReview: Date.now() },
+  { de: 'seit', en: 'since', level: 0, nextReview: Date.now() },
+  { de: 'obere', en: 'top', level: 0, nextReview: Date.now() },
+  { de: 'ganze', en: 'whole', level: 0, nextReview: Date.now() },
+  { de: 'König', en: 'king', level: 0, nextReview: Date.now() },
+  { de: 'Straße', en: 'street', level: 0, nextReview: Date.now() },
+  { de: 'Zoll', en: 'inch', level: 0, nextReview: Date.now() },
+  { de: 'multiplizieren', en: 'multiply', level: 0, nextReview: Date.now() },
+  { de: 'nichts', en: 'nothing', level: 0, nextReview: Date.now() },
+  { de: 'Kurs', en: 'course', level: 0, nextReview: Date.now() },
+  { de: 'bleiben', en: 'stay', level: 0, nextReview: Date.now() },
+  { de: 'Rad', en: 'wheel', level: 0, nextReview: Date.now() },
+  { de: 'voll', en: 'full', level: 0, nextReview: Date.now() },
+  { de: 'Kraft', en: 'force', level: 0, nextReview: Date.now() },
+  { de: 'blau', en: 'blue', level: 0, nextReview: Date.now() },
+  { de: 'Objekt', en: 'object', level: 0, nextReview: Date.now() },
+  { de: 'entscheiden', en: 'decide', level: 0, nextReview: Date.now() },
+  { de: 'Oberfläche', en: 'surface', level: 0, nextReview: Date.now() },
+  { de: 'tief', en: 'deep', level: 0, nextReview: Date.now() },
+  { de: 'Mond', en: 'moon', level: 0, nextReview: Date.now() },
+  { de: 'Insel', en: 'island', level: 0, nextReview: Date.now() },
+  { de: 'Fuß', en: 'foot', level: 0, nextReview: Date.now() },
+  { de: 'System', en: 'system', level: 0, nextReview: Date.now() },
+  { de: 'beschäftigt', en: 'busy', level: 0, nextReview: Date.now() },
+  { de: 'Prüfung', en: 'test', level: 0, nextReview: Date.now() },
+  { de: 'Rekord', en: 'record', level: 0, nextReview: Date.now() },
+  { de: 'Boot', en: 'boat', level: 0, nextReview: Date.now() },
+  { de: 'gemeinsam', en: 'common', level: 0, nextReview: Date.now() },
+  { de: 'goldenen', en: 'gold', level: 0, nextReview: Date.now() },
+  { de: 'möglich', en: 'possible', level: 0, nextReview: Date.now() },
+  { de: 'Flugzeug', en: 'plane', level: 0, nextReview: Date.now() },
+  { de: 'statt', en: 'stead', level: 0, nextReview: Date.now() },
+  { de: 'trocken', en: 'dry', level: 0, nextReview: Date.now() },
+  { de: 'Wunder', en: 'wonder', level: 0, nextReview: Date.now() },
+  { de: 'Lachen', en: 'laugh', level: 0, nextReview: Date.now() },
+  { de: 'tausend', en: 'thousand', level: 0, nextReview: Date.now() },
+  { de: 'vor', en: 'ago', level: 0, nextReview: Date.now() },
+  { de: 'lief', en: 'ran', level: 0, nextReview: Date.now() },
+  { de: 'überprüfen', en: 'check', level: 0, nextReview: Date.now() },
+  { de: 'Spiel', en: 'game', level: 0, nextReview: Date.now() },
+  { de: 'Form', en: 'shape', level: 0, nextReview: Date.now() },
+  { de: 'gleichsetzen', en: 'equate', level: 0, nextReview: Date.now() },
+  { de: 'heiß', en: 'hot', level: 0, nextReview: Date.now() },
+  { de: 'Fehl', en: 'miss', level: 0, nextReview: Date.now() },
+  { de: 'gebracht', en: 'brought', level: 0, nextReview: Date.now() },
+  { de: 'Wärme', en: 'heat', level: 0, nextReview: Date.now() },
+  { de: 'Schnee', en: 'snow', level: 0, nextReview: Date.now() },
+  { de: 'Reifen', en: 'tire', level: 0, nextReview: Date.now() },
+  { de: 'bringen', en: 'bring', level: 0, nextReview: Date.now() },
+  { de: 'ja', en: 'yes', level: 0, nextReview: Date.now() },
+  { de: 'entfernt', en: 'distant', level: 0, nextReview: Date.now() },
+  { de: 'füllen', en: 'fill', level: 0, nextReview: Date.now() },
+  { de: 'Osten', en: 'east', level: 0, nextReview: Date.now() },
+  { de: 'malen', en: 'paint', level: 0, nextReview: Date.now() },
+  { de: 'Sprache', en: 'language', level: 0, nextReview: Date.now() },
+  { de: 'unter', en: 'among', level: 0, nextReview: Date.now() },
+  { de: 'Einheit', en: 'unit', level: 0, nextReview: Date.now() },
+  { de: 'Macht', en: 'power', level: 0, nextReview: Date.now() },
+  { de: 'Stadt', en: 'town', level: 0, nextReview: Date.now() },
+  { de: 'fein', en: 'fine', level: 0, nextReview: Date.now() },
+  { de: 'sicher', en: 'certain', level: 0, nextReview: Date.now() },
+  { de: 'fliegen', en: 'fly', level: 0, nextReview: Date.now() },
+  { de: 'fallen', en: 'fall', level: 0, nextReview: Date.now() },
+  { de: 'führen', en: 'lead', level: 0, nextReview: Date.now() },
+  { de: 'Schrei', en: 'cry', level: 0, nextReview: Date.now() },
+  { de: 'dunkel', en: 'dark', level: 0, nextReview: Date.now() },
+  { de: 'Maschine', en: 'machine', level: 0, nextReview: Date.now() },
+  { de: 'note', en: 'note', level: 0, nextReview: Date.now() },
+  { de: 'warten', en: 'wait', level: 0, nextReview: Date.now() },
+  { de: 'Plan', en: 'plan', level: 0, nextReview: Date.now() },
+  { de: 'Abbildung', en: 'figure', level: 0, nextReview: Date.now() },
+  { de: 'Stern', en: 'star', level: 0, nextReview: Date.now() },
+  { de: 'Kasten', en: 'box', level: 0, nextReview: Date.now() },
+  { de: 'Nomen', en: 'noun', level: 0, nextReview: Date.now() },
+  { de: 'Feld', en: 'field', level: 0, nextReview: Date.now() },
+  { de: 'Rest', en: 'rest', level: 0, nextReview: Date.now() },
+  { de: 'richtig', en: 'correct', level: 0, nextReview: Date.now() },
+  { de: 'fähig', en: 'able', level: 0, nextReview: Date.now() },
+  { de: 'Pfund', en: 'pound', level: 0, nextReview: Date.now() },
+  { de: 'getan', en: 'done', level: 0, nextReview: Date.now() },
+  { de: 'Schönheit', en: 'beauty', level: 0, nextReview: Date.now() },
+  { de: 'Antriebs', en: 'drive', level: 0, nextReview: Date.now() },
+  { de: 'stand', en: 'stood', level: 0, nextReview: Date.now() },
+  { de: 'enthalten', en: 'contain', level: 0, nextReview: Date.now() },
+  { de: 'Front', en: 'front', level: 0, nextReview: Date.now() },
+  { de: 'lehren', en: 'teach', level: 0, nextReview: Date.now() },
+  { de: 'Woche', en: 'week', level: 0, nextReview: Date.now() },
+  { de: 'Finale', en: 'final', level: 0, nextReview: Date.now() },
+  { de: 'gab', en: 'gave', level: 0, nextReview: Date.now() },
+  { de: 'grün', en: 'green', level: 0, nextReview: Date.now() },
+  { de: 'oh', en: 'oh', level: 0, nextReview: Date.now() },
+  { de: 'schnell', en: 'quick', level: 0, nextReview: Date.now() },
+  { de: 'entwickeln', en: 'develop', level: 0, nextReview: Date.now() },
+  { de: 'Ozean', en: 'ocean', level: 0, nextReview: Date.now() },
+  { de: 'warme', en: 'warm', level: 0, nextReview: Date.now() },
+  { de: 'kostenlos', en: 'free', level: 0, nextReview: Date.now() },
+  { de: 'Minute', en: 'minute', level: 0, nextReview: Date.now() },
+  { de: 'stark', en: 'strong', level: 0, nextReview: Date.now() },
+  { de: 'besondere', en: 'special', level: 0, nextReview: Date.now() },
+  { de: 'Geist', en: 'mind', level: 0, nextReview: Date.now() },
+  { de: 'hinter', en: 'behind', level: 0, nextReview: Date.now() },
+  { de: 'klar', en: 'clear', level: 0, nextReview: Date.now() },
+  { de: 'Schwanz', en: 'tail', level: 0, nextReview: Date.now() },
+  { de: 'produzieren', en: 'produce', level: 0, nextReview: Date.now() },
+  { de: 'Tatsache', en: 'fact', level: 0, nextReview: Date.now() },
+  { de: 'Raum', en: 'space', level: 0, nextReview: Date.now() },
+  { de: 'gehört', en: 'heard', level: 0, nextReview: Date.now() },
+  { de: 'beste', en: 'best', level: 0, nextReview: Date.now() },
+  { de: 'Stunde', en: 'hour', level: 0, nextReview: Date.now() },
+  { de: 'besser', en: 'better', level: 0, nextReview: Date.now() },
+  { de: 'wahr', en: 'true', level: 0, nextReview: Date.now() },
+  { de: 'während', en: 'during', level: 0, nextReview: Date.now() },
+  { de: 'hundert', en: 'hundred', level: 0, nextReview: Date.now() },
+  { de: 'fünf', en: 'five', level: 0, nextReview: Date.now() },
+  { de: 'merken', en: 'remember', level: 0, nextReview: Date.now() },
+  { de: 'Schritt', en: 'step', level: 0, nextReview: Date.now() },
+  { de: 'früh', en: 'early', level: 0, nextReview: Date.now() },
+  { de: 'halten', en: 'hold', level: 0, nextReview: Date.now() },
+  { de: 'Westen', en: 'west', level: 0, nextReview: Date.now() },
+  { de: 'Boden', en: 'ground', level: 0, nextReview: Date.now() },
+  { de: 'Interesse', en: 'interest', level: 0, nextReview: Date.now() },
+  { de: 'erreichen', en: 'reach', level: 0, nextReview: Date.now() },
+  { de: 'schnell', en: 'fast', level: 0, nextReview: Date.now() },
+  { de: 'Verbum', en: 'verb', level: 0, nextReview: Date.now() },
+  { de: 'singen', en: 'sing', level: 0, nextReview: Date.now() },
+  { de: 'hören', en: 'listen', level: 0, nextReview: Date.now() },
+  { de: 'sechs', en: 'six', level: 0, nextReview: Date.now() },
+  { de: 'Tabelle', en: 'table', level: 0, nextReview: Date.now() },
+  { de: 'Reise', en: 'travel', level: 0, nextReview: Date.now() },
+  { de: 'weniger', en: 'less', level: 0, nextReview: Date.now() },
+  { de: 'Morgen', en: 'morning', level: 0, nextReview: Date.now() },
+  { de: 'zehn', en: 'ten', level: 0, nextReview: Date.now() },
+  { de: 'einfach', en: 'simple', level: 0, nextReview: Date.now() },
+  { de: 'mehrere', en: 'several', level: 0, nextReview: Date.now() },
+  { de: 'Vokal', en: 'vowel', level: 0, nextReview: Date.now() },
+  { de: 'auf', en: 'toward', level: 0, nextReview: Date.now() },
+  { de: 'Krieg', en: 'war', level: 0, nextReview: Date.now() },
+  { de: 'legen', en: 'lay', level: 0, nextReview: Date.now() },
+  { de: 'gegen', en: 'against', level: 0, nextReview: Date.now() },
+  { de: 'Muster', en: 'pattern', level: 0, nextReview: Date.now() },
+  { de: 'schleppend', en: 'slow', level: 0, nextReview: Date.now() },
+  { de: 'Zentrum', en: 'center', level: 0, nextReview: Date.now() },
+  { de: 'Liebe', en: 'love', level: 0, nextReview: Date.now() },
+  { de: 'Person', en: 'person', level: 0, nextReview: Date.now() },
+  { de: 'Geld', en: 'money', level: 0, nextReview: Date.now() },
+  { de: 'dienen', en: 'serve', level: 0, nextReview: Date.now() },
+  { de: 'erscheinen', en: 'appear', level: 0, nextReview: Date.now() },
+  { de: 'Straße', en: 'road', level: 0, nextReview: Date.now() },
+  { de: 'Karte', en: 'map', level: 0, nextReview: Date.now() },
+  { de: 'regen', en: 'rain', level: 0, nextReview: Date.now() },
+  { de: 'Regel', en: 'rule', level: 0, nextReview: Date.now() },
+  { de: 'regieren', en: 'govern', level: 0, nextReview: Date.now() },
+  { de: 'ziehen', en: 'pull', level: 0, nextReview: Date.now() },
+  { de: 'Kälte', en: 'cold', level: 0, nextReview: Date.now() },
+  { de: 'Hinweis', en: 'notice', level: 0, nextReview: Date.now() },
+  { de: 'Stimme', en: 'voice', level: 0, nextReview: Date.now() },
+  { de: 'Energie', en: 'energy', level: 0, nextReview: Date.now() },
+  { de: 'Jagd', en: 'hunt', level: 0, nextReview: Date.now() },
+  { de: 'wahrscheinlich', en: 'probable', level: 0, nextReview: Date.now() },
+  { de: 'Bett', en: 'bed', level: 0, nextReview: Date.now() },
+  { de: 'Bruder', en: 'brother', level: 0, nextReview: Date.now() },
+  { de: 'Ei', en: 'egg', level: 0, nextReview: Date.now() },
+  { de: 'Fahrt', en: 'ride', level: 0, nextReview: Date.now() },
+  { de: 'Zelle', en: 'cell', level: 0, nextReview: Date.now() },
+  { de: 'glauben', en: 'believe', level: 0, nextReview: Date.now() },
+  { de: 'vielleicht', en: 'perhaps', level: 0, nextReview: Date.now() },
+  { de: 'pflücken', en: 'pick', level: 0, nextReview: Date.now() },
+  { de: 'plötzlich', en: 'sudden', level: 0, nextReview: Date.now() },
+  { de: 'zählen', en: 'count', level: 0, nextReview: Date.now() },
+  { de: 'Platz', en: 'square', level: 0, nextReview: Date.now() },
+  { de: 'Grund', en: 'reason', level: 0, nextReview: Date.now() },
+  { de: 'Dauer', en: 'length', level: 0, nextReview: Date.now() },
+  { de: 'vertreten', en: 'represent', level: 0, nextReview: Date.now() },
+  { de: 'Kunst', en: 'art', level: 0, nextReview: Date.now() },
+  { de: 'Thema', en: 'subject', level: 0, nextReview: Date.now() },
+  { de: 'Region', en: 'region', level: 0, nextReview: Date.now() },
+  { de: 'Größe', en: 'size', level: 0, nextReview: Date.now() },
+  { de: 'variieren', en: 'vary', level: 0, nextReview: Date.now() },
+  { de: 'regeln', en: 'settle', level: 0, nextReview: Date.now() },
+  { de: 'sprechen', en: 'speak', level: 0, nextReview: Date.now() },
+  { de: 'Gewicht', en: 'weight', level: 0, nextReview: Date.now() },
+  { de: 'allgemein', en: 'general', level: 0, nextReview: Date.now() },
+  { de: 'Eis', en: 'ice', level: 0, nextReview: Date.now() },
+  { de: 'Materie', en: 'matter', level: 0, nextReview: Date.now() },
+  { de: 'Kreis', en: 'circle', level: 0, nextReview: Date.now() },
+  { de: 'Paar', en: 'pair', level: 0, nextReview: Date.now() },
+  { de: 'umfassen', en: 'include', level: 0, nextReview: Date.now() },
+  { de: 'Kluft', en: 'divide', level: 0, nextReview: Date.now() },
+  { de: 'Silbe', en: 'syllable', level: 0, nextReview: Date.now() },
+  { de: 'Filz', en: 'felt', level: 0, nextReview: Date.now() },
+  { de: 'groß', en: 'grand', level: 0, nextReview: Date.now() },
+  { de: 'Kugel', en: 'ball', level: 0, nextReview: Date.now() },
+  { de: 'noch', en: 'yet', level: 0, nextReview: Date.now() },
+  { de: 'Welle', en: 'wave', level: 0, nextReview: Date.now() },
+  { de: 'fallen', en: 'drop', level: 0, nextReview: Date.now() },
+  { de: 'Herz', en: 'heart', level: 0, nextReview: Date.now() },
+  { de: 'Uhr', en: 'am', level: 0, nextReview: Date.now() },
+  { de: 'vorhanden', en: 'present', level: 0, nextReview: Date.now() },
+  { de: 'schwer', en: 'heavy', level: 0, nextReview: Date.now() },
+  { de: 'Tanz', en: 'dance', level: 0, nextReview: Date.now() },
+  { de: 'Motor', en: 'engine', level: 0, nextReview: Date.now() },
+  { de: 'Position', en: 'position', level: 0, nextReview: Date.now() },
+  { de: 'Arm', en: 'arm', level: 0, nextReview: Date.now() },
+  { de: 'breit', en: 'wide', level: 0, nextReview: Date.now() },
+  { de: 'Segel', en: 'sail', level: 0, nextReview: Date.now() },
+  { de: 'Material', en: 'material', level: 0, nextReview: Date.now() },
+  { de: 'Fraktion', en: 'fraction', level: 0, nextReview: Date.now() },
+  { de: 'Wald', en: 'forest', level: 0, nextReview: Date.now() },
+  { de: 'sitzen', en: 'sit', level: 0, nextReview: Date.now() },
+  { de: 'Rennen', en: 'race', level: 0, nextReview: Date.now() },
+  { de: 'Fenster', en: 'window', level: 0, nextReview: Date.now() },
+  { de: 'Speicher', en: 'store', level: 0, nextReview: Date.now() },
+  { de: 'Sommer', en: 'summer', level: 0, nextReview: Date.now() },
+  { de: 'Zug', en: 'train', level: 0, nextReview: Date.now() },
+  { de: 'Schlaf', en: 'sleep', level: 0, nextReview: Date.now() },
+  { de: 'beweisen', en: 'prove', level: 0, nextReview: Date.now() },
+  { de: 'einsam', en: 'lone', level: 0, nextReview: Date.now() },
+  { de: 'Bein', en: 'leg', level: 0, nextReview: Date.now() },
+  { de: 'Übung', en: 'exercise', level: 0, nextReview: Date.now() },
+  { de: 'Wand', en: 'wall', level: 0, nextReview: Date.now() },
+  { de: 'Fang', en: 'catch', level: 0, nextReview: Date.now() },
+  { de: 'Berg', en: 'mount', level: 0, nextReview: Date.now() },
+  { de: 'wünschen', en: 'wish', level: 0, nextReview: Date.now() },
+  { de: 'Himmel', en: 'sky', level: 0, nextReview: Date.now() },
+  { de: 'Board', en: 'board', level: 0, nextReview: Date.now() },
+  { de: 'Freude', en: 'joy', level: 0, nextReview: Date.now() },
+  { de: 'Winter', en: 'winter', level: 0, nextReview: Date.now() },
+  { de: 'sa', en: 'sat', level: 0, nextReview: Date.now() },
+  { de: 'geschrieben', en: 'written', level: 0, nextReview: Date.now() },
+  { de: 'wilden', en: 'wild', level: 0, nextReview: Date.now() },
+  { de: 'Instrument', en: 'instrument', level: 0, nextReview: Date.now() },
+  { de: 'gehalten', en: 'kept', level: 0, nextReview: Date.now() },
+  { de: 'Glas', en: 'glass', level: 0, nextReview: Date.now() },
+  { de: 'Gras', en: 'grass', level: 0, nextReview: Date.now() },
+  { de: 'Kuh', en: 'cow', level: 0, nextReview: Date.now() },
+  { de: 'Arbeit', en: 'job', level: 0, nextReview: Date.now() },
+  { de: 'Rand', en: 'edge', level: 0, nextReview: Date.now() },
+  { de: 'Zeichen', en: 'sign', level: 0, nextReview: Date.now() },
+  { de: 'Besuch', en: 'visit', level: 0, nextReview: Date.now() },
+  { de: 'Vergangenheit', en: 'past', level: 0, nextReview: Date.now() },
+  { de: 'weich', en: 'soft', level: 0, nextReview: Date.now() },
+  { de: 'Spaß', en: 'fun', level: 0, nextReview: Date.now() },
+  { de: 'hell', en: 'bright', level: 0, nextReview: Date.now() },
+  { de: 'Gases', en: 'gas', level: 0, nextReview: Date.now() },
+  { de: 'Wetter', en: 'weather', level: 0, nextReview: Date.now() },
+  { de: 'Monat', en: 'month', level: 0, nextReview: Date.now() },
+  { de: 'Million', en: 'million', level: 0, nextReview: Date.now() },
+  { de: 'tragen', en: 'bear', level: 0, nextReview: Date.now() },
+  { de: 'Finish', en: 'finish', level: 0, nextReview: Date.now() },
+  { de: 'glücklich', en: 'happy', level: 0, nextReview: Date.now() },
+  { de: 'hoffen', en: 'hope', level: 0, nextReview: Date.now() },
+  { de: 'blume', en: 'flower', level: 0, nextReview: Date.now() },
+  { de: 'kleiden', en: 'clothe', level: 0, nextReview: Date.now() },
+  { de: 'seltsam', en: 'strange', level: 0, nextReview: Date.now() },
+  { de: 'Vorbei', en: 'gone', level: 0, nextReview: Date.now() },
+  { de: 'Handel', en: 'trade', level: 0, nextReview: Date.now() },
+  { de: 'Melodie', en: 'melody', level: 0, nextReview: Date.now() },
+  { de: 'Reise', en: 'trip', level: 0, nextReview: Date.now() },
+  { de: 'Büro', en: 'office', level: 0, nextReview: Date.now() },
+  { de: 'empfangen', en: 'receive', level: 0, nextReview: Date.now() },
+  { de: 'Reihe', en: 'row', level: 0, nextReview: Date.now() },
+  { de: 'Mund', en: 'mouth', level: 0, nextReview: Date.now() },
+  { de: 'genau', en: 'exact', level: 0, nextReview: Date.now() },
+  { de: 'Zeichen', en: 'symbol', level: 0, nextReview: Date.now() },
+  { de: 'sterben', en: 'die', level: 0, nextReview: Date.now() },
+  { de: 'am wenigsten', en: 'least', level: 0, nextReview: Date.now() },
+  { de: 'Ärger', en: 'trouble', level: 0, nextReview: Date.now() },
+  { de: 'Schrei', en: 'shout', level: 0, nextReview: Date.now() },
+  { de: 'außer', en: 'except', level: 0, nextReview: Date.now() },
+  { de: 'schrieb', en: 'wrote', level: 0, nextReview: Date.now() },
+  { de: 'Samen', en: 'seed', level: 0, nextReview: Date.now() },
+  { de: 'Ton', en: 'tone', level: 0, nextReview: Date.now() },
+  { de: 'beitreten', en: 'join', level: 0, nextReview: Date.now() },
+  { de: 'vorschlagen', en: 'suggest', level: 0, nextReview: Date.now() },
+  { de: 'sauber', en: 'clean', level: 0, nextReview: Date.now() },
+  { de: 'Pause', en: 'break', level: 0, nextReview: Date.now() },
+  { de: 'Dame', en: 'lady', level: 0, nextReview: Date.now() },
+  { de: 'Hof', en: 'yard', level: 0, nextReview: Date.now() },
+  { de: 'steigen', en: 'rise', level: 0, nextReview: Date.now() },
+  { de: 'schlecht', en: 'bad', level: 0, nextReview: Date.now() },
+  { de: 'Schlag', en: 'blow', level: 0, nextReview: Date.now() },
+  { de: 'Öl', en: 'oil', level: 0, nextReview: Date.now() },
+  { de: 'Blut', en: 'blood', level: 0, nextReview: Date.now() },
+  { de: 'berühren', en: 'touch', level: 0, nextReview: Date.now() },
+  { de: 'wuchs', en: 'grew', level: 0, nextReview: Date.now() },
+  { de: 'Cent', en: 'cent', level: 0, nextReview: Date.now() },
+  { de: 'mischen', en: 'mix', level: 0, nextReview: Date.now() },
+  { de: 'Mannschaft', en: 'team', level: 0, nextReview: Date.now() },
+  { de: 'Draht', en: 'wire', level: 0, nextReview: Date.now() },
+  { de: 'Kosten', en: 'cost', level: 0, nextReview: Date.now() },
+  { de: 'verloren', en: 'lost', level: 0, nextReview: Date.now() },
+  { de: 'braun', en: 'brown', level: 0, nextReview: Date.now() },
+  { de: 'tragen', en: 'wear', level: 0, nextReview: Date.now() },
+  { de: 'Garten', en: 'garden', level: 0, nextReview: Date.now() },
+  { de: 'gleich', en: 'equal', level: 0, nextReview: Date.now() },
+  { de: 'gesendet', en: 'sent', level: 0, nextReview: Date.now() },
+  { de: 'wählen', en: 'choose', level: 0, nextReview: Date.now() },
+  { de: 'fiel', en: 'fell', level: 0, nextReview: Date.now() },
+  { de: 'passen', en: 'fit', level: 0, nextReview: Date.now() },
+  { de: 'fließen', en: 'flow', level: 0, nextReview: Date.now() },
+  { de: 'Messe', en: 'fair', level: 0, nextReview: Date.now() },
+  { de: 'Bank', en: 'bank', level: 0, nextReview: Date.now() },
+  { de: 'sammeln', en: 'collect', level: 0, nextReview: Date.now() },
+  { de: 'sparen', en: 'save', level: 0, nextReview: Date.now() },
+  { de: 'Kontrolle', en: 'control', level: 0, nextReview: Date.now() },
+  { de: 'dezimal', en: 'decimal', level: 0, nextReview: Date.now() },
+  { de: 'Ohr', en: 'ear', level: 0, nextReview: Date.now() },
+  { de: 'sonst', en: 'else', level: 0, nextReview: Date.now() },
+  { de: 'ganz', en: 'quite', level: 0, nextReview: Date.now() },
+  { de: 'pleite', en: 'broke', level: 0, nextReview: Date.now() },
+  { de: 'Fall', en: 'case', level: 0, nextReview: Date.now() },
+  { de: 'Mitte', en: 'middle', level: 0, nextReview: Date.now() },
+  { de: 'töten', en: 'kill', level: 0, nextReview: Date.now() },
+  { de: 'Sohn', en: 'son', level: 0, nextReview: Date.now() },
+  { de: 'See', en: 'lake', level: 0, nextReview: Date.now() },
+  { de: 'Moment', en: 'moment', level: 0, nextReview: Date.now() },
+  { de: 'Maßstab', en: 'scale', level: 0, nextReview: Date.now() },
+  { de: 'laut', en: 'loud', level: 0, nextReview: Date.now() },
+  { de: 'Frühling', en: 'spring', level: 0, nextReview: Date.now() },
+  { de: 'beobachten', en: 'observe', level: 0, nextReview: Date.now() },
+  { de: 'Kind', en: 'child', level: 0, nextReview: Date.now() },
+  { de: 'gerade', en: 'straight', level: 0, nextReview: Date.now() },
+  { de: 'Konsonant', en: 'consonant', level: 0, nextReview: Date.now() },
+  { de: 'Nation', en: 'nation', level: 0, nextReview: Date.now() },
+  { de: 'Wörterbuch', en: 'dictionary', level: 0, nextReview: Date.now() },
+  { de: 'milch', en: 'milk', level: 0, nextReview: Date.now() },
+  { de: 'Geschwindigkeit', en: 'speed', level: 0, nextReview: Date.now() },
+  { de: 'Verfahren', en: 'method', level: 0, nextReview: Date.now() },
+  { de: 'Orgel', en: 'organ', level: 0, nextReview: Date.now() },
+  { de: 'zahlen', en: 'pay', level: 0, nextReview: Date.now() },
+  { de: 'Alter', en: 'age', level: 0, nextReview: Date.now() },
+  { de: 'Abschnitt', en: 'section', level: 0, nextReview: Date.now() },
+  { de: 'Kleid', en: 'dress', level: 0, nextReview: Date.now() },
+  { de: 'Wolke', en: 'cloud', level: 0, nextReview: Date.now() },
+  { de: 'Überraschung', en: 'surprise', level: 0, nextReview: Date.now() },
+  { de: 'ruhig', en: 'quiet', level: 0, nextReview: Date.now() },
+  { de: 'Stein', en: 'stone', level: 0, nextReview: Date.now() },
+  { de: 'winzig', en: 'tiny', level: 0, nextReview: Date.now() },
+  { de: 'Aufstieg', en: 'climb', level: 0, nextReview: Date.now() },
+  { de: 'kühlen', en: 'cool', level: 0, nextReview: Date.now() },
+  { de: 'Entwurf', en: 'design', level: 0, nextReview: Date.now() },
+  { de: 'arm', en: 'poor', level: 0, nextReview: Date.now() },
+  { de: 'Menge', en: 'lot', level: 0, nextReview: Date.now() },
+  { de: 'Versuch', en: 'experiment', level: 0, nextReview: Date.now() },
+  { de: 'Boden', en: 'bottom', level: 0, nextReview: Date.now() },
+  { de: 'Schlüssel', en: 'key', level: 0, nextReview: Date.now() },
+  { de: 'Eisen', en: 'iron', level: 0, nextReview: Date.now() },
+  { de: 'Einzel', en: 'single', level: 0, nextReview: Date.now() },
+  { de: 'Stick', en: 'stick', level: 0, nextReview: Date.now() },
+  { de: 'Wohnung', en: 'flat', level: 0, nextReview: Date.now() },
+  { de: 'zwanzig', en: 'twenty', level: 0, nextReview: Date.now() },
+  { de: 'Haut', en: 'skin', level: 0, nextReview: Date.now() },
+  { de: 'Lächeln', en: 'smile', level: 0, nextReview: Date.now() },
+  { de: 'Falte', en: 'crease', level: 0, nextReview: Date.now() },
+  { de: 'Loch', en: 'hole', level: 0, nextReview: Date.now() },
+  { de: 'springen', en: 'jump', level: 0, nextReview: Date.now() },
+  { de: 'Kind', en: 'baby', level: 0, nextReview: Date.now() },
+  { de: 'acht', en: 'eight', level: 0, nextReview: Date.now() },
+  { de: 'Dorf', en: 'village', level: 0, nextReview: Date.now() },
+  { de: 'treffen', en: 'meet', level: 0, nextReview: Date.now() },
+  { de: 'Wurzel', en: 'root', level: 0, nextReview: Date.now() },
+  { de: 'kaufen', en: 'buy', level: 0, nextReview: Date.now() },
+  { de: 'erhöhen', en: 'raise', level: 0, nextReview: Date.now() },
+  { de: 'lösen', en: 'solve', level: 0, nextReview: Date.now() },
+  { de: 'Metall', en: 'metal', level: 0, nextReview: Date.now() },
+  { de: 'ob', en: 'whether', level: 0, nextReview: Date.now() },
+  { de: 'drücken', en: 'push', level: 0, nextReview: Date.now() },
+  { de: 'sieben', en: 'seven', level: 0, nextReview: Date.now() },
+  { de: 'Absatz', en: 'paragraph', level: 0, nextReview: Date.now() },
+  { de: 'dritte', en: 'third', level: 0, nextReview: Date.now() },
+  { de: 'wird', en: 'shall', level: 0, nextReview: Date.now() },
+  { de: 'Hand', en: 'held', level: 0, nextReview: Date.now() },
+  { de: 'Haar', en: 'hair', level: 0, nextReview: Date.now() },
+  { de: 'beschreiben', en: 'describe', level: 0, nextReview: Date.now() },
+  { de: 'Koch', en: 'cook', level: 0, nextReview: Date.now() },
+  { de: 'Boden', en: 'floor', level: 0, nextReview: Date.now() },
+  { de: 'entweder', en: 'either', level: 0, nextReview: Date.now() },
+  { de: 'Ergebnis', en: 'result', level: 0, nextReview: Date.now() },
+  { de: 'brennen', en: 'burn', level: 0, nextReview: Date.now() },
+  { de: 'Hügel', en: 'hill', level: 0, nextReview: Date.now() },
+  { de: 'sicher', en: 'safe', level: 0, nextReview: Date.now() },
+  { de: 'Katze', en: 'cat', level: 0, nextReview: Date.now() },
+  { de: 'Jahrhundert', en: 'century', level: 0, nextReview: Date.now() },
+  { de: 'betrachten', en: 'consider', level: 0, nextReview: Date.now() },
+  { de: 'Typ', en: 'type', level: 0, nextReview: Date.now() },
+  { de: 'Gesetz', en: 'law', level: 0, nextReview: Date.now() },
+  { de: 'Bit', en: 'bit', level: 0, nextReview: Date.now() },
+  { de: 'Küste', en: 'coast', level: 0, nextReview: Date.now() },
+  { de: 'Kopie', en: 'copy', level: 0, nextReview: Date.now() },
+  { de: 'Ausdruck', en: 'phrase', level: 0, nextReview: Date.now() },
+  { de: 'still', en: 'silent', level: 0, nextReview: Date.now() },
+  { de: 'hoch', en: 'tall', level: 0, nextReview: Date.now() },
+  { de: 'Sand', en: 'sand', level: 0, nextReview: Date.now() },
+  { de: 'Boden', en: 'soil', level: 0, nextReview: Date.now() },
+  { de: 'Rolle', en: 'roll', level: 0, nextReview: Date.now() },
+  { de: 'Temperatur', en: 'temperature', level: 0, nextReview: Date.now() },
+  { de: 'Finger', en: 'finger', level: 0, nextReview: Date.now() },
+  { de: 'Industrie', en: 'industry', level: 0, nextReview: Date.now() },
+  { de: 'Wert', en: 'value', level: 0, nextReview: Date.now() },
+  { de: 'Kampf', en: 'fight', level: 0, nextReview: Date.now() },
+  { de: 'Lüge', en: 'lie', level: 0, nextReview: Date.now() },
+  { de: 'schlagen', en: 'beat', level: 0, nextReview: Date.now() },
+  { de: 'begeistern', en: 'excite', level: 0, nextReview: Date.now() },
+  { de: 'natürlich', en: 'natural', level: 0, nextReview: Date.now() },
+  { de: 'Blick', en: 'view', level: 0, nextReview: Date.now() },
+  { de: 'Sinn', en: 'sense', level: 0, nextReview: Date.now() },
+  { de: 'Hauptstadt', en: 'capital', level: 0, nextReview: Date.now() },
+  { de: 'wird nicht', en: 'won’t', level: 0, nextReview: Date.now() },
+  { de: 'Stuhl', en: 'chair', level: 0, nextReview: Date.now() },
+  { de: 'Achtung', en: 'danger', level: 0, nextReview: Date.now() },
+  { de: 'Obst', en: 'fruit', level: 0, nextReview: Date.now() },
+  { de: 'reich', en: 'rich', level: 0, nextReview: Date.now() },
+  { de: 'dick', en: 'thick', level: 0, nextReview: Date.now() },
+  { de: 'Soldat', en: 'soldier', level: 0, nextReview: Date.now() },
+  { de: 'Prozess', en: 'process', level: 0, nextReview: Date.now() },
+  { de: 'betreiben', en: 'operate', level: 0, nextReview: Date.now() },
+  { de: 'Praxis', en: 'practice', level: 0, nextReview: Date.now() },
+  { de: 'trennen', en: 'separate', level: 0, nextReview: Date.now() },
+  { de: 'schwierig', en: 'difficult', level: 0, nextReview: Date.now() },
+  { de: 'Arzt', en: 'doctor', level: 0, nextReview: Date.now() },
+  { de: 'Bitte', en: 'please', level: 0, nextReview: Date.now() },
+  { de: 'schützen', en: 'protect', level: 0, nextReview: Date.now() },
+  { de: 'Mittag', en: 'noon', level: 0, nextReview: Date.now() },
+  { de: 'Ernte', en: 'crop', level: 0, nextReview: Date.now() },
+  { de: 'modernen', en: 'modern', level: 0, nextReview: Date.now() },
+  { de: 'Elementes', en: 'element', level: 0, nextReview: Date.now() },
+  { de: 'treffen', en: 'hit', level: 0, nextReview: Date.now() },
+  { de: 'Schüler', en: 'student', level: 0, nextReview: Date.now() },
+  { de: 'Ecke', en: 'corner', level: 0, nextReview: Date.now() },
+  { de: 'Partei', en: 'party', level: 0, nextReview: Date.now() },
+  { de: 'Versorgung', en: 'supply', level: 0, nextReview: Date.now() },
+  { de: 'deren', en: 'whose', level: 0, nextReview: Date.now() },
+  { de: 'lokalisieren', en: 'locate', level: 0, nextReview: Date.now() },
+  { de: 'Rings', en: 'ring', level: 0, nextReview: Date.now() },
+  { de: 'Charakter', en: 'character', level: 0, nextReview: Date.now() },
+  { de: 'insekt', en: 'insect', level: 0, nextReview: Date.now() },
+  { de: 'gefangen', en: 'caught', level: 0, nextReview: Date.now() },
+  { de: 'Zeit', en: 'period', level: 0, nextReview: Date.now() },
+  { de: 'zeigen', en: 'indicate', level: 0, nextReview: Date.now() },
+  { de: 'Funk', en: 'radio', level: 0, nextReview: Date.now() },
+  { de: 'Speiche', en: 'spoke', level: 0, nextReview: Date.now() },
+  { de: 'Atom', en: 'atom', level: 0, nextReview: Date.now() },
+  { de: 'Mensch', en: 'human', level: 0, nextReview: Date.now() },
+  { de: 'Geschichte', en: 'history', level: 0, nextReview: Date.now() },
+  { de: 'Wirkung', en: 'effect', level: 0, nextReview: Date.now() },
+  { de: 'elektrisch', en: 'electric', level: 0, nextReview: Date.now() },
+  { de: 'erwarten', en: 'expect', level: 0, nextReview: Date.now() },
+  { de: 'Knochen', en: 'bone', level: 0, nextReview: Date.now() },
+  { de: 'Schiene', en: 'rail', level: 0, nextReview: Date.now() },
+  { de: 'vorstellen', en: 'imagine', level: 0, nextReview: Date.now() },
+  { de: 'bieten', en: 'provide', level: 0, nextReview: Date.now() },
+  { de: 'zustimmen', en: 'agree', level: 0, nextReview: Date.now() },
+  { de: 'so', en: 'thus', level: 0, nextReview: Date.now() },
+  { de: 'sanft', en: 'gentle', level: 0, nextReview: Date.now() },
+  { de: 'Frau', en: 'woman', level: 0, nextReview: Date.now() },
+  { de: 'Kapitän', en: 'captain', level: 0, nextReview: Date.now() },
+  { de: 'erraten', en: 'guess', level: 0, nextReview: Date.now() },
+  { de: 'erforderlich', en: 'necessary', level: 0, nextReview: Date.now() },
+  { de: 'scharf', en: 'sharp', level: 0, nextReview: Date.now() },
+  { de: 'Flügel', en: 'wing', level: 0, nextReview: Date.now() },
+  { de: 'schaffen', en: 'create', level: 0, nextReview: Date.now() },
+  { de: 'Nachbar', en: 'neighbor', level: 0, nextReview: Date.now() },
+  { de: 'Wasch', en: 'wash', level: 0, nextReview: Date.now() },
+  { de: 'Fledermaus', en: 'bat', level: 0, nextReview: Date.now() },
+  { de: 'eher', en: 'rather', level: 0, nextReview: Date.now() },
+  { de: 'Menge', en: 'crowd', level: 0, nextReview: Date.now() },
+  { de: 'mais', en: 'corn', level: 0, nextReview: Date.now() },
+  { de: 'vergleichen', en: 'compare', level: 0, nextReview: Date.now() },
+  { de: 'Gedicht', en: 'poem', level: 0, nextReview: Date.now() },
+  { de: 'Schnur', en: 'string', level: 0, nextReview: Date.now() },
+  { de: 'Glocke', en: 'bell', level: 0, nextReview: Date.now() },
+  { de: 'abhängen', en: 'depend', level: 0, nextReview: Date.now() },
+  { de: 'Fleisch', en: 'meat', level: 0, nextReview: Date.now() },
+  { de: 'einreiben', en: 'rub', level: 0, nextReview: Date.now() },
+  { de: 'Rohr', en: 'tube', level: 0, nextReview: Date.now() },
+  { de: 'berühmt', en: 'famous', level: 0, nextReview: Date.now() },
+  { de: 'Dollar', en: 'dollar', level: 0, nextReview: Date.now() },
+  { de: 'Strom', en: 'stream', level: 0, nextReview: Date.now() },
+  { de: 'Angst', en: 'fear', level: 0, nextReview: Date.now() },
+  { de: 'Blick', en: 'sight', level: 0, nextReview: Date.now() },
+  { de: 'dünn', en: 'thin', level: 0, nextReview: Date.now() },
+  { de: 'Dreieck', en: 'triangle', level: 0, nextReview: Date.now() },
+  { de: 'Erde', en: 'planet', level: 0, nextReview: Date.now() },
+  { de: 'Eile', en: 'hurry', level: 0, nextReview: Date.now() },
+  { de: 'Chef', en: 'chief', level: 0, nextReview: Date.now() },
+  { de: 'Kolonie', en: 'colony', level: 0, nextReview: Date.now() },
+  { de: 'Uhr', en: 'clock', level: 0, nextReview: Date.now() },
+  { de: 'Mine', en: 'mine', level: 0, nextReview: Date.now() },
+  { de: 'Krawatte', en: 'tie', level: 0, nextReview: Date.now() },
+  { de: 'eingeben', en: 'enter', level: 0, nextReview: Date.now() },
+  { de: 'Dur', en: 'major', level: 0, nextReview: Date.now() },
+  { de: 'frisch', en: 'fresh', level: 0, nextReview: Date.now() },
+  { de: 'Suche', en: 'search', level: 0, nextReview: Date.now() },
+  { de: 'senden', en: 'send', level: 0, nextReview: Date.now() },
+  { de: 'gelb', en: 'yellow', level: 0, nextReview: Date.now() },
+  { de: 'Pistole', en: 'gun', level: 0, nextReview: Date.now() },
+  { de: 'erlauben', en: 'allow', level: 0, nextReview: Date.now() },
+  { de: 'Druck', en: 'print', level: 0, nextReview: Date.now() },
+  { de: 'tot', en: 'dead', level: 0, nextReview: Date.now() },
+  { de: 'Stelle', en: 'spot', level: 0, nextReview: Date.now() },
+  { de: 'Wüste', en: 'desert', level: 0, nextReview: Date.now() },
+  { de: 'Anzug', en: 'suit', level: 0, nextReview: Date.now() },
+  { de: 'Strom', en: 'current', level: 0, nextReview: Date.now() },
+  { de: 'Aufzug', en: 'lift', level: 0, nextReview: Date.now() },
+  { de: 'stiegen', en: 'rose', level: 0, nextReview: Date.now() },
+  { de: 'ankommen', en: 'arrive', level: 0, nextReview: Date.now() },
+  { de: 'Stamm', en: 'master', level: 0, nextReview: Date.now() },
+  { de: 'Spur', en: 'track', level: 0, nextReview: Date.now() },
+  { de: 'Elternteil', en: 'parent', level: 0, nextReview: Date.now() },
+  { de: 'Ufer', en: 'shore', level: 0, nextReview: Date.now() },
+  { de: 'Teilung', en: 'division', level: 0, nextReview: Date.now() },
+  { de: 'Blatt', en: 'sheet', level: 0, nextReview: Date.now() },
+  { de: 'Substanz', en: 'substance', level: 0, nextReview: Date.now() },
+  { de: 'begünstigen', en: 'favor', level: 0, nextReview: Date.now() },
+  { de: 'verbinden', en: 'connect', level: 0, nextReview: Date.now() },
+  { de: 'nach', en: 'post', level: 0, nextReview: Date.now() },
+  { de: 'verbringen', en: 'spend', level: 0, nextReview: Date.now() },
+  { de: 'Akkord', en: 'chord', level: 0, nextReview: Date.now() },
+  { de: 'Fett', en: 'fat', level: 0, nextReview: Date.now() },
+  { de: 'froh', en: 'glad', level: 0, nextReview: Date.now() },
+  { de: 'Original', en: 'original', level: 0, nextReview: Date.now() },
+  { de: 'Aktie', en: 'share', level: 0, nextReview: Date.now() },
+  { de: 'Station', en: 'station', level: 0, nextReview: Date.now() },
+  { de: 'Papa', en: 'dad', level: 0, nextReview: Date.now() },
+  { de: 'Brot', en: 'bread', level: 0, nextReview: Date.now() },
+  { de: 'aufladen', en: 'charge', level: 0, nextReview: Date.now() },
+  { de: 'richtig', en: 'proper', level: 0, nextReview: Date.now() },
+  { de: 'Leiste', en: 'bar', level: 0, nextReview: Date.now() },
+  { de: 'Angebot', en: 'offer', level: 0, nextReview: Date.now() },
+  { de: 'Segment', en: 'segment', level: 0, nextReview: Date.now() },
+  { de: 'Sklave', en: 'slave', level: 0, nextReview: Date.now() },
+  { de: 'ente', en: 'duck', level: 0, nextReview: Date.now() },
+  { de: 'Augenblick', en: 'instant', level: 0, nextReview: Date.now() },
+  { de: 'Markt', en: 'market', level: 0, nextReview: Date.now() },
+  { de: 'Grad', en: 'degree', level: 0, nextReview: Date.now() },
+  { de: 'besiedeln', en: 'populate', level: 0, nextReview: Date.now() },
+  { de: 'küken', en: 'chick', level: 0, nextReview: Date.now() },
+  { de: 'liebe', en: 'dear', level: 0, nextReview: Date.now() },
+  { de: 'Feind', en: 'enemy', level: 0, nextReview: Date.now() },
+  { de: 'antworten', en: 'reply', level: 0, nextReview: Date.now() },
+  { de: 'Getränk', en: 'drink', level: 0, nextReview: Date.now() },
+  { de: 'auftreten', en: 'occur', level: 0, nextReview: Date.now() },
+  { de: 'Unterstützung', en: 'support', level: 0, nextReview: Date.now() },
+  { de: 'Rede', en: 'speech', level: 0, nextReview: Date.now() },
+  { de: 'Natur', en: 'nature', level: 0, nextReview: Date.now() },
+  { de: 'Angebot', en: 'range', level: 0, nextReview: Date.now() },
+  { de: 'Dampf', en: 'steam', level: 0, nextReview: Date.now() },
+  { de: 'Bewegung', en: 'motion', level: 0, nextReview: Date.now() },
+  { de: 'Weg', en: 'path', level: 0, nextReview: Date.now() },
+  { de: 'Flüssigkeit', en: 'liquid', level: 0, nextReview: Date.now() },
+  { de: 'protokollieren', en: 'log', level: 0, nextReview: Date.now() },
+  { de: 'gemeint', en: 'meant', level: 0, nextReview: Date.now() },
+  { de: 'Quotient', en: 'quotient', level: 0, nextReview: Date.now() },
+  { de: 'Gebiss', en: 'teeth', level: 0, nextReview: Date.now() },
+  { de: 'Schale', en: 'shell', level: 0, nextReview: Date.now() },
+  { de: 'Hals', en: 'neck', level: 0, nextReview: Date.now() },
+  { de: 'Sauerstoff', en: 'oxygen', level: 0, nextReview: Date.now() },
+  { de: 'Zucker', en: 'sugar', level: 0, nextReview: Date.now() },
+  { de: 'Tod', en: 'death', level: 0, nextReview: Date.now() },
+  { de: 'ziemlich', en: 'pretty', level: 0, nextReview: Date.now() },
+  { de: 'Geschicklichkeit', en: 'skill', level: 0, nextReview: Date.now() },
+  { de: 'Frauen', en: 'women', level: 0, nextReview: Date.now() },
+  { de: 'Saison', en: 'season', level: 0, nextReview: Date.now() },
+  { de: 'Lösung', en: 'solution', level: 0, nextReview: Date.now() },
+  { de: 'Magnet', en: 'magnet', level: 0, nextReview: Date.now() },
+  { de: 'Silber', en: 'silver', level: 0, nextReview: Date.now() },
+  { de: 'danken', en: 'thank', level: 0, nextReview: Date.now() },
+  { de: 'Zweig', en: 'branch', level: 0, nextReview: Date.now() },
+  { de: 'Spiel', en: 'match', level: 0, nextReview: Date.now() },
+  { de: 'Suffix', en: 'suffix', level: 0, nextReview: Date.now() },
+  { de: 'insbesondere', en: 'especially', level: 0, nextReview: Date.now() },
+  { de: 'Feige', en: 'fig', level: 0, nextReview: Date.now() },
+  { de: 'ängstlich', en: 'afraid', level: 0, nextReview: Date.now() },
+  { de: 'riesig', en: 'huge', level: 0, nextReview: Date.now() },
+  { de: 'Schwester', en: 'sister', level: 0, nextReview: Date.now() },
+  { de: 'Stahl', en: 'steel', level: 0, nextReview: Date.now() },
+  { de: 'diskutieren', en: 'discuss', level: 0, nextReview: Date.now() },
+  { de: 'vorwärts', en: 'forward', level: 0, nextReview: Date.now() },
+  { de: 'ähnlich', en: 'similar', level: 0, nextReview: Date.now() },
+  { de: 'führen', en: 'guide', level: 0, nextReview: Date.now() },
+  { de: 'Erfahrung', en: 'experience', level: 0, nextReview: Date.now() },
+  { de: 'Partitur', en: 'score', level: 0, nextReview: Date.now() },
+  { de: 'apfel', en: 'apple', level: 0, nextReview: Date.now() },
+  { de: 'gekauft', en: 'bought', level: 0, nextReview: Date.now() },
+  { de: 'geführt', en: 'led', level: 0, nextReview: Date.now() },
+  { de: 'Tonhöhe', en: 'pitch', level: 0, nextReview: Date.now() },
+  { de: 'Mantel', en: 'coat', level: 0, nextReview: Date.now() },
+  { de: 'Masse', en: 'mass', level: 0, nextReview: Date.now() },
+  { de: 'Karte', en: 'card', level: 0, nextReview: Date.now() },
+  { de: 'Band', en: 'band', level: 0, nextReview: Date.now() },
+  { de: 'Seil', en: 'rope', level: 0, nextReview: Date.now() },
+  { de: 'Rutsch', en: 'slip', level: 0, nextReview: Date.now() },
+  { de: 'gewinnen', en: 'win', level: 0, nextReview: Date.now() },
+  { de: 'träumen', en: 'dream', level: 0, nextReview: Date.now() },
+  { de: 'Abend', en: 'evening', level: 0, nextReview: Date.now() },
+  { de: 'Zustand', en: 'condition', level: 0, nextReview: Date.now() },
+  { de: 'Futtermittel', en: 'feed', level: 0, nextReview: Date.now() },
+  { de: 'Werkzeug', en: 'tool', level: 0, nextReview: Date.now() },
+  { de: 'gesamt', en: 'total', level: 0, nextReview: Date.now() },
+  { de: 'Basis', en: 'basic', level: 0, nextReview: Date.now() },
+  { de: 'Geruch', en: 'smell', level: 0, nextReview: Date.now() },
+  { de: 'Tal', en: 'valley', level: 0, nextReview: Date.now() },
+  { de: 'noch', en: 'nor', level: 0, nextReview: Date.now() },
+  { de: 'doppelt', en: 'double', level: 0, nextReview: Date.now() },
+  { de: 'Sitz', en: 'seat', level: 0, nextReview: Date.now() },
+  { de: 'fortsetzen', en: 'continue', level: 0, nextReview: Date.now() },
+  { de: 'Block', en: 'block', level: 0, nextReview: Date.now() },
+  { de: 'Tabelle', en: 'chart', level: 0, nextReview: Date.now() },
+  { de: 'Hut', en: 'hat', level: 0, nextReview: Date.now() },
+  { de: 'verkaufen', en: 'sell', level: 0, nextReview: Date.now() },
+  { de: 'Erfolg', en: 'success', level: 0, nextReview: Date.now() },
+  { de: 'Firma', en: 'company', level: 0, nextReview: Date.now() },
+  { de: 'subtrahieren', en: 'subtract', level: 0, nextReview: Date.now() },
+  { de: 'Veranstaltung', en: 'event', level: 0, nextReview: Date.now() },
+  { de: 'besondere', en: 'particular', level: 0, nextReview: Date.now() },
+  { de: 'viel', en: 'deal', level: 0, nextReview: Date.now() },
+  { de: 'schwimmen', en: 'swim', level: 0, nextReview: Date.now() },
+  { de: 'Begriff', en: 'term', level: 0, nextReview: Date.now() },
+  { de: 'Gegenteil', en: 'opposite', level: 0, nextReview: Date.now() },
+  { de: 'Frau', en: 'wife', level: 0, nextReview: Date.now() },
+  { de: 'Schuh', en: 'shoe', level: 0, nextReview: Date.now() },
+  { de: 'Schulter', en: 'shoulder', level: 0, nextReview: Date.now() },
+  { de: 'Verbreitung', en: 'spread', level: 0, nextReview: Date.now() },
+  { de: 'arrangieren', en: 'arrange', level: 0, nextReview: Date.now() },
+  { de: 'Lager', en: 'camp', level: 0, nextReview: Date.now() },
+  { de: 'erfinden', en: 'invent', level: 0, nextReview: Date.now() },
+  { de: 'Baumwolle', en: 'cotton', level: 0, nextReview: Date.now() },
+  { de: 'geboren', en: 'born', level: 0, nextReview: Date.now() },
+  { de: 'bestimmen', en: 'determine', level: 0, nextReview: Date.now() },
+  { de: 'Quart', en: 'quart', level: 0, nextReview: Date.now() },
+  { de: 'neun', en: 'nine', level: 0, nextReview: Date.now() },
+  { de: 'Lastwagen', en: 'truck', level: 0, nextReview: Date.now() },
+  { de: 'Lärm', en: 'noise', level: 0, nextReview: Date.now() },
+  { de: 'Ebene', en: 'level', level: 0, nextReview: Date.now() },
+  { de: 'Chance', en: 'chance', level: 0, nextReview: Date.now() },
+  { de: 'sammeln', en: 'gather', level: 0, nextReview: Date.now() },
+  { de: 'Geschäft', en: 'shop', level: 0, nextReview: Date.now() },
+  { de: 'Stretch', en: 'stretch', level: 0, nextReview: Date.now() },
+  { de: 'werfen', en: 'throw', level: 0, nextReview: Date.now() },
+  { de: 'Glanz', en: 'shine', level: 0, nextReview: Date.now() },
+  { de: 'Immobilien', en: 'property', level: 0, nextReview: Date.now() },
+  { de: 'Spalte', en: 'column', level: 0, nextReview: Date.now() },
+  { de: 'Molekül', en: 'molecule', level: 0, nextReview: Date.now() },
+  { de: 'wählen', en: 'select', level: 0, nextReview: Date.now() },
+  { de: 'falsch', en: 'wrong', level: 0, nextReview: Date.now() },
+  { de: 'grau', en: 'gray', level: 0, nextReview: Date.now() },
+  { de: 'Wiederholung', en: 'repeat', level: 0, nextReview: Date.now() },
+  { de: 'erfordern', en: 'require', level: 0, nextReview: Date.now() },
+  { de: 'breit', en: 'broad', level: 0, nextReview: Date.now() },
+  { de: 'vorbereiten', en: 'prepare', level: 0, nextReview: Date.now() },
+  { de: 'Salz', en: 'salt', level: 0, nextReview: Date.now() },
+  { de: 'Nase', en: 'nose', level: 0, nextReview: Date.now() },
+  { de: 'mehreren', en: 'plural', level: 0, nextReview: Date.now() },
+  { de: 'Zorn', en: 'anger', level: 0, nextReview: Date.now() },
+  { de: 'Anspruch', en: 'claim', level: 0, nextReview: Date.now() },
+  { de: 'Kontinent', en: 'continent', level: 0, nextReview: Date.now() }
+];
 let vocab = load('dt_vocab', []);
+let vocab_pool = load('dt_vocab_pool', DEFAULT_VOCAB);
 let speakNotesList = load('dt_speak', []);
 
 // ─── UTILITIES ────────────────────────────────────────────────────────────────
@@ -158,16 +1161,49 @@ function toggleLevel(id) {
 
 function renderHeatmap() {
   const hm = document.getElementById('heatmap');
-  hm.innerHTML = '';
-  const dates = new Set(diaryEntries.map(e => e.date));
+  hm.innerHTML = `<div class="heatmap-day-label">Su</div><div class="heatmap-day-label">Mo</div><div class="heatmap-day-label">Tu</div><div class="heatmap-day-label">We</div><div class="heatmap-day-label">Th</div><div class="heatmap-day-label">Fr</div><div class="heatmap-day-label">Sa</div>`;
+  
   const today = new Date();
-  for (let i = 83; i >= 0; i--) {
-    const d = new Date(today); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
-    const count = diaryEntries.filter(e => e.date === ds).length;
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const todayDateNum = today.getDate();
+  
+  // Update subtitle
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const subEl = document.getElementById('heatmapSubtitle');
+  if (subEl) subEl.textContent = `${monthNames[month]} ${year}`;
+  
+  // Find the day of the week the 1st of the month falls on
+  const firstDay = new Date(year, month, 1).getDay(); // 0 is Sunday
+  
+  // Find the number of days in the current month
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  
+  // 1. Generate invisible placeholder cells for the days before the 1st
+  for (let i = 0; i < firstDay; i++) {
     const cell = document.createElement('div');
-    cell.className = 'heat-cell' + (count >= 3 ? ' heat-3' : count === 2 ? ' heat-2' : count === 1 ? ' heat-1' : '');
-    cell.title = ds + (count ? ` (${count} entries)` : '');
+    cell.className = 'heat-cell heat-future';
+    hm.appendChild(cell);
+  }
+  
+  // 2. Generate the actual days of the month
+  for (let i = 1; i <= daysInMonth; i++) {
+    const cell = document.createElement('div');
+    cell.textContent = i;
+    
+    // Safely generate YYYY-MM-DD for the local timezone
+    const ds = year + '-' + String(month+1).padStart(2,'0') + '-' + String(i).padStart(2,'0');
+    
+    if (i > todayDateNum) {
+      // Future days
+      cell.className = 'heat-cell';
+      cell.style.opacity = '0.3';
+      cell.title = "Future";
+    } else {
+      const count = load('dt_time_' + ds, 0);
+      cell.className = 'heat-cell' + (count >= 30 ? ' heat-3' : count >= 15 ? ' heat-2' : count > 0 ? ' heat-1' : '');
+      cell.title = ds + (count > 0 ? ` (${count} mins)` : ' (0 mins)');
+    }
     hm.appendChild(cell);
   }
 }
@@ -711,7 +1747,29 @@ function deleteAudio(id) {
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+let timeTrackerInterval;
+function initTimeTracker() {
+  let mins = load('dt_time_' + todayStr(), 0);
+  const display = document.getElementById('timeTrackerDisplay');
+  if (display) display.textContent = mins + ' mins today';
+  
+  // Update every 60 seconds
+  timeTrackerInterval = setInterval(() => {
+    mins++;
+    save('dt_time_' + todayStr(), mins);
+    if (display) display.textContent = mins + ' mins today';
+    renderHeatmap(); // Live update the heatmap color!
+  }, 60000);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  initTimeTracker();
   renderDashboard();
   initDiary();
   updateFlashcard();
@@ -725,23 +1783,50 @@ function buildSentence(){
  document.getElementById('sbResult').innerText=
  `${document.getElementById('sbSub').value} ${document.getElementById('sbVerb').value} ${document.getElementById('sbObj').value}.`;
 }
-function getSRS(){return JSON.parse(localStorage.getItem('dt_srs')||'[]');}
-function saveSRS(v){localStorage.setItem('dt_srs',JSON.stringify(v));}
-function renderSRS(){
- const due=getSRS();
- const el=document.getElementById('srsDue');
- if(el) el.innerHTML=due.map((w,i)=>`<div>${w.word||w.de}
- <button onclick="rateSRS(${i},1)">Again</button>
- <button onclick="rateSRS(${i},2)">Hard</button>
- <button onclick="rateSRS(${i},3)">Good</button>
- <button onclick="rateSRS(${i},4)">Easy</button></div>`).join('');
+function renderSRS() {
+  const el = document.getElementById('srsDueList');
+  if(!el) return;
+
+  const now = Date.now();
+  const due = vocab.filter(v => !v.nextReview || v.nextReview <= now);
+  
+  if(due.length === 0) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--success)">&#127881; You have caught up on all your reviews!</div>';
+    return;
+  }
+  
+  const w = due[0];
+  const vIdx = vocab.findIndex(v => v.de === w.de);
+  
+  el.innerHTML = `
+    <div style="font-size:1.5rem;font-weight:700;text-align:center;margin-bottom:10px">${w.de}</div>
+    <div style="text-align:center;margin-bottom:20px"><button class="btn btn-outline btn-sm" onclick="this.style.display='none'; document.getElementById('srsAns').style.display='block'">Show Answer</button></div>
+    <div id="srsAns" style="display:none; text-align:center">
+      <div style="font-size:1.1rem;color:var(--text-muted);margin-bottom:20px">${w.en}</div>
+      <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-outline" style="border-color:var(--danger);color:var(--danger)" onclick="rateSRS(${vIdx}, 1)">Again (1 min)</button>
+        <button class="btn btn-outline" style="border-color:var(--gold);color:var(--gold)" onclick="rateSRS(${vIdx}, 2)">Hard (1 day)</button>
+        <button class="btn btn-outline" style="border-color:var(--success);color:var(--success)" onclick="rateSRS(${vIdx}, 3)">Good (3 days)</button>
+        <button class="btn btn-outline" style="border-color:var(--accent);color:var(--accent)" onclick="rateSRS(${vIdx}, 4)">Easy (7 days)</button>
+      </div>
+    </div>
+  `;
 }
-function rateSRS(i,r){
- let s=getSRS();
- if(!s[i]) return;
- s[i].review=r;
- saveSRS(s);
- renderSRS();
+
+function rateSRS(idx, rating) {
+  const w = vocab[idx];
+  if(!w) return;
+  
+  const now = Date.now();
+  let daysToAdd = 0;
+  if(rating === 1) daysToAdd = 0.001; // 1.4 minutes
+  else if(rating === 2) daysToAdd = 1;
+  else if(rating === 3) daysToAdd = 3;
+  else if(rating === 4) daysToAdd = 7;
+  
+  w.nextReview = now + (daysToAdd * 86400000);
+  save('dt_vocab', vocab);
+  renderSRS();
 }
 function startDictation(){
  const v=JSON.parse(localStorage.getItem('dt_vocab')||'[]');
@@ -806,29 +1891,27 @@ const DAILY_WORDS = [
   {de: "die Architektur", en: "architecture"}, {de: "zuverl�ssig", en: "reliable"}
 ];
 const DEFAULT_SENTENCES = [
-
-  {de: "Ich versuche jeden Tag mein Deutsch zu verbessern.", en: "I try to improve my German every day."},
-  {de: "Programmieren macht mir viel Spa�.", en: "Programming is a lot of fun for me."},
-  {de: "Mein Ziel ist es, in Deutschland zu arbeiten.", en: "My goal is to work in Germany."},
-  {de: "Aller Anfang ist schwer.", en: "Every beginning is difficult."},
-  {de: "�bung macht den Meister.", en: "Practice makes perfect."},
-  {de: "K�nnten Sie das bitte wiederholen?", en: "Could you please repeat that?"},
-  {de: "Ich arbeite als Softwareentwickler.", en: "I work as a software developer."},
-  {de: "Wir m�ssen den Fehler so schnell wie m�glich beheben.", en: "We need to fix the bug as quickly as possible."},
-  {de: "Die Datenbank ist momentan nicht erreichbar.", en: "The database is currently unreachable."},
-  {de: "Ich habe viel Erfahrung mit Java und Spring Boot.", en: "I have a lot of experience with Java and Spring Boot."},
-  {de: "Wir haben morgen eine wichtige Besprechung.", en: "We have an important meeting tomorrow."},
-  {de: "Das Programm l�uft sehr stabil.", en: "The program runs very stably."},
-  {de: "Es gibt viele Herausforderungen bei diesem Projekt.", en: "There are many challenges with this project."},
-  {de: "Ich bin f�r das Backend verantwortlich.", en: "I am responsible for the backend."},
-  {de: "Ich freue mich auf die Zusammenarbeit.", en: "I look forward to working together."}
-
+  { de: 'Hallo, wie geht es dir?', en: 'Hello, how are you?' },
+  { de: 'Mir geht es gut, danke.', en: 'I am doing well, thank you.' },
+  { de: 'Ich bin mit dem aktuellen Stand sehr zufrieden.', en: 'I am very satisfied with the current status.' }
 ];
-let DAILY_SENTENCES = load('dt_sentences', DEFAULT_SENTENCES);
+let DAILY_SENTENCES = load('dt_sentences', []);
+let sentences_pool = load('dt_sentences_pool', DEFAULT_SENTENCES);
 
+
+  // FIX CORRUPTED SENTENCES
+  if(DAILY_SENTENCES.length > 0 && DAILY_SENTENCES[0].de === 'Hallo') {
+    console.log("Wiping corrupted sentences array...");
+    DAILY_SENTENCES = [];
+    sentences_pool = [];
+    localStorage.removeItem('dt_sentences');
+    localStorage.removeItem('dt_sentences_pool');
+  }
+  
 function loadDailyInspiration() {
-  const w = DAILY_WORDS[Math.floor(Math.random() * DAILY_WORDS.length)];
-  const s = DAILY_SENTENCES[Math.floor(Math.random() * DAILY_SENTENCES.length)];
+    const w = DAILY_WORDS[Math.floor(Math.random() * DAILY_WORDS.length)];
+    const allSents = [...DAILY_SENTENCES, ...sentences_pool];
+  const s = allSents.length > 0 ? allSents[Math.floor(Math.random() * allSents.length)] : {de: 'Lerne jeden Tag!', en: 'Learn every day!'};
   
   const wdEl = document.getElementById('wotdDe');
   if(wdEl) { wdEl.innerText = w.de; document.getElementById('wotdEn').innerText = w.en; }
@@ -941,17 +2024,19 @@ document.addEventListener('DOMContentLoaded', () => {
 const oldStartQuiz = typeof startQuiz !== "undefined" ? startQuiz : function(){};
 startQuiz = function(type) {
   if (type === 'listening' || type === 'mcq') {
-    if (vocab.length < 4) { showToast('?? Add at least 4 vocabulary words first!'); return; }
-    quizState.type = type;
-    quizState.score = 0;
-    quizState.idx = 0;
     
-    // Generate 10 random questions
-    quizState.questions = [];
-    for(let i=0; i<10; i++) {
-      let target = vocab[Math.floor(Math.random() * vocab.length)];
-      // Get 3 random wrong options
-      let wrongs = vocab.filter(v => v.de !== target.de).sort(()=>0.5-Math.random()).slice(0, 3);
+      const allItems = [...vocab, ...DAILY_SENTENCES];
+      if (allItems.length < 4) { showToast('?? Add at least 4 items (words or sentences) first!'); return; }
+      quizState.type = type;
+      quizState.score = 0;
+      quizState.idx = 0;
+      
+      // Generate 10 random questions
+      quizState.questions = [];
+      for(let i=0; i<10; i++) {
+        let target = allItems[Math.floor(Math.random() * allItems.length)];
+        // Get 3 random wrong options
+        let wrongs = allItems.filter(v => v.de !== target.de).sort(()=>0.5-Math.random()).slice(0, 3);
       let options = [target.en, ...wrongs.map(w => w.en)].sort(()=>0.5-Math.random());
       
       quizState.questions.push({
@@ -1069,72 +2154,183 @@ function importData(event) {
 
 // --- CSV BULK IMPORT ---
 function importCsv(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const text = e.target.result;
-    const lines = text.split('\n');
-    let added = 0;
+    const file = event.target.files[0];
+    if (!file) return;
     
-    lines.forEach(line => {
-      const parts = line.split(',');
-      if (parts.length >= 2) {
-        const de = parts[0].trim();
-        const en = parts[1].trim();
-        if (de && en && !vocab.find(v => v.de === de)) {
-          vocab.unshift({ de, en, cat: 'General', ts: Date.now() });
-          added++;
+    let userLvl = window.prompt("What level are the contents of this file? (Type A1, A2, B1, B2, C1, or MIXED)", "MIXED");
+    if (!userLvl) return;
+    userLvl = userLvl.trim().toUpperCase();
+    if (!['A1','A2','B1','B2','C1','MIXED'].includes(userLvl)) userLvl = 'MIXED';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      const lines = text.split('\n').filter(l => l.trim().length > 0);
+      let added = 0;
+      
+      lines.forEach((line, i) => {
+        const parts = line.split(',');
+        if (parts.length >= 2) {
+          const de = parts[0].trim();
+          const en = parts[1].trim();
+          let explicitLvl = parts.length > 2 ? parts[2].trim().toUpperCase() : null;
+          
+          let itemLvl = userLvl;
+          if (explicitLvl && ['A1','A2','B1','B2','C1'].includes(explicitLvl)) itemLvl = explicitLvl;
+          else if (userLvl === 'MIXED') {
+            const pct = i / lines.length;
+            if (pct < 0.25) itemLvl = 'A1';
+            else if (pct < 0.5) itemLvl = 'A2';
+            else if (pct < 0.75) itemLvl = 'B1';
+            else itemLvl = 'B2';
+          }
+          
+          if (de && en && !vocab_pool.find(v => v.de === de) && !vocab.find(v => v.de === de)) {
+            vocab_pool.push({ de, en, cat: 'CSV', ts: Date.now(), lvl: itemLvl });
+            added++;
+          }
         }
-      }
-    });
-    
-    if (added > 0) {
-      save('dt_vocab', vocab);
-      renderVocab('All');
-      showToast('?? Successfully imported ' + added + ' new words!');
-    } else {
-      showToast('?? No valid new words found in CSV.');
-    }
-    event.target.value = ''; // reset file input
-  };
-  reader.readAsText(file);
+      });
+      save('dt_vocab_pool', vocab_pool);
+      showToast(`Added ${added} new words to the hidden pool!`, 'var(--success)');
+      localStorage.removeItem('dt_last_unlock');
+      checkDailyUnlock();
+    };
+    reader.readAsText(file);
 }
 
 
 // --- READING COMPREHENSION ---
 const DEFAULT_STORIES = [
-
   {
-    title: "Ein Tag im Leben eines Softwareentwicklers",
-    text: "Hallo! Ich hei�e Markus und arbeite als Backend-Entwickler in Berlin. Jeden Morgen fange ich um 9 Uhr an. Zuerst haben wir ein kurzes Daily-Standup-Meeting mit dem gesamten Team. Dort besprechen wir, was wir gestern gemacht haben und was heute auf dem Plan steht. Danach programmiere ich meistens in Java und Spring Boot. Gegen Mittag esse ich oft mit meinen Kollegen in der Kantine. Nachmittags k�mmere ich mich um Fehlerbehebungen (Bugfixes) und Code-Reviews. Ich finde meinen Job sehr spannend, auch wenn es manchmal stressig sein kann, besonders kurz vor einem Release.",
-    questions: [
-      { text: "1. Markus arbeitet als Frontend-Entwickler.", answer: false },
-      { text: "2. Das Team hat jeden Morgen ein kurzes Meeting.", answer: true },
-      { text: "3. Markus arbeitet nie mit Java.", answer: false }
+    "title": "[A1] Hallo, ich bin Anna!",
+    "text": "Hallo! Ich heiße Anna und ich bin fünfundzwanzig Jahre alt. Ich komme aus Deutschland und ich wohne in Berlin. Berlin ist sehr groß und schön. Ich arbeite als Lehrerin in einer Schule. Mein Hobby ist lesen. Ich lese jeden Abend ein Buch. Ich habe auch einen Hund. Er heißt Max und ist sehr freundlich. Am Wochenende spiele ich oft mit Max im Park.",
+    "questions": [
+      {
+        "text": "1. Anna wohnt in München.",
+        "answer": false
+      },
+      {
+        "text": "2. Anna arbeitet als Lehrerin.",
+        "answer": true
+      },
+      {
+        "text": "3. Annas Hund heißt Max.",
+        "answer": true
+      }
     ]
   },
   {
-    title: "Eine E-Mail an den Projektmanager",
-    text: "Sehr geehrter Herr M�ller,<br><br>ich schreibe Ihnen wegen des neuen Projekts 'Cloud-Migration'. Wir haben gestern die erste Phase erfolgreich abgeschlossen. Die Datenbank ist jetzt auf den neuen AWS-Servern verf�gbar. Leider gibt es noch ein kleines Problem mit der Sicherheitsschnittstelle. Wir brauchen voraussichtlich noch zwei weitere Tage, um diesen Fehler zu beheben. K�nnen wir unser Meeting auf Donnerstag verschieben?<br><br>Mit freundlichen Gr��en,<br>Anna Schmidt",
-    questions: [
-      { text: "1. Das Projekt hei�t 'Cloud-Migration'.", answer: true },
-      { text: "2. Die erste Phase war nicht erfolgreich.", answer: false },
-      { text: "3. Anna braucht mehr Zeit f�r die Sicherheitsschnittstelle.", answer: true }
+    "title": "[A1] Mein Tag",
+    "text": "Ich stehe jeden Tag um sieben Uhr auf. Zuerst trinke ich einen Kaffee und esse Brot mit Marmelade. Dann dusche ich und ziehe mich an. Um acht Uhr fahre ich mit dem Bus zur Arbeit. Ich arbeite von neun bis fünfzehn Uhr im Büro. Am Nachmittag kaufe ich im Supermarkt ein. Ich kaufe Äpfel, Bananen und Milch. Am Abend koche ich das Abendessen. Ich esse Nudeln mit Tomatensoße. Um elf Uhr gehe ich schlafen.",
+    "questions": [
+      {
+        "text": "1. Die Person fährt mit dem Zug zur Arbeit.",
+        "answer": false
+      },
+      {
+        "text": "2. Sie kauft Obst und Milch im Supermarkt.",
+        "answer": true
+      },
+      {
+        "text": "3. Am Abend isst sie Pizza.",
+        "answer": false
+      }
     ]
   },
   {
-    title: "Sicherheit im Internet",
-    text: "Die Sicherheit im Internet wird immer wichtiger. Viele Unternehmen investieren Millionen in den Schutz ihrer Daten. Hacker versuchen t�glich, an sensible Informationen wie Passw�rter und Kreditkartendaten zu gelangen. Eine gute Ma�nahme ist die Verwendung von Zwei-Faktor-Authentifizierung (2FA). Damit braucht der Benutzer nicht nur ein Passwort, sondern auch einen Code auf seinem Smartphone. Au�erdem ist es wichtig, Software-Updates sofort zu installieren, da diese oft Sicherheitsl�cken schlie�en.",
-    questions: [
-      { text: "1. Datensicherheit kostet Unternehmen sehr viel Geld.", answer: true },
-      { text: "2. Die Zwei-Faktor-Authentifizierung ist unsicher.", answer: false },
-      { text: "3. Man sollte mit Software-Updates lange warten.", answer: false }
+    "title": "[A2] Ein Urlaub in Italien",
+    "text": "Letztes Jahr bin ich mit meiner Familie nach Italien gefahren. Wir haben ein kleines Haus am Meer gemietet. Das Wetter war die ganze Woche sehr sonnig und warm. Jeden Morgen sind wir früh aufgestanden und an den Strand gegangen. Das Wasser war sehr klar. Mittags haben wir oft Pizza oder Pasta gegessen. Das italienische Essen ist wirklich fantastisch! Am Abend sind wir durch die kleine Stadt spaziert und haben Eis gegessen. Es war ein wunderbarer Urlaub und wir möchten nächstes Jahr wieder dorthin fahren.",
+    "questions": [
+      {
+        "text": "1. Die Familie hat ein großes Hotel am Strand gemietet.",
+        "answer": false
+      },
+      {
+        "text": "2. Sie haben jeden Mittag Pizza oder Pasta gegessen.",
+        "answer": true
+      },
+      {
+        "text": "3. Das Wetter war schlecht und kalt.",
+        "answer": false
+      }
+    ]
+  },
+  {
+    "title": "[A2] Einkaufen im Einkaufszentrum",
+    "text": "Gestern war ich mit meiner Freundin Sarah im Einkaufszentrum. Sarah brauchte eine neue Jacke für den Winter. Wir waren in vielen verschiedenen Geschäften. Zuerst hat sie eine rote Jacke probiert, aber sie war zu teuer. Dann hat sie eine blaue Jacke gefunden. Sie war im Angebot und sah sehr gut aus. Sie hat die blaue Jacke gekauft. Danach waren wir noch einen Kaffee trinken und haben ein Stück Kuchen gegessen. Es war ein schöner, aber anstrengender Nachmittag.",
+    "questions": [
+      {
+        "text": "1. Sarah hat eine rote Jacke gekauft.",
+        "answer": false
+      },
+      {
+        "text": "2. Die blaue Jacke war im Angebot.",
+        "answer": true
+      },
+      {
+        "text": "3. Nach dem Einkaufen haben sie Kuchen gegessen.",
+        "answer": true
+      }
+    ]
+  },
+  {
+    "title": "[B1] Ein neues Projekt",
+    "text": "Das Softwareunternehmen 'TechSolutions' startet heute ein neues Projekt. Das Ziel ist es, eine mobile App für Studenten zu entwickeln. Die App soll den Studenten helfen, ihren Stundenplan besser zu organisieren. Der Projektleiter, Herr Müller, hat ein Team von fünf Entwicklern zusammengestellt. Das Team nutzt agile Methoden und plant wöchentliche Sprints. In der ersten Phase konzentrieren sie sich auf das Design der Benutzeroberfläche. Nächste Woche beginnen sie dann mit der Programmierung der Datenbank.",
+    "questions": [
+      {
+        "text": "1. Das Unternehmen entwickelt eine App für Rentner.",
+        "answer": false
+      },
+      {
+        "text": "2. Das Team besteht aus fünf Entwicklern.",
+        "answer": true
+      },
+      {
+        "text": "3. Die Programmierung der Datenbank beginnt sofort.",
+        "answer": false
+      }
+    ]
+  },
+  {
+    "title": "[B2] Das Server-Update in der Nacht",
+    "text": "Es war Freitagabend, 23:00 Uhr. Julian, ein Systemadministrator, trank seinen dritten Kaffee. Das Unternehmen hatte beschlossen, alle Server auf eine neue Linux-Version zu aktualisieren. Eigentlich sollte das automatisch passieren, aber ein Skript war fehlerhaft. Julian musste sich manuell per SSH auf jeden Server einloggen und das Update starten. Um 3:00 Uhr morgens war er endlich fertig. Er testete die Webseite: Sie war online und reagierte doppelt so schnell wie vorher. Erschöpft, aber zufrieden, ging er nach Hause.",
+    "questions": [
+      {
+        "text": "1. Das Update passierte vollautomatisch ohne Probleme.",
+        "answer": false
+      },
+      {
+        "text": "2. Julian arbeitete bis spät in die Nacht.",
+        "answer": true
+      },
+      {
+        "text": "3. Nach dem Update war die Webseite langsamer.",
+        "answer": false
+      }
+    ]
+  },
+  {
+    "title": "[B2] Der mysteriöse Bug",
+    "text": "Seit zwei Wochen klagten die Nutzer der neuen App über Abstürze. Die Fehlermeldungen waren unklar. Das QA-Team konnte den Fehler nicht reproduzieren. Erst als die Entwicklerin Sarah sich die Log-Dateien genau ansah, fand sie das Muster. Der Absturz passierte nur, wenn ein Nutzer ein Profilbild hochlud, das größer als 5 Megabyte war. Der Speicher des Servers lief voll, weil das Bildbearbeitungs-Modul ein Speicherleck (Memory Leak) hatte. Sarah schrieb einen Fix, der die Bildgröße vor dem Upload komprimierte. Das Problem war gelöst.",
+    "questions": [
+      {
+        "text": "1. Der Fehler passierte bei jedem Nutzer.",
+        "answer": false
+      },
+      {
+        "text": "2. Sarah fand den Fehler durch das Lesen der Log-Dateien.",
+        "answer": true
+      },
+      {
+        "text": "3. Das Problem war ein Memory Leak.",
+        "answer": true
+      }
     ]
   }
-
 ];
-let STORIES = load('dt_stories', DEFAULT_STORIES);
+let STORIES = load('dt_stories', []);
+let stories_pool = load('dt_stories_pool', DEFAULT_STORIES);
 
 let currentStory = null;
 
@@ -1312,67 +2508,97 @@ showSection = function(id) {
 
 // --- DYNAMIC IMPORTERS ---
 function importSentenceCsv(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const text = e.target.result;
-    const lines = text.split('\n');
-    let added = 0;
+    const file = event.target.files[0];
+    if (!file) return;
     
-    lines.forEach(line => {
-      const parts = line.split(',');
-      if (parts.length >= 2) {
-        const de = parts[0].trim();
-        const en = parts[1].trim();
-        if (de && en && !DAILY_SENTENCES.find(s => s.de === de)) {
-          DAILY_SENTENCES.push({ de, en });
-          added++;
+    let userLvl = window.prompt("What level are the contents of this file? (Type A1, A2, B1, B2, C1, or MIXED)", "MIXED");
+    if (!userLvl) return;
+    userLvl = userLvl.trim().toUpperCase();
+    if (!['A1','A2','B1','B2','C1','MIXED'].includes(userLvl)) userLvl = 'MIXED';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      const lines = text.split('\n').filter(l => l.trim().length > 0);
+      let added = 0;
+      
+      lines.forEach((line, i) => {
+        const parts = line.split(',');
+        if (parts.length >= 2) {
+          const de = parts[0].trim();
+          const en = parts[1].trim();
+          let explicitLvl = parts.length > 2 ? parts[2].trim().toUpperCase() : null;
+          
+          let itemLvl = userLvl;
+          if (explicitLvl && ['A1','A2','B1','B2','C1'].includes(explicitLvl)) itemLvl = explicitLvl;
+          else if (userLvl === 'MIXED') {
+            const pct = i / lines.length;
+            if (pct < 0.25) itemLvl = 'A1';
+            else if (pct < 0.5) itemLvl = 'A2';
+            else if (pct < 0.75) itemLvl = 'B1';
+            else itemLvl = 'B2';
+          }
+          
+          if (de && en && !sentences_pool.find(s => s.de === de) && !DAILY_SENTENCES.find(s => s.de === de)) {
+            sentences_pool.push({ de, en, lvl: itemLvl });
+            added++;
+          }
         }
-      }
-    });
-    
-    if (added > 0) {
-      save('dt_sentences', DAILY_SENTENCES);
-      showToast('?? Successfully imported ' + added + ' new sentences!');
-    } else {
-      showToast('?? No valid new sentences found in CSV.');
-    }
-    event.target.value = '';
-  };
-  reader.readAsText(file);
+      });
+      save('dt_sentences_pool', sentences_pool);
+      showToast(`Added ${added} new sentences to the hidden pool!`, 'var(--success)');
+      localStorage.removeItem('dt_last_unlock');
+      checkDailyUnlock();
+    };
+    reader.readAsText(file);
 }
 
 function importStoryJson(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (!Array.isArray(data)) { throw new Error('JSON must be an array of stories.'); }
-      
-      let added = 0;
-      data.forEach(story => {
-        if (story.title && story.text && story.questions && story.questions.length === 3) {
-          STORIES.push(story);
-          added++;
-        }
-      });
-      
-      if (added > 0) {
-        save('dt_stories', STORIES);
-        showToast('?? Successfully imported ' + added + ' new stories!');
-        updateStoryButtons();
-      } else {
-        showToast('?? No valid stories found. Ensure format is correct.');
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    let userLvl = window.prompt("What level are the stories in this file? (Type A1, A2, B1, B2, C1, or MIXED)", "MIXED");
+    if (!userLvl) return;
+    userLvl = userLvl.trim().toUpperCase();
+    if (!['A1','A2','B1','B2','C1','MIXED'].includes(userLvl)) userLvl = 'MIXED';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!Array.isArray(data)) throw new Error('JSON must be an array of stories.');
+        
+        let added = 0;
+        data.forEach((story, i) => {
+          if (story.title && story.text && story.questions && story.questions.length === 3) {
+            let explicitLvl = story.lvl ? story.lvl.toUpperCase() : null;
+            let itemLvl = userLvl;
+            
+            if (explicitLvl && ['A1','A2','B1','B2','C1'].includes(explicitLvl)) itemLvl = explicitLvl;
+            else if (userLvl === 'MIXED') {
+              const pct = i / data.length;
+              if (pct < 0.25) itemLvl = 'A1';
+              else if (pct < 0.5) itemLvl = 'A2';
+              else if (pct < 0.75) itemLvl = 'B1';
+              else itemLvl = 'B2';
+            }
+            
+            story.lvl = itemLvl;
+            if (!stories_pool.find(s => s.title === story.title) && !STORIES.find(s => s.title === story.title)) {
+              stories_pool.push(story);
+              added++;
+            }
+          }
+        });
+        save('dt_stories_pool', stories_pool);
+        showToast(`Added ${added} new stories to the hidden pool!`, 'var(--success)');
+        localStorage.removeItem('dt_last_unlock');
+        checkDailyUnlock();
+      } catch(err) {
+        showToast('? Error: Invalid Story JSON format', 'var(--danger)');
       }
-    } catch (err) {
-      showToast('? Error: Invalid JSON File');
-    }
-    event.target.value = '';
-  };
-  reader.readAsText(file);
+    };
+    reader.readAsText(file);
 }
 
 function updateStoryButtons() {
@@ -1388,3 +2614,254 @@ showSection = function(id) {
     updateStoryButtons();
   }
 };
+
+
+async function fetchCsvFromWeb() {
+  const url = prompt("Enter the raw CSV URL (e.g., a Raw GitHub link or public CSV):\n\nNote: The file must be in 'German,English' format.", "https://raw.githubusercontent.com/.../words.csv");
+  if (!url || url.trim() === "" ) return;
+
+  try {
+    showToast('? Downloading from Web...', 'var(--gold)');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Network response was not ok');
+    
+    const text = await res.text();
+    const lines = text.split('\n');
+    let added = 0;
+    
+    lines.forEach(line => {
+      const parts = line.split(',');
+      if (parts.length >= 2) {
+        const de = parts[0].trim();
+        const en = parts[1].trim();
+        if (de && en && !vocab.find(v => v.de === de)) {
+          vocab.push({ de, en, level: 0, nextReview: Date.now() });
+          added++;
+        }
+      }
+    });
+    
+    if (added > 0) {
+      save('dt_vocab', vocab);
+      renderVocab();
+      showToast('?? Successfully imported ' + added + ' words from the Web!');
+    } else {
+      showToast('?? No new valid words found in that URL.');
+    }
+  } catch (error) {
+    console.error("Fetch error: ", error);
+    showToast('? Failed to fetch. Make sure it is a valid raw URL and allows CORS.', 'var(--danger)');
+  }
+}
+
+
+// ONE-TIME MIGRATION: If the user already has 1000 words in active vocab, reset it!
+if (vocab.length > 200 && vocab_pool.length === 0) {
+  console.log("Migrating massive active lists back to pools...");
+  vocab_pool = [...vocab];
+  vocab = [];
+  sentences_pool = [...DAILY_SENTENCES];
+  DAILY_SENTENCES = [];
+  stories_pool = [...STORIES];
+  STORIES = [];
+  
+  save('dt_vocab_pool', vocab_pool);
+  save('dt_vocab', vocab);
+  save('dt_sentences_pool', sentences_pool);
+  save('dt_sentences', DAILY_SENTENCES);
+  save('dt_stories_pool', stories_pool);
+  save('dt_stories', STORIES);
+  
+  // Clear last unlock so it unlocks today instantly
+  localStorage.removeItem('dt_last_unlock');
+}
+
+
+// Tagging Migration
+if (vocab_pool.length > 0 && !vocab_pool[0].lvl) {
+  console.log("Tagging vocab pool with levels");
+  const vLen = vocab_pool.length;
+  vocab_pool.forEach((w, i) => {
+    if (i < vLen * 0.25) w.lvl = 'A1';
+    else if (i < vLen * 0.5) w.lvl = 'A2';
+    else if (i < vLen * 0.75) w.lvl = 'B1';
+    else w.lvl = 'B2';
+  });
+  save('dt_vocab_pool', vocab_pool);
+  
+  // also reset the last unlock to force an immediate demonstration of the new Smart Unlock today
+  localStorage.removeItem('dt_last_unlock');
+}
+
+if (sentences_pool.length > 0 && !sentences_pool[0].lvl) {
+  console.log("Tagging sentences pool with levels");
+  const sLen = sentences_pool.length;
+  sentences_pool.forEach((s, i) => {
+    if (i < sLen * 0.25) s.lvl = 'A1';
+    else if (i < sLen * 0.5) s.lvl = 'A2';
+    else if (i < sLen * 0.75) s.lvl = 'B1';
+    else s.lvl = 'B2';
+  });
+  save('dt_sentences_pool', sentences_pool);
+}
+
+function checkDailyUnlock() {
+  const lastUnlock = load('dt_last_unlock', '');
+  const today = todayStr();
+  
+  if (lastUnlock !== today) {
+    let unlocked = 0;
+    
+    // ONE-TIME FIX: If the user is confused by having 25 words, wipe active vocab to let it cleanly pull exactly 10 today.
+    if(vocab.length === 25) {
+      console.log("Resetting 25 words back to 0 so we can pull exactly 10...");
+      vocab_pool = [...vocab, ...vocab_pool];
+      vocab = [];
+    }
+    const roadmap = load('dt_roadmap', {});
+    const activeLevel = ['A1', 'A2', 'B1', 'B2'].find(l => !roadmap[l]) || 'B2';
+    
+    // Unlock 10 words
+    for(let i=0; i<10; i++) {
+      const idx = vocab_pool.findIndex(w => w.lvl === activeLevel);
+      if(idx > -1) {
+        const w = vocab_pool.splice(idx, 1)[0];
+        if(!vocab.find(x => x.de === w.de)) { vocab.push(w); unlocked++; }
+      } else if(vocab_pool.length > 0) {
+        const w = vocab_pool.shift();
+        if(!vocab.find(x => x.de === w.de)) { vocab.push(w); unlocked++; }
+      }
+    }
+    
+    // Unlock 1 sentence
+    const sIdx = sentences_pool.findIndex(s => s.lvl === activeLevel);
+    if(sIdx > -1) {
+      const s = sentences_pool.splice(sIdx, 1)[0];
+      if(!DAILY_SENTENCES.find(x => x.de === s.de)) { DAILY_SENTENCES.push(s); unlocked++; }
+    } else if(sentences_pool.length > 0) {
+      const s = sentences_pool.shift();
+      if(!DAILY_SENTENCES.find(x => x.de === s.de)) { DAILY_SENTENCES.push(s); unlocked++; }
+    }
+    
+    // Unlock 1 story
+    const stIdx = stories_pool.findIndex(st => st.title.includes('[' + activeLevel + ']'));
+    if(stIdx > -1) {
+      const st = stories_pool.splice(stIdx, 1)[0];
+      if(!STORIES.find(x => x.title === st.title)) { STORIES.push(st); unlocked++; }
+    } else if(stories_pool.length > 0) {
+      const st = stories_pool.shift();
+      if(!STORIES.find(x => x.title === st.title)) { STORIES.push(st); unlocked++; }
+    }
+    
+    if (unlocked > 0) {
+      save('dt_vocab', vocab); save('dt_vocab_pool', vocab_pool);
+      save('dt_sentences', DAILY_SENTENCES); save('dt_sentences_pool', sentences_pool);
+      save('dt_stories', STORIES); save('dt_stories_pool', stories_pool);
+      save('dt_last_unlock', today);
+      
+      setTimeout(() => {
+        showToast(`?? Daily Unlock! Scaled for Level ${activeLevel}!`, 'var(--gold)');
+        renderVocab(); renderDashboard();
+      }, 1500);
+    }
+  }
+}
+
+// Call checkDailyUnlock after everything is initialized
+document.addEventListener('DOMContentLoaded', () => {
+  checkDailyUnlock();
+});
+
+
+
+
+function searchDictionary() {
+  const term = document.getElementById('dictSearch').value.trim().toLowerCase();
+  const resEl = document.getElementById('dictResults');
+  
+  if (!term) {
+    resEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">Type a word to begin searching...</div>';
+    return;
+  }
+  
+  const allWords = new Map();
+  vocab.forEach(v => allWords.set(v.de, v));
+  vocab_pool.forEach(v => { if(!allWords.has(v.de)) allWords.set(v.de, v); });
+  if (typeof DAILY_WORDS !== 'undefined') {
+    DAILY_WORDS.forEach(v => { if(!allWords.has(v.de)) allWords.set(v.de, v); });
+  }
+  
+  const allSents = new Map();
+  DAILY_SENTENCES.forEach(s => allSents.set(s.de, s));
+  sentences_pool.forEach(s => { if(!allSents.has(s.de)) allSents.set(s.de, s); });
+  
+  // Safe term for regex
+  let safeTerm = term;
+  try { safeTerm = term.replace(/[.*+?^$\{\}()|[\]\\]/g, '\\$&'); } catch(e) {}
+  const boundaryRegex = new RegExp('(?:^|\\s|-)' + safeTerm, 'i');
+  
+  const wordMatches = Array.from(allWords.values()).filter(v => {
+    const deLow = v.de.toLowerCase();
+    const enLow = v.en.toLowerCase();
+    const strippedDe = deLow.replace(/^(der|die|das)\s+/, '');
+    
+    if (deLow === term || enLow === term || strippedDe === term) return true;
+    if (term === 'der' || term === 'die' || term === 'das') return false;
+    
+    return boundaryRegex.test(deLow) || boundaryRegex.test(enLow);
+  }).slice(0, 20);
+  
+  const sentMatches = Array.from(allSents.values()).filter(s => {
+    if (term === 'der' || term === 'die' || term === 'das') return false;
+    
+    const deLow = s.de.toLowerCase();
+    const enLow = s.en.toLowerCase();
+    return boundaryRegex.test(deLow) || boundaryRegex.test(enLow);
+  }).slice(0, 20);
+  
+  if (wordMatches.length === 0 && sentMatches.length === 0) {
+    resEl.innerHTML = `
+      <div class="card" style="text-align:center;padding:30px">
+        <div style="font-size:3rem;margin-bottom:10px">&#129335;</div>
+        <div style="font-size:1.2rem;font-weight:700;margin-bottom:5px">Word not found in database.</div>
+        <div style="color:var(--text-muted);margin-bottom:20px">Your offline dictionary only knows what you've uploaded or unlocked!</div>
+        <button class="btn btn-primary" onclick="window.open('https://translate.google.com/?sl=auto&tl=en&text=' + encodeURIComponent('${term.replace(/'/g,"\\'")}') )">Search on Google Translate</button>
+      </div>
+    `;
+    return;
+  }
+  
+  let html = '';
+  
+  if (wordMatches.length > 0) {
+    html += '<div class="card-title" style="margin-top:10px">&#128218; Vocabulary Matches</div><div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">';
+    html += wordMatches.map(w => `
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;padding:12px;margin:0">
+        <div>
+          <div style="font-weight:800;font-size:1.1rem;color:var(--accent)">${w.de}</div>
+          <div style="color:var(--text-muted);font-size:0.95rem">${w.en}</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="speakWord('${w.de.replace(/'/g,"\\'")}')" style="border-radius:50%;width:35px;height:35px;padding:0;display:flex;align-items:center;justify-content:center">&#128266;</button>
+      </div>
+    `).join('');
+    html += '</div>';
+  }
+  
+  if (sentMatches.length > 0) {
+    html += '<div class="card-title">&#128172; Contextual Sentences</div><div style="display:flex;flex-direction:column;gap:10px">';
+    html += sentMatches.map(s => `
+      <div class="card" style="padding:12px;margin:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+           <div style="font-weight:600;font-size:1rem;color:var(--text);margin-bottom:4px">${s.de}</div>
+           <button class="btn btn-outline btn-sm" onclick="speakWord('${s.de.replace(/'/g,"\\'")}')" style="border-radius:50%;min-width:35px;height:35px;padding:0;display:flex;align-items:center;justify-content:center">&#128266;</button>
+        </div>
+        <div style="color:var(--text-muted);font-size:0.9rem;border-left:3px solid var(--border);padding-left:10px;margin-top:5px">${s.en}</div>
+      </div>
+    `).join('');
+    html += '</div>';
+  }
+  
+  resEl.innerHTML = html;
+}
+
+

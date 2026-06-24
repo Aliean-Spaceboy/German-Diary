@@ -23,6 +23,7 @@
     <button class="nav-btn active" onclick="showSection('dashboard')">&#128202; Dashboard</button>
     <button class="nav-btn" onclick="showSection('diary')">&#128211; Diary</button>
     <button class="nav-btn" onclick="showSection('vocab')">&#128218; Vocabulary</button>
+        <button class="nav-btn" onclick="showSection('dictionary')">&#128214; Dictionary</button>
     <button class="nav-btn" onclick="showSection('speaking')">&#127892; Speaking</button>
     <button class="nav-btn" onclick="showSection('quiz')">&#129504; Quiz</button>
     
@@ -98,11 +99,16 @@
       </div>
     </div>
     <div class="card">
-      <div class="card-title">🗓 Activity Heatmap</div>
-      <div class="card-sub">Last 12 weeks of practice</div>
-      <div class="heatmap" id="heatmap"></div>
+      <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>&#128200; Activity Heatmap</div>
+          <div style="font-size:0.8rem; color:var(--success); font-weight:700" id="timeTrackerDisplay">0 mins today</div>
+        </div>
+      <div class="card-sub" id="heatmapSubtitle">Current Month</div>
+                <div class="heatmap-wrapper">
+          <div class="heatmap-calendar" id="heatmap"></div>
+        </div>
+      </div>
     </div>
-  </div>
 
   <div class="card tip-card">
     <div class="tip-num">💡 Today's Grammar Tip</div>
@@ -204,7 +210,9 @@
 <!-- DIARY -->
 
 <div id="section-diary" class="section">
-  <div class="card">
+
+    
+    <div class="card">
     <div class="card-title">📓 Heute's Tagebucheintrag <span style="font-size:.8rem;color:var(--text-muted);font-weight:400" id="diaryDate"></span></div>
     <div class="card-sub">Answer all 3 prompts in German. Even simple sentences are fine!</div>
 
@@ -253,8 +261,12 @@
     </div>
 
     <div style="display:flex;gap:12px;flex-wrap:wrap">
-      <button class="btn btn-success" onclick="saveDiaryEntry()">💾 Save Entry</button>
-      <button class="btn btn-outline" onclick="clearDiary()">🗑 Clear</button>
+      <button class="btn btn-success" onclick="saveDiaryEntry()">&#128190; Save Entry</button>
+        <button class="btn btn-outline" onclick="clearDiary()">&#128465; Clear</button>
+        <div style="position:relative; overflow:hidden; display:inline-block">
+          <button class="btn btn-outline" style="border-color:var(--gold); color:var(--gold)">&#128193; Upload Sentences (CSV)</button>
+          <input type="file" accept=".csv" onchange="importSentenceCsv(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+        </div>
     </div>
   </div>
 
@@ -320,9 +332,10 @@
           <button class="btn btn-outline btn-sm">Upload Vocab (CSV)</button>
           <input type="file" accept=".csv" onchange="importCsv(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
         </div>
+        
+        
         <div style="position:relative; overflow:hidden; display:inline-block">
-          <button class="btn btn-outline btn-sm" style="border-color:var(--gold); color:var(--gold)">Upload Sentences (CSV)</button>
-          <input type="file" accept=".csv" onchange="importSentenceCsv(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+          <button class="btn btn-outline btn-sm" style="border-color:#10b981; color:#10b981" onclick="fetchCsvFromWeb()">&#127183; Fetch from Web URL</button>
         </div>
       </div>
     </div>
@@ -404,7 +417,38 @@
 
 <style>
   @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-</style>
+
+    
+    
+    .heatmap-wrapper { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; align-items: center; }
+    .heatmap-calendar-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); width: 100%; max-width: 350px; }
+    .heatmap-calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      width: 100%;
+      max-width: 350px;
+    }
+    .heat-cell {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      background: var(--surface2);
+      transition: transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .heat-cell:hover { transform: scale(1.1); }
+    .heat-1 { background: #10b981; color: #fff; opacity: 0.7; }
+    .heat-2 { background: #10b981; color: #fff; opacity: 0.9; }
+    .heat-3 { background: #10b981; color: #fff; opacity: 1.0; }
+    .heat-future { background: transparent; pointer-events: none; color: transparent; }
+
+  </style>
 
 <!-- WEEKLY REFLECTION -->
 <div id="section-reflection" class="section">
@@ -451,7 +495,9 @@
 <!-- PAST ENTRIES -->
 <div id="section-entries" class="section">
   <div class="card">
-    <div class="card-title">🗂 Past Diary Entries</div>
+    
+    
+    <div class="card-title">&#128214; Past Diary Entries</div>
     <div class="card-sub">Your complete diary history. Keep going!</div>
     <div id="entriesList"></div>
   </div>
@@ -600,7 +646,22 @@
   </div>
 </div>
 
-<div id="section-srs" class="section">
+
+  <!-- DICTIONARY -->
+  <div id="section-dictionary" class="section">
+    <div class="card" style="margin-bottom:24px;background:var(--surface2)">
+      <div style="font-weight:800;font-size:1.5rem;margin-bottom:10px;display:flex;align-items:center;gap:10px">
+        <span>&#128269;</span>
+        <input type="text" id="dictSearch" oninput="searchDictionary()" placeholder="Search in German or English..." style="width:100%;padding:12px;font-size:1.1rem;border:2px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;">
+      </div>
+      <div style="font-size:0.85rem;color:var(--text-muted);text-align:center">Omni-Search: Automatically filters Active & Hidden Words + Sentences.</div>
+    </div>
+    <div id="dictResults">
+       <div style="text-align:center;padding:40px;color:var(--text-muted)">Type a word to begin searching...</div>
+    </div>
+  </div>
+
+  <div id="section-srs" class="section">
   <div class="card">
     <div class="card-title">&#128259; SRS Due Today</div>
     <div class="card-sub">Words scheduled for review today.</div>
