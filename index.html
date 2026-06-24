@@ -3,12 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Deutsches Tagebuch – German Practice Diary</title>
+  <title>German Diary | Fluent</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#127465;&#127466;</text></svg>">
   <meta name="description" content="A daily German language practice diary app to help you reach B2 level. Track entries, vocabulary, streaks, and progress."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css">
-</head>
+
+  <style>
+    .lingq-word { cursor:pointer; padding:2px; border-radius:4px; transition:0.2s; display:inline-block; }
+    .lingq-word:hover { background:var(--accent); color:white; }
+    #lingqTooltip { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--surface); border:2px solid var(--accent); padding:15px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.3); z-index:9999; display:none; flex-direction:column; gap:10px; min-width:300px; text-align:center; }
+  </style>
+  </head>
 <body>
 
 <header>
@@ -24,6 +31,7 @@
     <button class="nav-btn" onclick="showSection('diary')">&#128211; Diary</button>
     <button class="nav-btn" onclick="showSection('vocab')">&#128218; Vocabulary</button>
         <button class="nav-btn" onclick="showSection('dictionary')">&#128214; Dictionary</button>
+    
     <button class="nav-btn" onclick="showSection('speaking')">&#127892; Speaking</button>
     <button class="nav-btn" onclick="showSection('quiz')">&#129504; Quiz</button>
     
@@ -47,7 +55,7 @@
 <main>
 
 <!-- DASHBOARD -->
-<div id="section-dashboard" class="section active">
+<div id="section-dashboard" class="section">
   <div class="hero">
     <h1>Dein Deutsches Tagebuch</h1>
     <p>Your personal German language practice diary — write daily, track progress, speak confidently.</p>
@@ -222,7 +230,10 @@
       <div class="prompt-en">What did I do today?</div>
     </div>
     <div class="field">
-      <textarea id="prompt1" rows="3" placeholder="Heute habe ich Java gelernt. Ich habe auch..."></textarea>
+      <div style="position:relative;">
+        <textarea id="prompt1" rows="3" placeholder="Heute habe ich Java gelernt. Ich habe auch..."></textarea>
+        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt1', this)">&#127897;</button>
+      </div>
       <div class="word-count" id="wc1">0 words</div>
     </div>
 
@@ -232,7 +243,10 @@
       <div class="prompt-en">What did I learn today?</div>
     </div>
     <div class="field">
-      <textarea id="prompt2" rows="3" placeholder="Ich habe Docker gelernt. Ich habe auch neue deutsche Wörter gelernt..."></textarea>
+      <div style="position:relative;">
+        <textarea id="prompt2" rows="3" placeholder="Ich habe Docker gelernt. Ich habe auch neue deutsche Wörter gelernt..."></textarea>
+        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt2', this)">&#127897;</button>
+      </div>
       <div class="word-count" id="wc2">0 words</div>
     </div>
 
@@ -242,7 +256,10 @@
       <div class="prompt-en">What will I do tomorrow?</div>
     </div>
     <div class="field">
-      <textarea id="prompt3" rows="3" placeholder="Morgen werde ich Kubernetes lernen. Ich werde auch..."></textarea>
+      <div style="position:relative;">
+        <textarea id="prompt3" rows="3" placeholder="Morgen werde ich Kubernetes lernen. Ich werde auch..."></textarea>
+        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt3', this)">&#127897;</button>
+      </div>
       <div class="word-count" id="wc3">0 words</div>
     </div>
 
@@ -252,12 +269,18 @@
       <div class="prompt-en">Practice your vocabulary!</div>
     </div>
     <div class="field">
-      <textarea id="prompt4" rows="2" placeholder="Ich lerne..."></textarea>
+      <div style="position:relative;">
+        <textarea id="prompt4" rows="2" placeholder="Ich lerne..."></textarea>
+        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt4', this)">&#127897;</button>
+      </div>
     </div>
     
     <div class="field">
       <label>?? Free Writing (Optional)</label>
-      <textarea id="prompt5" rows="3" placeholder="Ich bin sehr m�de heute..."></textarea>
+      <div style="position:relative;">
+        <textarea id="prompt5" rows="3" placeholder="Ich bin sehr m�de heute..."></textarea>
+        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt5', this)">&#127897;</button>
+      </div>
     </div>
 
     <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -267,6 +290,9 @@
           <button class="btn btn-outline" style="border-color:var(--gold); color:var(--gold)">&#128193; Upload Sentences (CSV)</button>
           <input type="file" accept=".csv" onchange="importSentenceCsv(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
         </div>
+      </div>
+      <div id="grammarFeedback" style="margin-top:20px; display:none; padding:15px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid var(--danger);"></div>
+      <div><!-- closing tag balancer -->
     </div>
   </div>
 
@@ -592,18 +618,7 @@
     <div class="card-title">&#128214; B2 Reading Practice (Leseverstehen)</div>
     <div class="card-sub">Read the text and answer the True/False questions.</div>
     
-    <div style="margin-bottom: 20px; display:flex; gap:10px">
-      <button class="btn btn-outline" onclick="loadStory(0)">Story 1</button>
-      <button class="btn btn-outline" onclick="loadStory(1)">Story 2</button>
-      <button class="btn btn-outline" onclick="loadStory(2)">Story 3</button>
-        <button class="btn btn-outline" id="storyBtn3" onclick="loadStory(3)" style="display:none">Story 4</button>
-        <button class="btn btn-outline" id="storyBtn4" onclick="loadStory(4)" style="display:none">Story 5</button>
-        
-        <div style="position:relative; overflow:hidden; display:inline-block; margin-left:auto">
-          <button class="btn btn-outline btn-sm" style="border-color:var(--accent); color:var(--accent)">Upload Stories (JSON)</button>
-          <input type="file" accept=".json" onchange="importStoryJson(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
-        </div>
-      </div>
+    <div id="storyBtnContainer" style="margin-bottom: 20px; display:flex; gap:10px; flex-wrap:wrap"></div>
 
     <div id="readingContent" style="display:none; background:var(--surface2); padding:20px; border-radius:12px; margin-bottom:20px; font-size:1.1rem; line-height:1.6">
       <h3 id="storyTitle" style="margin-top:0; color:var(--accent)"></h3>
@@ -658,6 +673,39 @@
     </div>
     <div id="dictResults">
        <div style="text-align:center;padding:40px;color:var(--text-muted)">Type a word to begin searching...</div>
+    </div>
+  </div>
+
+  
+  <!-- AI CHAT WIDGET -->
+  <div id="aiChatWidget" style="display:none; position:fixed; bottom:80px; right:20px; width:350px; height:500px; background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.3); z-index:9999; flex-direction:column; overflow:hidden;">
+    <div style="background:var(--accent); color:white; padding:15px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+      <span>&#129302; AI Partner</span>
+      <div>
+        <button onclick="toggleChatSettings()" style="background:transparent; border:none; color:white; cursor:pointer; font-size:1.2rem; margin-right:10px;">&#9881;&#65039;</button>
+        <button onclick="toggleAiChat()" style="background:transparent; border:none; color:white; cursor:pointer; font-size:1.2rem;">&#10006;</button>
+      </div>
+    </div>
+    <div style="padding:0px 15px;">
+      
+      <div id="chatSettings" style="display:none; margin-top:15px; padding-top:15px; border-top:1px solid var(--border);">
+        <div style="font-size:0.9rem; margin-bottom:10px;">To use the AI Chat, you need a free Google Gemini API Key. Since this app runs purely on your device, your key is stored locally and never sent to our servers!</div>
+        <div style="display:flex; gap:10px;">
+          <input type="password" id="geminiApiKey" placeholder="Paste your Gemini API Key here..." style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--surface);">
+          <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
+        </div>
+        <div style="font-size:0.8rem; margin-top:10px;"><a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent);">Get a free API key here</a></div>
+      </div>
+    </div>
+    
+    <div style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+      <div id="chatHistory" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:15px; background:var(--surface2);">
+        <div style="text-align:center; color:var(--text-muted); margin-top:20px;">Provide your API key above to start chatting!</div>
+      </div>
+      <div style="padding:15px; background:var(--surface); border-top:1px solid var(--border); display:flex; gap:10px;">
+        <input type="text" id="chatInput" placeholder="Type in German..." style="flex:1; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:1rem;" onkeypress="if(event.key==='Enter') sendChatMessage()">
+        <button class="btn btn-primary" onclick="sendChatMessage()">Send</button>
+      </div>
     </div>
   </div>
 
@@ -717,5 +765,38 @@
   </div>
 </div>
 
+
+<div id="warmupModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+  <div class="card" style="max-width:500px; width:100%; text-align:center;">
+    <div style="font-size:2.5rem; margin-bottom:10px;">&#9749;</div>
+    <div style="font-size:1.5rem; font-weight:800; margin-bottom:5px;">Daily Warm-up</div>
+    <div style="color:var(--text-muted); margin-bottom:20px;">Answer the question to unlock the app for today!</div>
+    <div id="warmupQuestion" style="font-size:1.2rem; font-weight:600; margin-bottom:20px; padding:15px; background:var(--surface2); border-radius:8px;"></div>
+    <div id="warmupOptions" style="display:flex; flex-direction:column; gap:10px;"></div>
+  </div>
+</div>
+
+
+  <div id="lingqTooltip">
+    <div style="font-weight:800; font-size:1.2rem; color:var(--text)" id="lingqDe"></div>
+    <div style="color:var(--text-muted); font-size:1rem" id="lingqEn"></div>
+    <div style="display:flex; gap:10px; margin-top:10px">
+      <button class="btn btn-outline" style="flex:1" onclick="document.getElementById('lingqTooltip').style.display='none'">Close</button>
+      <button class="btn btn-primary" style="flex:2" id="lingqSaveBtn" onclick="saveLingqWord()">&#10024; Save to Flashcards</button>
+    </div>
+  </div>
+  
+
+  <script>
+    const initialSec = localStorage.getItem('dt_current_section') || 'dashboard';
+    const secEl = document.getElementById('section-' + initialSec);
+    if(secEl) secEl.classList.add('active');
+  </script>
+  
+
+  <button id="aiChatFab" onclick="toggleAiChat()" style="position:fixed; bottom:20px; right:20px; width:55px; height:55px; border-radius:50%; background:var(--accent); color:white; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.4); font-size:1.8rem; cursor:pointer; z-index:9999; display:flex; align-items:center; justify-content:center; transition:0.2s;">
+    &#129302;
+  </button>
+  
 </body>
 </html>
