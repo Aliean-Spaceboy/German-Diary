@@ -59,11 +59,8 @@ function showSection(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('section-' + id).classList.add('active');
-<<<<<<< HEAD
   const dropdown = document.getElementById('moreDropdown');
   if(dropdown && dropdown.classList.contains('show')) dropdown.classList.remove('show');
-=======
->>>>>>> 6f08473f7fd19aa104f4db1cca43dd6804be7bbd
   document.querySelectorAll('.nav-btn').forEach(b => {
     if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + id + "'")) {
       b.classList.add('active');
@@ -757,7 +754,6 @@ function checkDictation(){
  document.getElementById('dictationResult').innerText=a.toLowerCase()==dictationWord.toLowerCase()?'Correct':'Wrong: '+dictationWord;
 }
 document.addEventListener('DOMContentLoaded',renderSRS);
-<<<<<<< HEAD
 
 function toggleDropdown(e) {
   e.stopPropagation();
@@ -1392,5 +1388,3 @@ showSection = function(id) {
     updateStoryButtons();
   }
 };
-=======
->>>>>>> 6f08473f7fd19aa104f4db1cca43dd6804be7bbd
