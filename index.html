@@ -129,13 +129,36 @@
   </div>
 
   <div class="card" style="margin-top:24px; border-color:var(--danger)">
-    <div class="card-title">?? Data Backup & Restore</div>
+    <div class="card-title">💾 Data Backup & Restore</div>
     <div class="card-sub">Your data is stored locally in your browser. If you clear your history, it will be deleted! Export a backup regularly.</div>
+    
+    <!-- LOCAL BACKUP BUTTONS -->
     <div style="display:flex; gap:12px; margin-top:14px; align-items:center; flex-wrap:wrap">
-      <button class="btn btn-outline" style="border-color:var(--success); color:var(--success)" onclick="exportData()">?? Export Backup (JSON)</button>
+      <button class="btn btn-outline" style="border-color:var(--success); color:var(--success)" onclick="exportData()">⬇️ Export Backup (JSON)</button>
       <div style="position:relative; overflow:hidden; display:inline-block">
-        <button class="btn btn-outline" style="border-color:var(--danger); color:var(--danger)">?? Import Backup</button>
-                <input type="file" accept=".json" onchange="importData(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+        <button class="btn btn-outline" style="border-color:var(--danger); color:var(--danger)">⬆️ Import Backup</button>
+        <input type="file" accept=".json" onchange="importData(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+      </div>
+    </div>
+    
+    <!-- ☁️ GITHUB CLOUD SYNC SECTION ☁️ -->
+    <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px;">
+      <h4 style="margin-top:0; color:var(--accent);">☁️ Advanced Cloud Sync</h4>
+      <div style="font-size:0.9rem; margin-bottom:15px; color:var(--text-muted);">
+        1. Get a <a href="https://github.com/settings/tokens/new?scopes=gist&description=GermanDiarySync" target="_blank" style="color:var(--accent);">GitHub Token here</a> (Leave defaults, just click Generate).<br>
+        2. Paste it below to connect your laptop, or paste a Token + Gist ID to restore your phone!
+      </div>
+      
+      <input type="password" id="ghTokenInput" class="input" placeholder="Paste GitHub Token here (ghp_...)" style="margin-bottom:10px;">
+      <input type="text" id="ghGistInput" class="input" placeholder="Gist ID (Leave blank if setting up for the first time)" style="margin-bottom:15px;">
+      
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="setupCloud()">🔗 Connect & Sync</button>
+        <button class="btn btn-outline" onclick="forcePullCloud()">⬇️ Pull Latest</button>
+      </div>
+      
+      <div id="syncStatus" style="margin-top:15px; font-weight:bold; font-size:0.9rem; color:var(--text-muted);">
+        Status: ⚪ Disconnected
       </div>
     </div>
   </div>
@@ -615,10 +638,35 @@
 
 <div id="section-reading" class="section">
   <div class="card">
-    <div class="card-title">&#128214; B2 Reading Practice (Leseverstehen)</div>
-    <div class="card-sub">Read the text and answer the True/False questions.</div>
+    <div class="card-title">&#128214; German Reading & Live News</div>
+    <div class="card-sub">Fetch live articles from Deutsche Welle, or practice with True/False stories! Click any word to translate it.</div>
     
-    <div id="storyBtnContainer" style="margin-bottom: 20px; display:flex; gap:10px; flex-wrap:wrap"></div>
+   
+        <!-- 1. LIVE NEWS SECTION -->
+        <div style="background:var(--surface2); padding:20px; border-radius:12px; margin-bottom:30px; border:1px solid var(--accent);">
+          <h4 style="margin-top:0; color:var(--accent);">📰 Live DW News Feed</h4>
+          
+          <div style="margin-bottom: 20px; display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="fetchNewsBtn" onclick="fetchLiveNews()">🔄 Fetch Live News (DW)</button>
+            <button class="btn btn-outline" onclick="clearNewsCache()">🗑️ Clear Cache</button>
+            
+            <!-- Moved Upload button up here! -->
+            <div style="position:relative; overflow:hidden; display:inline-block;">
+              <button class="btn btn-outline" style="border-color:var(--accent); color:var(--accent)">Upload Stories (JSON)</button>
+              <input type="file" accept=".json" onchange="importStoryJson(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+            </div>
+          </div>
+          
+          <div id="liveNewsContainer" style="display:flex; flex-direction:column; gap:20px;">
+            <div style="text-align:center; color:var(--text-muted); padding:20px;">
+              No cached news found. Click Fetch to get today's articles!
+            </div>
+          </div>
+        </div>
+
+    <!-- 2. TRUE / FALSE STORIES SECTION -->
+    <h4 style="margin-bottom:15px; border-top:1px solid var(--border); padding-top:20px;">&#128218; Classic True/False Stories</h4>
+    <!-- <div id="storyBtnContainer" style="margin-bottom: 20px; display:flex; gap:10px; flex-wrap:wrap"></div> -->
 
     <div id="readingContent" style="display:none; background:var(--surface2); padding:20px; border-radius:12px; margin-bottom:20px; font-size:1.1rem; line-height:1.6">
       <h3 id="storyTitle" style="margin-top:0; color:var(--accent)"></h3>
@@ -678,12 +726,12 @@
 
   
   <!-- AI CHAT WIDGET -->
-  <div id="aiChatWidget" style="display:none; position:fixed; bottom:80px; right:20px; width:350px; height:500px; background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.3); z-index:9999; flex-direction:column; overflow:hidden;">
+    <div id="aiChatWidget" style="display:none; position:fixed; bottom:80px; right:20px; width:350px; height:500px; background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.3); z-index:9999; flex-direction:column; overflow:hidden;">
     <div style="background:var(--accent); color:white; padding:15px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
-      <span>&#129302; AI Partner</span>
+      <span>🤖 AI Partner</span>
       <div>
-        <button onclick="toggleChatSettings()" style="background:transparent; border:none; color:white; cursor:pointer; font-size:1.2rem; margin-right:10px;">&#9881;&#65039;</button>
-        <button onclick="toggleAiChat()" style="background:transparent; border:none; color:white; cursor:pointer; font-size:1.2rem;">&#10006;</button>
+        <button onclick="toggleChatSettings()" style="background:transparent; border:none; color:white; cursor:pointer; font-size:1.2rem; margin-right:10px;">⚙️</button>
+        <button onclick="toggleAiChat()" style="background:transparent; border:none; color:white; cursor:pointer; font-size:1.2rem;">✖</button>
       </div>
     </div>
     <div style="padding:0px 15px;">
@@ -702,10 +750,17 @@
       <div id="chatHistory" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:15px; background:var(--surface2);">
         <div style="text-align:center; color:var(--text-muted); margin-top:20px;">Provide your API key above to start chatting!</div>
       </div>
-      <div style="padding:15px; background:var(--surface); border-top:1px solid var(--border); display:flex; gap:10px;">
-        <input type="text" id="chatInput" placeholder="Type in German..." style="flex:1; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:1rem;" onkeypress="if(event.key==='Enter') sendChatMessage()">
+      
+      <!-- ONLY THIS BOTTOM PART CHANGED -->
+      <div style="padding:15px; background:var(--surface); border-top:1px solid var(--border); display:flex; gap:10px; align-items:center;">
+        <div style="position:relative; flex:1; display:flex;">
+          <input type="text" id="chatInput" placeholder="Type or speak in German..." style="flex:1; padding:12px; padding-right:45px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:1rem;" onkeypress="if(event.key==='Enter') sendChatMessage()">
+          <button id="chatMicBtn" onclick="startChatVoiceTyping()" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--text-muted); transition:0.2s;" title="Speak to AI">🎙️</button>
+        </div>
         <button class="btn btn-primary" onclick="sendChatMessage()">Send</button>
       </div>
+      <!-- END OF CHANGES -->
+
     </div>
   </div>
 
@@ -736,7 +791,7 @@
 
 <div id="toast"></div>
 
-<script src="script.js"></script>
+
 <!-- DIARY CHECKLIST MODAL -->
 <div id="diaryChecklistModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center">
   <div style="background:var(--surface); padding:24px; border-radius:12px; max-width:400px; width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2)">
@@ -766,15 +821,63 @@
 </div>
 
 
-<div id="warmupModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; padding:20px;">
-  <div class="card" style="max-width:500px; width:100%; text-align:center;">
-    <div style="font-size:2.5rem; margin-bottom:10px;">&#9749;</div>
-    <div style="font-size:1.5rem; font-weight:800; margin-bottom:5px;">Daily Warm-up</div>
-    <div style="color:var(--text-muted); margin-bottom:20px;">Answer the question to unlock the app for today!</div>
-    <div id="warmupQuestion" style="font-size:1.2rem; font-weight:600; margin-bottom:20px; padding:15px; background:var(--surface2); border-radius:8px;"></div>
-    <div id="warmupOptions" style="display:flex; flex-direction:column; gap:10px;"></div>
+<!-- EXTRAORDINARY GAMIFIED DAILY WARM-UP MODAL -->
+<div id="warmupModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 15, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index:9999; align-items:center; justify-content:center; padding:20px; overflow:hidden; transition: background 0.3s;">
+  
+  <!-- The Neon Time Bomb Bar -->
+  <div style="position:absolute; top:0; left:0; width:100%; height:10px; background:rgba(255,255,255,0.05); box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+    <div id="warmupTimerBar" style="height:100%; width:100%; background:var(--success); box-shadow: 0 0 15px var(--success); transition:width 1s linear, background 0.5s, box-shadow 0.5s;"></div>
+  </div>
+
+  <!-- The Glassmorphism Card -->
+  <div class="card" id="warmupCard" style="max-width:550px; width:100%; text-align:center; position:relative; transition:transform 0.1s; z-index:10; background:rgba(30, 30, 40, 0.7); border:1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255,255,255,0.05); border-radius: 20px; padding:40px 30px;">
+    <div style="font-size:3.5rem; margin-bottom:15px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));" id="warmupIcon">&#9889;</div>
+    <div style="font-size:2rem; font-weight:900; margin-bottom:5px; letter-spacing:-0.5px; text-transform:uppercase; background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" id="warmupTitle">Daily Challenge</div>
+    <div style="color:var(--text-muted); margin-bottom:30px; font-size:1.1rem;" id="warmupSub">Answer correctly to keep your streak!</div>
+    
+    <div id="warmupQuestion" style="font-size:1.4rem; font-weight:700; margin-bottom:30px; padding:25px; background:rgba(0,0,0,0.3); border:1px inset rgba(255,255,255,0.05); border-radius:15px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); text-shadow: 0 2px 4px rgba(0,0,0,0.8);"></div>
+    
+    <div id="warmupOptions" style="display:flex; flex-direction:column; gap:12px;"></div>
   </div>
 </div>
+
+<style>
+  /* Extraordinary Options Buttons */
+  .warmup-btn-extra {
+    width: 100%; text-align: left; font-size: 1.2rem; font-weight: 600; padding: 16px 20px; 
+    border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); 
+    background: rgba(255,255,255,0.03); color: var(--text); 
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  .warmup-btn-extra:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.02);
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.3);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), 0 0 15px rgba(255,255,255,0.1);
+  }
+  .warmup-btn-extra:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  /* Hollywood Screen Shake & Damage Flash */
+  @keyframes extreme-shake {
+    0% { transform: translate(0,0) rotate(0deg); }
+    10% { transform: translate(-15px,-15px) rotate(-2deg); }
+    20% { transform: translate(15px,15px) rotate(2deg); }
+    30% { transform: translate(-20px,10px) rotate(-3deg); }
+    40% { transform: translate(20px,-10px) rotate(3deg); }
+    50% { transform: translate(-15px,15px) rotate(-2deg); }
+    60% { transform: translate(15px,-15px) rotate(2deg); }
+    70% { transform: translate(-10px,10px) rotate(-1deg); }
+    80% { transform: translate(10px,-10px) rotate(1deg); }
+    90% { transform: translate(-5px,5px) rotate(0deg); }
+    100% { transform: translate(0,0) rotate(0deg); }
+  }
+  .extreme-shake-anim { animation: extreme-shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+  .damage-flash { background: rgba(255, 0, 0, 0.4) !important; transition: background 0.1s !important; }
+</style>
 
 
   <div id="lingqTooltip">
@@ -799,4 +902,5 @@
   </button>
   
 </body>
+<script src="script.js"></script>
 </html>
