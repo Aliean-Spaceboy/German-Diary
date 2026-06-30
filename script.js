@@ -172,6 +172,76 @@ let vocab = load("dt_vocab", []);
 let vocab_pool = load("dt_vocab_pool", []);
 let speakNotesList = load("dt_speak", []);
 
+// ==========================================
+// 🛡️ ANTI-CHEAT: CLOCK PROTECTION
+// ==========================================
+(function () {
+  // 🔒 Obfuscated keys — users will never find these
+  const _K1 = "dt_app_meta_v2";
+  const _K2 = "dt_session_cfg";
+  const _SALT = 0x5a3f; // XOR salt — makes stored value unreadable
+
+  // Encode/Decode so the value is never a plain readable timestamp
+  function _encode(ts) {
+    return (ts ^ _SALT).toString(36);
+  }
+  function _decode(val) {
+    try {
+      return parseInt(val, 36) ^ _SALT;
+    } catch {
+      return 0;
+    }
+  }
+
+  function _showWarning() {
+    window.__timeTravelDetected = true;
+
+    const el = document.createElement("div");
+    el.id = "ttWarning";
+    el.style =
+      "position:fixed;top:0;left:0;width:100%;background:var(--danger);color:#fff;text-align:center;padding:12px;font-weight:800;z-index:99999;font-size:0.9rem;transition:opacity 0.8s ease;";
+    el.textContent =
+      "⚠️ Security alert: Clock mismatch detected. Your progress is protected.";
+    document.body.prepend(el);
+
+    // ✅ Auto-dismiss after 5 seconds — no user action needed!
+    setTimeout(() => {
+      el.style.opacity = "0";
+      setTimeout(() => {
+        el.remove();
+        window.__timeTravelDetected = false;
+      }, 800);
+    }, 5000);
+  }
+
+  const now = Date.now();
+  const raw1 = localStorage.getItem(_K1);
+  const raw2 = localStorage.getItem(_K2);
+
+  // Always overwrite with encoded current time immediately
+  // This means ANY tampering is auto-corrected on the next refresh
+  localStorage.setItem(_K1, _encode(now));
+  localStorage.setItem(_K2, _encode(now));
+
+  if (raw1 && raw2) {
+    const stored1 = _decode(raw1);
+    const stored2 = _decode(raw2);
+
+    // Cross-reference: if the two keys don't match, someone tampered with one of them
+    if (Math.abs(stored1 - stored2) > 1000) {
+      _showWarning();
+      return;
+    }
+
+    // Clock-back check: if stored time is ahead of now, clock was moved back
+    if (stored1 > now) {
+      _showWarning();
+      return;
+    }
+  }
+
+  window.__timeTravelDetected = false;
+})();
 // ─── UTILITIES ────────────────────────────────────────────────────────────────
 function todayStr() {
   return new Date().toISOString().split("T")[0];
@@ -224,6 +294,40 @@ function showSection(id) {
 }
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
+// ==========================================
+// 🛡️ TRUE PROGRESS MATH (Never Resets)
+// ==========================================
+function getLevel(diaryEntriesCount, vocabCount) {
+  // Total Max Points possible for B2 is 600
+  const MAX_POINTS = 600;
+
+  // Calculate true total points (Diary = 5pts, Vocab = 1pt)
+  const totalPoints = diaryEntriesCount * 5 + vocabCount;
+
+  // Calculate permanent climbing percentage (capped at 100%)
+  const rawPct = (totalPoints / MAX_POINTS) * 100;
+  const pct = Math.min(rawPct, 100);
+
+  // Determine actual rank based on true points
+  let label = "Starter";
+  let badgeClass = "badge-starter";
+
+  if (totalPoints >= 600) {
+    label = "B2 Fluent";
+    badgeClass = "badge-b2";
+  } else if (totalPoints >= 300) {
+    label = "B1 Intermed.";
+    badgeClass = "badge-b1";
+  } else if (totalPoints >= 150) {
+    label = "A2 Elem.";
+    badgeClass = "badge-a2";
+  } else if (totalPoints >= 50) {
+    label = "A1 Beginner";
+    badgeClass = "badge-a1";
+  }
+
+  return { label, pct, class: badgeClass };
+}
 function calcStreak() {
   const dates = [...new Set(diaryEntries.map((e) => e.date))].sort();
   if (!dates.length) return 0;
@@ -238,34 +342,6 @@ function calcStreak() {
     } else break;
   }
   return streak;
-}
-
-function getLevel(entries, words) {
-  const score = entries * 5 + words;
-  if (score >= 600) return { label: "B2 🎉", pct: 100, class: "badge-b2" };
-  if (score >= 350)
-    return {
-      label: "B1 ⭐",
-      pct: 75 + Math.round((score - 350) / 10),
-      class: "badge-b1",
-    };
-  if (score >= 150)
-    return {
-      label: "A2",
-      pct: 40 + Math.round((score - 150) / 4.25),
-      class: "badge-a2",
-    };
-  if (score >= 50)
-    return {
-      label: "A1",
-      pct: 10 + Math.round((score - 50) / 2),
-      class: "badge-a1",
-    };
-  return {
-    label: "Starter",
-    pct: Math.round((score / 5) * 10),
-    class: "badge-a1",
-  };
 }
 
 function renderDashboard() {
@@ -301,7 +377,6 @@ function renderDashboard() {
   renderRoadmap();
 
   // Heatmap
-  renderHeatmap();
 }
 
 // ─── LEVEL ROADMAP ────────────────────────────────────────────────────────────
@@ -338,81 +413,6 @@ function toggleLevel(id) {
   showToast(
     done[id] ? `🎉 ${id} marked complete! Glückwunsch!` : `${id} unmarked.`
   );
-}
-
-function renderHeatmap() {
-  const hm = document.getElementById("heatmap");
-  hm.innerHTML = `<div class="heatmap-day-label">Su</div><div class="heatmap-day-label">Mo</div><div class="heatmap-day-label">Tu</div><div class="heatmap-day-label">We</div><div class="heatmap-day-label">Th</div><div class="heatmap-day-label">Fr</div><div class="heatmap-day-label">Sa</div>`;
-
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const todayDateNum = today.getDate();
-
-  // Update subtitle
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const subEl = document.getElementById("heatmapSubtitle");
-  if (subEl) subEl.textContent = `${monthNames[month]} ${year}`;
-
-  // Find the day of the week the 1st of the month falls on
-  const firstDay = new Date(year, month, 1).getDay(); // 0 is Sunday
-
-  // Find the number of days in the current month
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  // 1. Generate invisible placeholder cells for the days before the 1st
-  for (let i = 0; i < firstDay; i++) {
-    const cell = document.createElement("div");
-    cell.className = "heat-cell heat-future";
-    hm.appendChild(cell);
-  }
-
-  // 2. Generate the actual days of the month
-  for (let i = 1; i <= daysInMonth; i++) {
-    const cell = document.createElement("div");
-    cell.textContent = i;
-
-    // Safely generate YYYY-MM-DD for the local timezone
-    const ds =
-      year +
-      "-" +
-      String(month + 1).padStart(2, "0") +
-      "-" +
-      String(i).padStart(2, "0");
-
-    if (i > todayDateNum) {
-      // Future days
-      cell.className = "heat-cell";
-      cell.style.opacity = "0.3";
-      cell.title = "Future";
-    } else {
-      const count = load("dt_time_" + ds, 0);
-      cell.className =
-        "heat-cell" +
-        (count >= 30
-          ? " heat-3"
-          : count >= 15
-          ? " heat-2"
-          : count > 0
-          ? " heat-1"
-          : "");
-      cell.title = ds + (count > 0 ? ` (${count} mins)` : " (0 mins)");
-    }
-    hm.appendChild(cell);
-  }
 }
 
 // ─── DIARY ────────────────────────────────────────────────────────────────────
@@ -552,17 +552,121 @@ function escHtml(s) {
 }
 
 // ─── VOCABULARY ───────────────────────────────────────────────────────────────
+// ==========================================
+// 🛡️ THE API GATEKEEPER
+// ==========================================
+async function validateGerman(germanText, userEnglish = null) {
+  if (!navigator.onLine) {
+    console.warn("Offline. Bypassing Gatekeeper.");
+    return { isValid: true, reason: "offline" };
+  }
+
+  try {
+    const cleaned = germanText.toLowerCase().trim();
+
+    // ── Quick Local Checks (No API needed) ──────────────────
+    if (cleaned.length < 2) {
+      return {
+        isValid: false,
+        reason: "Input is too short to be a real word.",
+      };
+    }
+    const vowels = (cleaned.match(/[aeiouäöüy]/g) || []).length;
+    const letters = (cleaned.match(/[a-zäöü]/g) || []).length;
+    if (letters > 3 && vowels / letters < 0.1) {
+      return {
+        isValid: false,
+        reason: "Too many consonants! Doesn't look like a real German word.",
+      };
+    }
+    if (/(.)\1{4,}/.test(cleaned)) {
+      return {
+        isValid: false,
+        reason: "Doesn't look like a real word (too much repetition).",
+      };
+    }
+
+    // ── API-Powered Check using your smartTranslate ──────────
+    // Directly translate germanText from DE → EN using Google
+    const safeWord = encodeURIComponent(germanText.trim());
+    const res = await fetch(
+      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=de&tl=en&dt=t&q=${safeWord}`
+    );
+    const data = await res.json();
+    const apiEnglish = (data[0] && data[0][0] ? data[0][0][0] : "")
+      .toLowerCase()
+      .trim();
+
+    // Check 1: If DE→EN translation equals the input exactly, it's probably not a German word
+    // (e.g., typing English "dog" → translates to "dog" → gibberish or English!)
+    if (apiEnglish && apiEnglish === cleaned) {
+      return {
+        isValid: false,
+        reason: `"${germanText}" doesn't appear to be a German word. Bitte auf Deutsch!`,
+      };
+    }
+
+    // Check 2: If user provided an English translation, cross-check it with the API result!
+    if (userEnglish && apiEnglish) {
+      const userEn = userEnglish.toLowerCase().trim();
+      // Allow partial matches (e.g. API says "the apple" user typed "apple" → OK!)
+      const isMatch =
+        apiEnglish.includes(userEn) || userEn.includes(apiEnglish);
+      if (!isMatch) {
+        return {
+          isValid: false,
+          reason: `Wrong translation! "${germanText}" means "${data[0][0][0]}", not "${userEnglish}". Please correct it!`,
+        };
+      }
+    }
+
+    // ✅ Passed all checks!
+    return { isValid: true };
+  } catch (error) {
+    console.error("Gatekeeper Error:", error);
+    // If API crashes, don't lock the user out
+    return { isValid: true, reason: "error_bypass" };
+  }
+}
 let currentFilter = "All";
 let flashIndex = 0;
 
-function addVocab() {
+async function addVocab() {
   const de = document.getElementById("vocabDe").value.trim();
   const en = document.getElementById("vocabEn").value.trim();
   const cat = document.getElementById("vocabCat").value;
+
   if (!de || !en) {
     showToast("⚠️ Enter both German and English!");
     return;
   }
+
+  // 🛡️ ANTI-CHEAT 1: Duplicate / Farming Check
+  if (vocab.some((v) => v.de.toLowerCase() === de.toLowerCase())) {
+    showToast("🚫 That word already exists in your list!", "var(--danger)");
+    return;
+  }
+
+  // 🛡️ ANTI-CHEAT 2: AI Gatekeeper Validation
+  const saveBtn = document.querySelector("button[onclick='addVocab()']");
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = "🛡️ Checking...";
+  }
+
+  const check = await validateGerman(de, en);
+
+  if (saveBtn) {
+    saveBtn.disabled = false;
+    saveBtn.textContent = "➕ Add Word";
+  }
+
+  if (!check.isValid) {
+    showToast(`🚫 Blocked: ${check.reason}`, "var(--danger)");
+    return;
+  }
+
+  // ✅ Passed all checks — Safe to save!
   vocab.unshift({ de, en, cat, date: todayStr() });
   save("dt_vocab", vocab);
   document.getElementById("vocabDe").value = "";
@@ -1242,7 +1346,7 @@ function initTimeTracker() {
     mins++;
     save("dt_time_" + todayStr(), mins);
     if (display) display.textContent = mins + " mins today";
-    renderHeatmap(); // Live update the heatmap color!
+    // Live update the heatmap color!
   }, 60000);
 }
 
@@ -1886,6 +1990,7 @@ function checkVerbAnswer() {
 // --- DIARY SELF-CORRECTION ---
 const b2SaveDiary =
   typeof saveDiaryEntry !== "undefined" ? saveDiaryEntry : function () {};
+
 saveDiaryEntry = function () {
   const p1 = document.getElementById("prompt1").value.trim();
   const p2 = document.getElementById("prompt2").value.trim();
@@ -1893,29 +1998,74 @@ saveDiaryEntry = function () {
   const p4 = document.getElementById("prompt4").value.trim();
 
   if (!p1 && !p2 && !p3 && !p4) {
-    showToast("?? Please write something first!");
+    showToast("⚠️ Please write something first!");
     return;
   }
 
-  // Show Checklist
+  // Show Grammar Checklist Modal first (same as before)
   document.getElementById("chk1").checked = false;
   document.getElementById("chk2").checked = false;
   document.getElementById("chk3").checked = false;
-
   document.getElementById("diaryChecklistModal").style.display = "flex";
 };
 
-function confirmDiarySave() {
+async function confirmDiarySave() {
   if (
     !document.getElementById("chk1").checked ||
     !document.getElementById("chk2").checked ||
     !document.getElementById("chk3").checked
   ) {
-    showToast("?? Please check all boxes to confirm your grammar is correct!");
+    showToast("⚠️ Please check all boxes to confirm your grammar is correct!");
     return;
   }
+
+  // 🛡️ ANTI-CHEAT 3: Daily Diary Cap (only first entry of the day counts for points)
+  const todayKey = "dt_diary_count_" + todayStr();
+  const todayCount = parseInt(localStorage.getItem(todayKey) || "0");
+
+  // Get the diary text to validate
+  const diaryText = [
+    document.getElementById("prompt1").value.trim(),
+    document.getElementById("prompt2").value.trim(),
+    document.getElementById("prompt3").value.trim(),
+    document.getElementById("prompt4").value.trim(),
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  // 🛡️ ANTI-CHEAT 4: Gatekeeper — only validate on the first entry (saves API calls)
+  if (todayCount === 0) {
+    const confirmBtn = document.querySelector(
+      "button[onclick='confirmDiarySave()']"
+    );
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = "🛡️ Checking...";
+    }
+
+    const check = await validateGerman(diaryText);
+
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "✅ Save Entry";
+    }
+
+    if (!check.isValid) {
+      showToast(`🚫 Blocked: ${check.reason}`, "var(--danger)");
+      return;
+    }
+
+    // Mark first entry of the day as counted
+    localStorage.setItem(todayKey, "1");
+  } else {
+    showToast(
+      "📝 Entry saved! (Only your first daily entry counts for level progress)",
+      "var(--gold)"
+    );
+  }
+
   document.getElementById("diaryChecklistModal").style.display = "none";
-  b2SaveDiary(); // Call the original save logic
+  b2SaveDiary();
 }
 
 function toggleWiki() {
@@ -3463,6 +3613,520 @@ function startChatVoiceTyping() {
 }
 
 // --- 3. LIVE NEWS & CACHING ---
+// ==========================================
+// 🧠 SMART QUESTION GENERATOR ENGINE       <-- PASTE ALL OF BLOCK 1 HERE
+// ==========================================
+function qg_getSentences(text) {
+  return text
+    .replace(/\n+/g, " ")
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 10 && s.split(" ").length > 2);
+}
+function qg_getWords(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-zäöüß\s]/g, "")
+    .split(/\s+/)
+    .filter((w) => w.length > 2);
+}
+// ─── LEVEL 1: TF-IDF SCORER ───────────────────────────────────────────────────
+function qg_tfIdfScore(sentences) {
+  const stopWords = new Set([
+    "der",
+    "die",
+    "das",
+    "ein",
+    "eine",
+    "und",
+    "oder",
+    "aber",
+    "ist",
+    "sind",
+    "war",
+    "hat",
+    "haben",
+    "wird",
+    "werden",
+    "mit",
+    "von",
+    "für",
+    "auf",
+    "in",
+    "an",
+    "zu",
+    "im",
+    "dem",
+    "den",
+    "des",
+    "sich",
+    "auch",
+    "nach",
+    "bei",
+    "aus",
+    "sie",
+    "er",
+    "es",
+    "wir",
+    "ich",
+    "du",
+    "wie",
+    "als",
+    "dass",
+    "wenn",
+    "weil",
+    "so",
+    "noch",
+    "mehr",
+    "nur",
+    "bis",
+    "über",
+    "unter",
+    "durch",
+    "gegen",
+    "ohne",
+    "beim",
+    "vom",
+    "zum",
+    "zur",
+    "wird",
+    "wurde",
+    "worden",
+  ]);
+  const N = sentences.length;
+  const df = {};
+  sentences.forEach((s) => {
+    const unique = new Set(qg_getWords(s).filter((w) => !stopWords.has(w)));
+    unique.forEach((w) => {
+      df[w] = (df[w] || 0) + 1;
+    });
+  });
+  return sentences
+    .map((sentence) => {
+      const words = qg_getWords(sentence).filter((w) => !stopWords.has(w));
+      if (!words.length) return { sentence, score: 0 };
+      const wc = {};
+      words.forEach((w) => {
+        wc[w] = (wc[w] || 0) + 1;
+      });
+      const score = Object.entries(wc).reduce((sum, [word, count]) => {
+        return sum + (count / words.length) * Math.log(N / (df[word] || 1));
+      }, 0);
+      return { sentence, score };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+// ─── LEVEL 2: NAMED ENTITY EXTRACTOR ─────────────────────────────────────────
+function qg_extractEntities(text) {
+  const entities = { names: [], dates: [], numbers: [] };
+  const skipWords = new Set([
+    "Der",
+    "Die",
+    "Das",
+    "Ein",
+    "Eine",
+    "Und",
+    "Aber",
+    "Oder",
+    "Wenn",
+    "Dass",
+    "Nach",
+    "Über",
+    "Unter",
+    "Durch",
+    "Gegen",
+    "Ohne",
+    "Beim",
+    "Vom",
+    "Zum",
+    "Zur",
+    "Wird",
+    "Wurde",
+    "Haben",
+    "Sein",
+    "Sind",
+  ]);
+  const sentences = text.split(/[.!?]/);
+  sentences.forEach((sentence) => {
+    const words = sentence.trim().split(/\s+/);
+    words.forEach((word, i) => {
+      const clean = word.replace(/[,;:()„"]/g, "");
+      if (
+        i > 0 &&
+        /^[A-ZÄÖÜ][a-zäöüß]{3,}$/.test(clean) &&
+        !skipWords.has(clean)
+      ) {
+        if (!entities.names.includes(clean)) entities.names.push(clean);
+      }
+    });
+    const dates = sentence.match(
+      /\d{1,2}\.\s*(?:Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember)(?:\s*\d{4})?|\b\d{4}\b/g
+    );
+    if (dates)
+      dates.forEach((d) => {
+        if (!entities.dates.includes(d)) entities.dates.push(d);
+      });
+    const nums = sentence.match(
+      /\d+[.,]?\d*\s*(?:Prozent|Millionen|Milliarden|Euro|%)?/g
+    );
+    if (nums)
+      nums.forEach((n) => {
+        if (!entities.numbers.includes(n)) entities.numbers.push(n);
+      });
+  });
+  return entities;
+}
+// ─── LEVEL 3: READABILITY SCORE ───────────────────────────────────────────────
+function qg_readabilityScore(text) {
+  const sentences = qg_getSentences(text);
+  const words = qg_getWords(text);
+  if (!sentences.length || !words.length) return 5;
+  const avgSentLen = words.length / sentences.length;
+  const avgWordLen = words.reduce((s, w) => s + w.length, 0) / words.length;
+  return Math.min(
+    10,
+    Math.max(1, Math.round(avgSentLen * 0.3 + avgWordLen * 0.7))
+  );
+}
+// ─── LEVEL 4: HARD WORD EXTRACTOR ────────────────────────────────────────────
+function qg_extractHardWords(text) {
+  const stop = new Set([
+    "der",
+    "die",
+    "das",
+    "ein",
+    "eine",
+    "und",
+    "oder",
+    "aber",
+    "ist",
+    "sind",
+    "war",
+    "hat",
+    "haben",
+    "wird",
+    "werden",
+    "mit",
+    "von",
+    "für",
+    "auf",
+    "in",
+    "an",
+    "zu",
+    "im",
+    "dem",
+    "den",
+    "des",
+    "sich",
+    "auch",
+    "nach",
+    "bei",
+    "aus",
+  ]);
+  return [
+    ...new Set(
+      text
+        .split(/\s+/)
+        .map((w) => w.replace(/[^a-zA-ZäöüÄÖÜß]/g, ""))
+        .filter((w) => w.length > 8 && !stop.has(w.toLowerCase()))
+    ),
+  ]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
+}
+// ─── MAIN QUESTION GENERATOR ──────────────────────────────────────────────────
+async function generateArticleQuestions() {
+  // Try to find the article text from any known container
+  const articleEl =
+    document.getElementById("articleContent") ||
+    document.getElementById("storyContent") ||
+    document.getElementById("readingContent") ||
+    document.querySelector(".story-text");
+  if (!articleEl || !articleEl.innerText.trim()) {
+    showToast("⚠️ No article loaded! Please fetch a news article first.");
+    return;
+  }
+  const articleText = articleEl.innerText.trim();
+  const btn = document.getElementById("generateQuestionsBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="qg-spinner"></span> Analysing Article...';
+  }
+  // Run all 4 levels
+  const sentences = qg_getSentences(articleText);
+  const scored = qg_tfIdfScore(sentences);
+  const entities = qg_extractEntities(articleText);
+  const hardWords = qg_extractHardWords(articleText);
+  const levelData = getLevel(diaryEntries.length, vocab.length);
+  const userLevel = levelData.label.split(" ")[0];
+  if (sentences.length < 1) {
+    showToast("⚠️ Article too short to generate questions!");
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = "🧠 Generate Questions";
+    }
+    return;
+  }
+  const questions = [];
+  // Q1: True/False — top TF-IDF sentence (always correct statement)
+  if (scored.length > 0) {
+    questions.push({
+      type: "true_false",
+      correct: true,
+      question: scored[0].sentence,
+      hint: "This sentence comes directly from the article.",
+    });
+  }
+  // Q2: True/False — modified sentence (make it false by swapping a number)
+  if (scored.length > 1 && entities.numbers.length > 0) {
+    const original = scored[1].sentence;
+    const num = entities.numbers[0];
+    const fakeNum = String(parseInt(num) + Math.floor(Math.random() * 10 + 2));
+    const modified = original.includes(num)
+      ? original.replace(num, fakeNum)
+      : original;
+    const isTrueStatement = modified === original;
+    questions.push({
+      type: "true_false",
+      correct: isTrueStatement,
+      question: modified,
+      hint: isTrueStatement
+        ? "This appears exactly in the article."
+        : `Check the numbers carefully — the article uses a different value.`,
+    });
+  } else if (scored.length > 1) {
+    questions.push({
+      type: "true_false",
+      correct: true,
+      question: scored[1].sentence,
+      hint: "This sentence comes from the article.",
+    });
+  }
+  // Q3: Multiple Choice — "Which sentence is in the article?"
+  if (scored.length >= 4) {
+    const correct = scored[0].sentence;
+    const distractors = scored.slice(-3).map((s) => s.sentence);
+    const options = [correct, ...distractors].sort(() => Math.random() - 0.5);
+    questions.push({
+      type: "multiple_choice",
+      question:
+        "Welcher Satz steht wörtlich im Artikel? (Which sentence appears in the article?)",
+      options,
+      correct: options.indexOf(correct),
+      hint: "The correct sentence is copied word-for-word from the main article body.",
+    });
+  }
+  // Q4: Named Entity — "Who is mentioned?"
+  if (entities.names.length >= 2) {
+    const correctName = entities.names[0];
+    const fakeNames = [
+      "Hans Becker",
+      "Maria Schmidt",
+      "Thomas Weber",
+      "Anna Fischer",
+    ].filter((n) => n !== correctName);
+    const options = [correctName, ...fakeNames.slice(0, 3)].sort(
+      () => Math.random() - 0.5
+    );
+    questions.push({
+      type: "multiple_choice",
+      question:
+        "Welche Person wird im Artikel namentlich erwähnt? (Which person is mentioned by name?)",
+      options,
+      correct: options.indexOf(correctName),
+      hint: "Look for capitalized proper nouns in the article.",
+    });
+  }
+  // Q5: Number/Date MCQ (B1/B2 only)
+  if (
+    ["B1", "B2", "B1 Intermed.", "B2 Fluent"].some((l) =>
+      levelData.label.includes(l.split(" ")[0])
+    ) &&
+    entities.numbers.length > 0
+  ) {
+    const num = entities.numbers[0];
+    const base = parseInt(num) || 10;
+    const options = [
+      num,
+      String(base + 5),
+      String(base * 2),
+      String(Math.max(1, base - 3)),
+    ].sort(() => Math.random() - 0.5);
+    questions.push({
+      type: "multiple_choice",
+      question: `Welche Zahl/welches Datum erscheint im Artikel? (Which number or date appears in the article?)`,
+      options,
+      correct: options.indexOf(num),
+      hint: "Scan the article carefully for statistics, dates, or figures.",
+    });
+  }
+  // Q6: Vocabulary in Context (uses your existing smartTranslate)
+  if (hardWords.length > 0 && navigator.onLine) {
+    try {
+      const word = hardWords[0];
+      const translation = await smartTranslate(word);
+      const correctEn = translation.english || word;
+      const fakeAnswers = [
+        "to run quickly",
+        "a type of building",
+        "an important person",
+        "to cause problems",
+      ];
+      const options = [correctEn, ...fakeAnswers.slice(0, 3)].sort(
+        () => Math.random() - 0.5
+      );
+      questions.push({
+        type: "multiple_choice",
+        question: `Was bedeutet das Wort "${word}" auf Englisch? (What does "${word}" mean in English?)`,
+        options,
+        correct: options.indexOf(correctEn),
+        hint: `"${word}" is a key word from the article. Try to remember its context.`,
+      });
+    } catch (e) {
+      /* Skip if translate fails */
+    }
+  }
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = "🔄 Regenerate Questions";
+  }
+  renderArticleQuestions(questions);
+}
+// ─── QUESTION RENDERER ────────────────────────────────────────────────────────
+function renderArticleQuestions(questions) {
+  const zone = document.getElementById("questionZone");
+  if (!zone || !questions.length) return;
+  window._aqQuestions = questions;
+  window._aqAnswers = new Array(questions.length).fill(null);
+  let html = `
+    <div class="card" style="margin-top:20px; border-color:var(--accent2); animation: fadeIn 0.4s ease;">
+      <div class="card-title">🧠 Verständnisfragen</div>
+      <div class="card-sub" style="margin-bottom:20px;">Answer every question then click "Check Answers".</div>`;
+  questions.forEach((q, qi) => {
+    html += `<div class="question-card" id="qcard-${qi}">
+      <div class="question-text">${qi + 1}. ${q.question}</div>`;
+    if (q.type === "true_false") {
+      html += `<div style="display:flex;gap:10px;">
+        <button class="aq-opt-btn aq-true" id="q${qi}_true" onclick="aqSelect(${qi}, true)">✅ Richtig (True)</button>
+        <button class="aq-opt-btn aq-false" id="q${qi}_false" onclick="aqSelect(${qi}, false)">❌ Falsch (False)</button>
+      </div>`;
+    } else {
+      html += `<div style="display:flex;flex-direction:column;gap:8px;">`;
+      q.options.forEach((opt, oi) => {
+        html += `<button class="aq-opt-btn" id="q${qi}_opt${oi}" onclick="aqSelect(${qi}, ${oi})">${String.fromCharCode(
+          65 + oi
+        )}. ${opt}</button>`;
+      });
+      html += `</div>`;
+    }
+    html += `<div class="qg-hint" id="qhint-${qi}">💡 ${q.hint}</div></div>`;
+  });
+  html += `
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-primary" onclick="aqCheckAnswers()" style="flex:1;justify-content:center;">✅ Check Answers</button>
+      <button class="btn btn-outline" onclick="aqToggleHints()" style="flex:1;justify-content:center;">💡 Hints</button>
+    </div>
+    <div id="aqScoreCard" style="display:none;margin-top:16px;padding:24px;border-radius:12px;text-align:center;background:linear-gradient(135deg,rgba(91,141,238,0.15),rgba(167,139,250,0.15));border:1px solid var(--accent);"></div>
+    </div>`;
+  zone.innerHTML = html;
+  zone.style.display = "block";
+  setTimeout(
+    () => zone.scrollIntoView({ behavior: "smooth", block: "start" }),
+    100
+  );
+}
+// ─── INTERACTION HANDLERS ─────────────────────────────────────────────────────
+function aqSelect(qi, answer) {
+  window._aqAnswers[qi] = answer;
+  const q = window._aqQuestions[qi];
+  const card = document.getElementById(`qcard-${qi}`);
+  card
+    .querySelectorAll(".aq-opt-btn")
+    .forEach((b) => b.classList.remove("aq-selected"));
+  const btn =
+    q.type === "true_false"
+      ? document.getElementById(`q${qi}_${answer}`)
+      : document.getElementById(`q${qi}_opt${answer}`);
+  if (btn) btn.classList.add("aq-selected");
+}
+function aqToggleHints() {
+  window._aqQuestions.forEach((_, qi) => {
+    const h = document.getElementById(`qhint-${qi}`);
+    if (h) h.style.display = h.style.display === "none" ? "block" : "none";
+  });
+}
+function aqCheckAnswers() {
+  const questions = window._aqQuestions;
+  const userAnswers = window._aqAnswers;
+  let correct = 0;
+  questions.forEach((q, qi) => {
+    const isCorrect = userAnswers[qi] !== null && userAnswers[qi] === q.correct;
+    if (isCorrect) correct++;
+    const card = document.getElementById(`qcard-${qi}`);
+    card.style.border = isCorrect
+      ? "1px solid var(--success)"
+      : "1px solid var(--danger)";
+    card.style.background = isCorrect
+      ? "rgba(16,185,129,0.07)"
+      : "rgba(239,68,68,0.07)";
+    if (!isCorrect) {
+      const hint = document.getElementById(`qhint-${qi}`);
+      if (hint) hint.style.display = "block";
+    }
+    // Highlight correct answer in green
+    const correctId =
+      q.type === "true_false"
+        ? `q${qi}_${q.correct}`
+        : `q${qi}_opt${q.correct}`;
+    const correctBtn = document.getElementById(correctId);
+    if (correctBtn) {
+      correctBtn.style.background = "rgba(16,185,129,0.25)";
+      correctBtn.style.borderColor = "var(--success)";
+    }
+  });
+  const pct = Math.round((correct / questions.length) * 100);
+  const emoji = pct === 100 ? "🏆" : pct >= 80 ? "🎉" : pct >= 60 ? "👍" : "📚";
+  const msg =
+    pct === 100
+      ? "Perfekt! Ausgezeichnet!"
+      : pct >= 80
+      ? "Sehr gut! Great work!"
+      : pct >= 60
+      ? "Gut! Keep practising!"
+      : "Weitermachen! Review the article and try again!";
+  // Bonus XP for 60%+
+  if (pct >= 60) {
+    vocab.push({
+      de: `[Reading XP ${todayStr()}]`,
+      en: "[Auto XP Bonus]",
+      cat: "Reading",
+      date: todayStr(),
+    });
+    vocab.push({
+      de: `[Reading XP Extra]`,
+      en: "[Auto XP Bonus]",
+      cat: "Reading",
+      date: todayStr(),
+    });
+    save("dt_vocab", vocab);
+    renderDashboard();
+  }
+  const sc = document.getElementById("aqScoreCard");
+  sc.style.display = "block";
+  sc.innerHTML = `
+    <div style="font-size:2.8rem;margin-bottom:8px;">${emoji}</div>
+    <div style="font-size:1.6rem;font-weight:900;color:var(--text);">${correct} / ${
+    questions.length
+  } Richtig</div>
+    <div style="font-size:0.95rem;color:var(--text-muted);margin-top:6px;">${msg}</div>
+    ${
+      pct >= 60
+        ? '<div style="font-size:0.8rem;color:var(--success);margin-top:10px;font-weight:700;">+2 XP awarded to your Level Progress! ⭐</div>'
+        : ""
+    }`;
+  sc.scrollIntoView({ behavior: "smooth" });
+  showToast(`${emoji} ${correct}/${questions.length} correct! ${msg}`);
+}
 async function fetchLiveNews() {
   const container = document.getElementById("liveNewsContainer");
   const btn = document.getElementById("fetchNewsBtn");
@@ -3494,7 +4158,10 @@ async function fetchLiveNews() {
     showToast("Failed to fetch news. Try again later.", "var(--danger)");
     renderLiveNews();
   }
-
+  const qBtn = document.getElementById("generateQuestionsBtn");
+  if (qBtn) qBtn.style.display = "inline-flex";
+  document.getElementById("questionZone").innerHTML = "";
+  document.getElementById("questionZone").style.display = "none";
   btn.innerHTML = "🔄 Fetch Live News (DW)";
   btn.disabled = false;
 }
@@ -3511,35 +4178,62 @@ function renderLiveNews() {
 
   const articles = JSON.parse(cached);
 
+  // Hide question zone when new articles load
+  const qZone = document.getElementById("questionZone");
+  if (qZone) {
+    qZone.innerHTML = "";
+    qZone.style.display = "none";
+  }
+
+  const wrapWords = (text) => {
+    return text
+      .split(/\s+/)
+      .map((word) => {
+        const cleanWord = word.replace(/[.,!?":;()]/g, "");
+        return `<span class="lingq-word" onclick="handleNewsWordClick('${escHtml(
+          cleanWord.replace(/'/g, "\\'")
+        )}')">${escHtml(word)}</span>`;
+      })
+      .join(" ");
+  };
+
   container.innerHTML = articles
-    .map((article) => {
-      // Magic LingQ wrapper
-      const wrapWords = (text) => {
-        return text
-          .split(/\s+/)
-          .map((word) => {
-            const cleanWord = word.replace(/[.,!?":;()]/g, "");
-            return `<span class="lingq-word" onclick="handleNewsWordClick('${escHtml(
-              cleanWord.replace(/'/g, "\\'")
-            )}')">${escHtml(word)}</span>`;
-          })
-          .join(" ");
-      };
+    .map((article, idx) => {
+      // Store clean text on a data attribute for the question generator
+      const cleanText = (
+        article.title +
+        ". " +
+        (article.description || "")
+      ).replace(/<[^>]+>/g, "");
 
       return `
-      <div style="background:var(--surface2); padding:20px; border-radius:12px; border-left:4px solid var(--accent);">
+      <div style="background:var(--surface2); padding:20px; border-radius:12px; border-left:4px solid var(--accent); margin-bottom:16px;">
         <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">${new Date(
           article.pubDate
         ).toLocaleString()}</div>
-        <h3 style="margin-top:0; margin-bottom:10px; line-height:1.4;">${wrapWords(
-          article.title
-        )}</h3>
-        <div style="line-height:1.6; color:var(--text-muted);">${wrapWords(
-          article.description || ""
-        )}</div>
-        <a href="${
-          article.link
-        }" target="_blank" style="display:inline-block; margin-top:15px; color:var(--accent); text-decoration:none; font-size:0.9rem; font-weight:600;">Read full article on DW →</a>
+        <h3 id="article-title-${idx}" style="margin-top:0; margin-bottom:10px; line-height:1.4;">${wrapWords(
+        article.title
+      )}</h3>
+        <div id="article-body-${idx}" style="line-height:1.6; color:var(--text-muted);">${wrapWords(
+        article.description || ""
+      )}</div>
+        
+        <!-- Hidden clean text for question generator -->
+        <div id="article-raw-${idx}" style="display:none;">${escHtml(
+        cleanText
+      )}</div>
+
+        <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap; align-items:center;">
+          <a href="${article.link}" target="_blank" 
+            style="color:var(--accent); text-decoration:none; font-size:0.9rem; font-weight:600;">
+            Read full article on Tagesschau →
+          </a>
+          <button class="btn btn-outline btn-sm" 
+            onclick="generateArticleQuestions(${idx})" 
+            style="font-size:0.8rem; padding:6px 14px; border-color:var(--accent2); color:var(--accent2);">
+            🧠 Test My Understanding
+          </button>
+        </div>
       </div>
     `;
     })
@@ -3800,3 +4494,272 @@ function updateSyncStatus(msg, color) {
 
 // Boot up the cloud connection when script runs!
 setTimeout(initCloud, 1000);
+
+// --- FEEDBACK WIDGET LOGIC ---
+const WEB3FORMS_ACCESS_KEY = "e9c6eec4-1444-437d-be24-21c7e25f66fc"; // Put your key here!
+
+function toggleFeedback() {
+  document.getElementById("feedbackModal").classList.toggle("open");
+}
+
+function selectFeedbackType(btn, type) {
+  document.getElementById("feedbackType").value = type; // Update hidden input
+  document
+    .querySelectorAll(".emoji-btn")
+    .forEach((b) => b.classList.remove("active"));
+  btn.classList.add("active"); // Highlight the clicked emoji
+}
+
+async function submitFeedback(event) {
+  event.preventDefault(); // Stop the page from reloading
+
+  const submitBtn = document.getElementById("feedbackSubmitBtn");
+  const btnText = document.getElementById("feedbackBtnText");
+  const type = document.getElementById("feedbackType").value;
+  const email = document.getElementById("feedbackEmail").value;
+  const message = document.getElementById("feedbackMessage").value;
+
+  // UI Loading State
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = "0.7";
+  btnText.innerText = "⏳ Sending to Developer...";
+
+  // Prepare data for Web3Forms
+  const payload = {
+    access_key: WEB3FORMS_ACCESS_KEY, // Keeps using your key!
+    subject: `[${type}] New Feedback for German Diary!`,
+    from_name: "German Diary Feedback",
+    replyto: email || undefined, // Lets you click "Reply" directly in your email!
+    template: "box", // Forces Web3Forms to use a beautiful HTML layout!
+    Feedback_Type: type,
+    User_Email: email || "Anonymous",
+    Message: message,
+  };
+
+  try {
+    const response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      // SUCCESS! Shoot Confetti from the button!
+      btnText.innerText = "✅ Sent Successfully!";
+      submitBtn.style.background = "var(--success)";
+
+      if (typeof confetti === "function") {
+        const rect = submitBtn.getBoundingClientRect();
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: {
+            x: (rect.left + rect.width / 2) / window.innerWidth,
+            y: rect.top / window.innerHeight,
+          },
+        });
+      }
+
+      // Close and reset after 2 seconds
+      setTimeout(() => {
+        toggleFeedback();
+        document.getElementById("feedbackForm").reset();
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = "1";
+        submitBtn.style.background = "";
+        btnText.innerText = "🚀 Send securely";
+      }, 2500);
+    } else {
+      throw new Error(result.message || "Unknown error");
+    }
+  } catch (error) {
+    console.error(error);
+    btnText.innerText = "❌ Error! Try Again";
+    submitBtn.style.background = "var(--danger)";
+    setTimeout(() => {
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = "1";
+      submitBtn.style.background = "";
+      btnText.innerText = "🚀 Send securely";
+    }, 3000);
+  }
+}
+
+// ==========================================
+// IDLE-AWARE BOOTCAMP ENGINE & HEATMAP
+// ==========================================
+let btc_lastActiveTime = Date.now();
+let btc_activeSecondsToday = parseInt(
+  localStorage.getItem(`dt_active_${todayStr()}`) || "0"
+);
+let btc_hasAchievedGoalToday =
+  localStorage.getItem(`dt_achieved_${todayStr()}`) === "true";
+
+// 1. Listen for Human Interaction
+function btc_markActive() {
+  btc_lastActiveTime = Date.now();
+  const statusEl = document.getElementById("antiCheatStatus");
+  if (statusEl && statusEl.innerText.includes("PAUSED")) {
+    statusEl.innerHTML = "🟢 ENGINE ACTIVE";
+    statusEl.style.background = "rgba(16, 185, 129, 0.15)";
+    statusEl.style.color = "var(--success)";
+    statusEl.style.borderColor = "rgba(16, 185, 129, 0.3)";
+  }
+}
+["mousemove", "keydown", "click", "scroll", "touchstart"].forEach((evt) => {
+  window.addEventListener(evt, btc_markActive, { passive: true });
+});
+
+// 2. Format Time Helper (MM:SS)
+function btc_formatTime(totalSeconds) {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+}
+
+// 3. Get Goal Based on Level
+function btc_getDailyGoalSeconds() {
+  const level = localStorage.getItem("dt_level") || "A1";
+  const map = {
+    Starter: 15 * 60,
+    A1: 30 * 60,
+    A2: 60 * 60,
+    B1: 90 * 60,
+    B2: 120 * 60,
+  };
+  return map[level] || 30 * 60;
+}
+
+// 4. The Core Engine Loop (Runs every 1 second)
+setInterval(() => {
+  const now = Date.now();
+  const goalSecs = btc_getDailyGoalSeconds();
+
+  // Update Goal Text
+  const goalEl = document.getElementById("bootcampGoalDisplay");
+  if (goalEl)
+    goalEl.innerText = `Goal: ${goalSecs / 60} Mins (${
+      localStorage.getItem("dt_level") || "A1"
+    })`;
+
+  // Check Idle Status (30 seconds of no mouse/keyboard = PAUSED)
+  const isIdle = now - btc_lastActiveTime > 30000;
+
+  if (isIdle && !btc_hasAchievedGoalToday) {
+    const statusEl = document.getElementById("antiCheatStatus");
+    if (statusEl && statusEl.innerText.includes("ACTIVE")) {
+      statusEl.innerHTML = "⏸️ TIMER PAUSED (IDLE)";
+      statusEl.style.background = "rgba(248, 113, 113, 0.15)";
+      statusEl.style.color = "var(--danger)";
+      statusEl.style.borderColor = "rgba(248, 113, 113, 0.3)";
+    }
+  } else {
+    // We are active (or we already hit the goal so keep counting up as extra credit!)
+    btc_activeSecondsToday++;
+    localStorage.setItem(`dt_active_${todayStr()}`, btc_activeSecondsToday); // Auto-save continuously
+
+    // Update the UI
+    const timeEl = document.getElementById("bootcampTimeDisplay");
+    const barEl = document.getElementById("bootcampProgressBar");
+
+    if (timeEl) timeEl.innerText = btc_formatTime(btc_activeSecondsToday);
+
+    if (barEl && !btc_hasAchievedGoalToday) {
+      let pct = (btc_activeSecondsToday / goalSecs) * 100;
+      if (pct > 100) pct = 100;
+      barEl.style.width = pct + "%";
+    }
+
+    // CHECK VICTORY CONDITION!
+    if (btc_activeSecondsToday >= goalSecs && !btc_hasAchievedGoalToday) {
+      btc_hasAchievedGoalToday = true;
+      localStorage.setItem(`dt_achieved_${todayStr()}`, "true");
+
+      // Update Streak permanently for the day
+      let currentStreak = parseInt(localStorage.getItem("dt_streak") || "0");
+      localStorage.setItem("dt_streak", currentStreak + 1);
+
+      // Save date to history array for the Heatmap
+      let history = JSON.parse(localStorage.getItem("dt_history") || "[]");
+      if (!history.includes(todayStr())) {
+        history.push(todayStr());
+        localStorage.setItem("dt_history", JSON.stringify(history));
+      }
+
+      btc_triggerVictoryUI();
+      btc_renderHeatmap();
+    }
+  }
+}, 1000);
+
+// 5. The Victory Celebration
+function btc_triggerVictoryUI() {
+  const glow = document.getElementById("bootcampGlow");
+  const time = document.getElementById("bootcampTimeDisplay");
+  const bar = document.getElementById("bootcampProgressBar");
+  const status = document.getElementById("antiCheatStatus");
+
+  if (glow) glow.style.opacity = "1";
+  if (time) time.style.color = "var(--gold)";
+  if (bar) bar.style.background = "linear-gradient(90deg, #fbbf24, #f59e0b)";
+  if (bar) bar.style.width = "100%";
+  if (status) {
+    status.innerHTML = "🏆 GOAL REACHED!";
+    status.style.background = "rgba(251, 191, 36, 0.15)";
+    status.style.color = "var(--gold)";
+    status.style.borderColor = "var(--gold)";
+  }
+
+  // Shoot Professional Confetti (Using your existing engine)
+  if (typeof confetti === "function") {
+    confetti({
+      particleCount: 150,
+      spread: 100,
+      origin: { y: 0.4 },
+      colors: ["#fbbf24", "#f59e0b", "#ffffff"],
+    });
+  }
+}
+
+// 6. The Fixed-Width Perfect Heatmap Renderer
+// 6. Matrix Squares Heatmap (Concept 1 - No Numbers)
+function btc_renderHeatmap() {
+  const container = document.getElementById("bootcampHeatmap");
+  if (!container) return;
+
+  // Force the exact Matrix grid layout so it fits perfectly in the compact card
+  container.style.display = "grid";
+  container.style.gridTemplateColumns = "repeat(7, 20px)";
+  container.style.gap = "6px";
+  container.style.justifyContent = "center";
+
+  let history = JSON.parse(localStorage.getItem("dt_history") || "[]");
+
+  // We need exactly 35 blocks (5 weeks * 7 days)
+  let html = "";
+  for (let i = 34; i >= 0; i--) {
+    let d = new Date();
+    d.setDate(d.getDate() - i);
+    let ds = d.toISOString().split("T")[0]; // Format YYYY-MM-DD
+
+    let isComplete = history.includes(ds);
+    let blockClass = isComplete ? "heat-block active-heat" : "heat-block";
+    let titleText = isComplete ? `Goal CRUSHED on ${ds}` : `Missed on ${ds}`;
+
+    html += `<div class="${blockClass}" title="${titleText}"></div>`;
+  }
+  container.innerHTML = html;
+}
+
+// 7. Initial Load Setup
+window.addEventListener("DOMContentLoaded", () => {
+  if (btc_hasAchievedGoalToday) {
+    setTimeout(btc_triggerVictoryUI, 100);
+  }
+  btc_renderHeatmap();
+});

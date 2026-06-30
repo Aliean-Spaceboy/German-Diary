@@ -56,47 +56,55 @@
 
 <!-- DASHBOARD -->
 <div id="section-dashboard" class="section">
+  
   <div class="hero">
     <h1>Dein Deutsches Tagebuch</h1>
     <p>Your personal German language practice diary — write daily, track progress, speak confidently.</p>
     <div class="date-display" id="todayDate"></div>
   </div>
 
+  <!-- STATS -->
   <div class="grid-3" style="margin-bottom:20px">
     <div class="stat-card">
       <div class="stat-num" id="statEntries" style="color:var(--accent)">0</div>
-      <div class="stat-label">?? Total Diary Entries</div>
+      <div class="stat-label">📔 Total Diary Entries</div>
     </div>
     <div class="stat-card">
       <div class="stat-num" id="statWords" style="color:var(--accent2)">0</div>
-      <div class="stat-label">?? Words Learned</div>
+      <div class="stat-label">🧠 Words Learned</div>
     </div>
     <div class="stat-card">
       <div class="stat-num" id="statStreak" style="color:var(--gold)">0</div>
-      <div class="stat-label">?? Day Streak</div>
+      <div class="stat-label">🔥 Day Streak</div>
     </div>
   </div>
 
+  <!-- WORD & SENTENCE OF THE DAY -->
   <div class="grid-2" style="margin-bottom:20px">
     <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,rgba(91,141,238,0.1),transparent);border-color:var(--accent)">
-      <div class="card-title">?? Word of the Day</div>
+      <div class="card-title">📖 Word of the Day</div>
       <div style="font-size:1.8rem;font-weight:800;color:var(--accent);margin-top:10px" id="wotdDe">Laden...</div>
       <div style="font-size:1rem;color:var(--text-muted);margin-bottom:10px" id="wotdEn">Loading...</div>
-      <button class="btn btn-outline btn-sm" onclick="speakWord(document.getElementById('wotdDe').innerText)">?? Listen</button>
+      <button class="btn btn-outline btn-sm" onclick="speakWord(document.getElementById('wotdDe').innerText)">🔊 Listen</button>
     </div>
     <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,rgba(167,139,250,0.1),transparent);border-color:var(--accent2)">
-      <div class="card-title">?? Sentence of the Day</div>
+      <div class="card-title">📝 Sentence of the Day</div>
       <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-top:10px" id="sotdDe">Laden...</div>
       <div style="font-size:0.9rem;color:var(--text-muted);margin-bottom:10px;margin-top:6px" id="sotdEn">Loading...</div>
-      <button class="btn btn-outline btn-sm" onclick="speakWord(document.getElementById('sotdDe').innerText)">?? Listen</button>
+      <button class="btn btn-outline btn-sm" onclick="speakWord(document.getElementById('sotdDe').innerText)">🔊 Listen</button>
     </div>
   </div>
 
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">🎯 Level Roadmap</div>
-      <div class="card-sub">Click to mark a level as completed ✅</div>
-      <div class="roadmap" id="roadmap"></div>
+  <!-- ROADMAP & BOOTCAMP TIMER GRID -->
+  <div class="grid-2" style="margin-bottom:20px;">
+    
+    <!-- LEFT SIDE: Level Roadmap Card -->
+    <div class="card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div class="card-title">🎯 Level Roadmap</div>
+        <div class="card-sub">Click to mark a level as completed ✅</div>
+        <div class="roadmap" id="roadmap"></div>
+      </div>
       <div style="margin-top:14px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
           <span style="font-size:.85rem">Overall Progress</span>
@@ -106,28 +114,57 @@
         <div style="font-size:.78rem;color:var(--text-muted);margin-top:8px" id="progressHint">Write 5 diary entries to reach A1!</div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
-          <div>&#128200; Activity Heatmap</div>
-          <div style="font-size:0.8rem; color:var(--success); font-weight:700" id="timeTrackerDisplay">0 mins today</div>
+    
+    <!-- RIGHT SIDE: The Compact Bootcamp Card -->
+    <div class="card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;">
+      
+      <!-- Glow Effect -->
+      <div id="bootcampGlow" style="position:absolute; inset:0; background:radial-gradient(circle at 50% -20%, rgba(251, 191, 36, 0.15), transparent 70%); opacity:0; transition:opacity 1s; pointer-events:none;"></div>
+      
+      <div style="position:relative; z-index:1;">
+        <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div>🔥 Daily Bootcamp</div>
+            <div id="antiCheatStatus" style="font-size:0.7rem; font-weight:700; padding:4px 8px; border-radius:999px; background:rgba(16, 185, 129, 0.15); color:var(--success); border:1px solid rgba(16,185,129,0.3);">🟢 ACTIVE</div>
         </div>
-      <div class="card-sub" id="heatmapSubtitle">Current Month</div>
-                <div class="heatmap-wrapper">
-          <div class="heatmap-calendar" id="heatmap"></div>
+
+        <!-- Compact Timer Display -->
+        <div style="text-align:center; margin-bottom:15px;">
+          <div id="bootcampTimeDisplay" style="font-size:2.8rem; font-weight:900; line-height:1; font-family:'Playfair Display', serif; color:var(--text); letter-spacing:-1px;">00:00</div>
+          <div id="bootcampGoalDisplay" style="font-size:0.8rem; color:var(--text-muted); margin-top:4px; font-weight:600; text-transform:uppercase;">Goal: 30 Mins</div>
+        </div>
+
+        <!-- The Progress Bar -->
+        <div style="height:10px; background:rgba(0,0,0,0.4); border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,0.05); margin-bottom:20px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.5);">
+          <div id="bootcampProgressBar" style="height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent2)); border-radius:999px; transition:width 1s linear, background 0.5s;"></div>
+        </div>
+      </div>
+
+      <!-- The Heatmap -->
+      <div style="position:relative; z-index:1;">
+        <div class="card-sub" style="text-align:center; font-weight:600; color:var(--text); margin-bottom:10px;">Last 35 Days</div>
+        <div class="heatmap-wrapper">
+          <div id="bootcampHeatmap">
+            <!-- JavaScript will inject the sleek Matrix Squares here automatically -->
+          </div>
         </div>
       </div>
     </div>
 
-  <div class="card tip-card">
+  </div>
+
+  <!-- Grammar Tip -->
+  <div class="card tip-card" style="margin-bottom:0;">
     <div class="tip-num">💡 Today's Grammar Tip</div>
     <div class="tip-rule" id="dashTipRule"></div>
     <div class="tip-example" id="dashTipExample"></div>
   </div>
 
+  <!-- WRITE DIARY BUTTON -->
   <div style="text-align:center;margin-top:24px">
     <button class="btn btn-primary" onclick="showSection('diary')">✍️ Write Today's Diary Entry</button>
   </div>
 
+  <!-- BACKUP & CLOUD SYNC -->
   <div class="card" style="margin-top:24px; border-color:var(--danger)">
     <div class="card-title">💾 Data Backup & Restore</div>
     <div class="card-sub">Your data is stored locally in your browser. If you clear your history, it will be deleted! Export a backup regularly.</div>
@@ -165,7 +202,7 @@
 
   <!-- WIKI BUTTON -->
   <div style="margin-top:14px; text-align:center">
-    <button class="btn btn-primary" onclick="toggleWiki()" style="width:100%; font-size:1.1rem">&#128214; Wiki (Study Guide)</button>
+    <button class="btn btn-primary" onclick="toggleWiki()" style="width:100%; font-size:1.1rem">📖 Wiki (Study Guide)</button>
   </div>
   
   <div id="wikiContent" style="display:none; margin-top:14px; background:var(--surface); border:1px solid var(--accent); border-radius:12px; padding:20px; text-align:left">
@@ -173,22 +210,22 @@
       
       <p style="margin-bottom:30px; font-weight:500; color:var(--text-muted)">This application is designed to take you from a complete beginner (A1) to professional fluency (B2). To get the fastest results, follow this daily routine.</p>
 
-      <h3 style="color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:8px; margin-bottom:15px">&#9201;&#65039; The Optimal Daily Routine (20-30 Minutes)</h3>
+      <h3 style="color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:8px; margin-bottom:15px">⏱️ The Optimal Daily Routine (20-30 Minutes)</h3>
       <ol style="margin-bottom:30px; padding-left:20px; display:flex; flex-direction:column; gap:10px">
         <li><b>Check the Dashboard (2 mins):</b> Read the Word and Sentence of the Day. Click the "Listen" button and repeat the pronunciation out loud.</li>
-        <li><b>Review Vocabulary & SRS (5 mins):</b> Open <i>More ? SRS Review</i>. Review flashcards due today. Add 5 to 10 new words you encountered at work to the Vocabulary tab.</li>
+        <li><b>Review Vocabulary & SRS (5 mins):</b> Open <i>More > SRS Review</i>. Review flashcards due today. Add 5 to 10 new words you encountered at work to the Vocabulary tab.</li>
         <li><b>Write Your Diary (10 mins):</b> Open the Diary tab. Do the Sentence Builder prompt first. Answer the 3 standard prompts. When saving, strictly follow the Grammar Checklist.</li>
         <li><b>Take a Quick Quiz (5 mins):</b> Alternate daily: MCQ (Mon/Wed), Listening (Tue/Thu), Grammar & Verbs (Fri).</li>
       </ol>
 
       <div style="background:var(--surface2); border-left:4px solid var(--gold); padding:15px; margin-bottom:40px; border-radius:8px">
-        <b>&#128161; Weekly Habit:</b> Every Sunday, open the <i>Weekly Reflection</i> tab to review your progress, and export a <b>Data Backup</b> from your Dashboard to keep your words safe!
+        <b>💡 Weekly Habit:</b> Every Sunday, open the <i>Weekly Reflection</i> tab to review your progress, and export a <b>Data Backup</b> from your Dashboard to keep your words safe!
       </div>
 
-      <h3 style="color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:8px; margin-bottom:20px">&#128200; How to Adapt Your Routine for Each Level</h3>
+      <h3 style="color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:8px; margin-bottom:20px">📈 How to Adapt Your Routine for Each Level</h3>
       
       <div style="margin-bottom:25px; padding:15px; border:1px solid var(--border); border-radius:10px">
-        <h4 style="margin-top:0; color:#34d399">&#128994; A1 Level (Beginner)</h4>
+        <h4 style="margin-top:0; color:#34d399">🟢 A1 Level (Beginner)</h4>
         <p style="margin:8px 0"><b>Goal:</b> Build basic vocabulary and get used to sounds.</p>
         <ul style="padding-left:20px; margin:0">
           <li><b>Vocab:</b> Add everyday words (Haus, essen). Pay attention to Gender Colors (Blue = der, Red = die, Green = das).</li>
@@ -198,7 +235,7 @@
       </div>
 
       <div style="margin-bottom:25px; padding:15px; border:1px solid var(--border); border-radius:10px">
-        <h4 style="margin-top:0; color:#fbbf24">&#128993; A2 Level (Elementary)</h4>
+        <h4 style="margin-top:0; color:#fbbf24">🟡 A2 Level (Elementary)</h4>
         <p style="margin:8px 0"><b>Goal:</b> Connect sentences and understand spoken German.</p>
         <ul style="padding-left:20px; margin:0">
           <li><b>Vocab:</b> Group words into categories (Verbs, Daily Life).</li>
@@ -208,17 +245,17 @@
       </div>
 
       <div style="margin-bottom:25px; padding:15px; border:1px solid var(--border); border-radius:10px">
-        <h4 style="margin-top:0; color:#f97316">&#128992; B1 Level (Intermediate)</h4>
+        <h4 style="margin-top:0; color:#f97316">🟠 B1 Level (Intermediate)</h4>
         <p style="margin:8px 0"><b>Goal:</b> Professional vocabulary and holding conversations.</p>
         <ul style="padding-left:20px; margin:0">
           <li><b>Vocab:</b> Import the IT Job Dataset. Focus on Tech/Software vocabulary.</li>
-          <li><b>Diary:</b> Write in the past tense (Perfekt/Pr�teritum). Write 3+ sentences per prompt.</li>
+          <li><b>Diary:</b> Write in the past tense (Perfekt/Präteritum). Write 3+ sentences per prompt.</li>
           <li><b>Tools:</b> Start doing the Monthly Speaking Challenge (talk for 1 minute).</li>
         </ul>
       </div>
 
       <div style="margin-bottom:20px; padding:15px; border:1px solid var(--border); border-radius:10px">
-        <h4 style="margin-top:0; color:#ef4444">&#128308; B2 Level (Fluent)</h4>
+        <h4 style="margin-top:0; color:#ef4444">🔴 B2 Level (Fluent)</h4>
         <p style="margin:8px 0"><b>Goal:</b> Complex grammar and spontaneous speaking.</p>
         <ul style="padding-left:20px; margin:0">
           <li><b>Reading:</b> Read the Reading Practice stories daily to master tech context.</li>
@@ -230,8 +267,14 @@
     </div>
   </div>
 
-  
+  <!-- QUIET FEEDBACK SECTION -->
+  <div style="text-align: center; margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border);">
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">Have a suggestion or found a bug?</p>
+    <button class="btn btn-outline" onclick="toggleFeedback()" style="font-size: 0.85rem;">💡 Send Feedback</button>
   </div>
+  
+</div>
+
 
   
   </div>
@@ -464,40 +507,7 @@
   </div>
 </div>
 
-<style>
-  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-    
-    
-    .heatmap-wrapper { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; align-items: center; }
-    .heatmap-calendar-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); width: 100%; max-width: 350px; }
-    .heatmap-calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      width: 100%;
-      max-width: 350px;
-    }
-    .heat-cell {
-      aspect-ratio: 1;
-      border-radius: 4px;
-      background: var(--surface2);
-      transition: transform 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-    .heat-cell:hover { transform: scale(1.1); }
-    .heat-1 { background: #10b981; color: #fff; opacity: 0.7; }
-    .heat-2 { background: #10b981; color: #fff; opacity: 0.9; }
-    .heat-3 { background: #10b981; color: #fff; opacity: 1.0; }
-    .heat-future { background: transparent; pointer-events: none; color: transparent; }
-
-  </style>
 
 <!-- WEEKLY REFLECTION -->
 <div id="section-reflection" class="section">
@@ -664,6 +674,18 @@
           </div>
         </div>
 
+<!-- AI QUESTION GENERATOR ZONE -->
+<!-- <div style="text-align:center; margin-top:24px;">
+  <button
+    id="generateQuestionsBtn"
+    class="btn btn-primary"
+    onclick="generateArticleQuestions()"
+    style="display:none; padding:12px 28px; font-size:1rem; box-shadow:0 4px 20px rgba(167,139,250,0.3);">
+    🧠 Generate Comprehension Questions
+  </button>
+</div> -->
+
+<div id="questionZone" style="display:none;"></div>
     <!-- 2. TRUE / FALSE STORIES SECTION -->
     <h4 style="margin-bottom:15px; border-top:1px solid var(--border); padding-top:20px;">&#128218; Classic True/False Stories</h4>
     <!-- <div id="storyBtnContainer" style="margin-bottom: 20px; display:flex; gap:10px; flex-wrap:wrap"></div> -->
@@ -900,6 +922,36 @@
   <button id="aiChatFab" onclick="toggleAiChat()" style="position:fixed; bottom:20px; right:20px; width:55px; height:55px; border-radius:50%; background:var(--accent); color:white; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.4); font-size:1.8rem; cursor:pointer; z-index:9999; display:flex; align-items:center; justify-content:center; transition:0.2s;">
     &#129302;
   </button>
+
+  <!-- CENTERED FEEDBACK MODAL (Hidden by default) -->
+<div id="feedbackModal" class="feedback-modal">
+  <div class="feedback-header">
+    <div style="font-weight:800; font-size:1.2rem; color:var(--text);">Send Feedback</div>
+    <button onclick="toggleFeedback()" class="close-modal">&times;</button>
+  </div>
+  
+  <div style="margin-bottom:15px; font-size:0.9rem; color:var(--text-muted);">How can we improve your experience?</div>
+  
+  <!-- Interactive Emoji Selection -->
+  <div class="feedback-emojis">
+    <button type="button" class="emoji-btn active" onclick="selectFeedbackType(this, 'Idea')">💡<br><span>Idea</span></button>
+    <button type="button" class="emoji-btn" onclick="selectFeedbackType(this, 'Bug')">🐛<br><span>Bug</span></button>
+    <button type="button" class="emoji-btn" onclick="selectFeedbackType(this, 'Love')">❤️<br><span>Love</span></button>
+  </div>
+
+  <form id="feedbackForm" onsubmit="submitFeedback(event)">
+    <input type="hidden" id="feedbackType" name="type" value="Idea">
+    
+    <!-- Optional Email -->
+    <input type="email" id="feedbackEmail" name="email" placeholder="Your email (optional)" style="margin-bottom:12px; background:rgba(0,0,0,0.2);">
+    
+    <textarea id="feedbackMessage" name="message" rows="4" placeholder="Tell us what's on your mind..." required style="margin-bottom:15px; background:rgba(0,0,0,0.2);"></textarea>
+    
+    <button type="submit" id="feedbackSubmitBtn" class="btn btn-primary" style="width:100%; justify-content:center; box-shadow: 0 4px 15px rgba(91,141,238,0.4);">
+      <span id="feedbackBtnText">🚀 Send securely</span>
+    </button>
+  </form>
+</div>
   
 </body>
 <script src="script.js"></script>
