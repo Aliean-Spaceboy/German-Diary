@@ -5601,3 +5601,113 @@ function analyzeGrammar() {
   html += `</ul>`;
   panel.innerHTML = html;
 }
+
+// ==========================================
+// 🇩🇪 PHASE 2: GERMANY SCENARIO PACKS
+// ==========================================
+
+const GERMANY_PACKS = [
+  {
+    id: "job",
+    icon: "💼",
+    title: "Job Interview",
+    desc: "Essential words for getting hired as a tech professional.",
+    words: [
+      { de: "das Vorstellungsgespräch", en: "job interview", cat: "Work" },
+      { de: "der Lebenslauf", en: "resume / CV", cat: "Work" },
+      { de: "das Gehalt", en: "salary", cat: "Work" },
+      { de: "die Probezeit", en: "probationary period", cat: "Work" },
+      { de: "die Fachkraft", en: "skilled worker", cat: "Work" },
+      { de: "die Erfahrung", en: "experience", cat: "Work" },
+      { de: "die Stärke", en: "strength", cat: "Work" },
+      { de: "das Unternehmen", en: "company", cat: "Work" },
+    ],
+  },
+  {
+    id: "office",
+    icon: "🏢",
+    title: "Office & Meetings",
+    desc: "Daily startup and corporate life in Berlin.",
+    words: [
+      { de: "die Besprechung", en: "meeting", cat: "Office" },
+      { de: "die Tagesordnung", en: "agenda", cat: "Office" },
+      { de: "das Protokoll", en: "meeting minutes", cat: "Office" },
+      { de: "die Frist", en: "deadline", cat: "Office" },
+      { de: "der Feierabend", en: "end of workday", cat: "Office" },
+      { de: "der Urlaub", en: "vacation", cat: "Office" },
+      { de: "das Projekt", en: "project", cat: "Office" },
+      { de: "die Aufgabe", en: "task", cat: "Office" },
+    ],
+  },
+  {
+    id: "apartment",
+    icon: "🏠",
+    title: "Finding a Flat",
+    desc: "Surviving the crazy German housing market.",
+    words: [
+      { de: "der Mietvertrag", en: "rental agreement", cat: "Housing" },
+      { de: "die Kaution", en: "security deposit", cat: "Housing" },
+      { de: "die Nebenkosten", en: "utilities", cat: "Housing" },
+      { de: "der Vermieter", en: "landlord", cat: "Housing" },
+      { de: "die Besichtigung", en: "apartment viewing", cat: "Housing" },
+      { de: "die Kaltmiete", en: "base rent", cat: "Housing" },
+      { de: "die WG (Wohngemeinschaft)", en: "shared flat", cat: "Housing" },
+      { de: "einziehen", en: "to move in", cat: "Housing" },
+    ],
+  },
+];
+
+function renderGermanyPacks() {
+  const el = document.getElementById("germanyPacksContainer");
+  if (!el) return;
+
+  el.innerHTML = GERMANY_PACKS.map(
+    (pack) => `
+    <div class="card" style="margin-bottom:0; background:linear-gradient(135deg, rgba(91,141,238,0.05), transparent); border-color:rgba(91,141,238,0.4); display:flex; flex-direction:column; justify-content:space-between; transition:0.2s;">
+      <div>
+        <div style="font-size:2.2rem; margin-bottom:10px;">${pack.icon}</div>
+        <div style="font-weight:800; font-size:1.1rem; color:var(--text);">${pack.title}</div>
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px; margin-bottom:15px; line-height:1.4;">${pack.desc}</div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem; color:var(--accent); font-weight:bold; margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">📦 ${pack.words.length} Words</div>
+        <button class="btn btn-outline" style="width:100%; border-color:var(--accent); color:var(--accent);" onclick="importPack('${pack.id}')">⬇️ Import Pack</button>
+      </div>
+    </div>
+  `
+  ).join("");
+}
+
+function importPack(packId) {
+  const pack = GERMANY_PACKS.find((p) => p.id === packId);
+  if (!pack) return;
+
+  let imported = 0;
+  pack.words.forEach((w) => {
+    // Only import if word doesn't already exist!
+    if (!vocab.some((v) => v.de.toLowerCase() === w.de.toLowerCase())) {
+      vocab.unshift({ de: w.de, en: w.en, cat: w.cat, date: todayStr() });
+      imported++;
+    }
+  });
+
+  if (imported > 0) {
+    save("dt_vocab", vocab);
+    showToast(`✅ ${imported} words imported from ${pack.title}!`);
+
+    // Refresh the UI
+    if (typeof renderVocab === "function") renderVocab("All");
+    if (typeof updateTodayWordCount === "function") updateTodayWordCount();
+    if (typeof renderDashboard === "function") renderDashboard();
+  } else {
+    showToast(
+      `⚠️ You already have all the words from the ${pack.title} pack!`,
+      "var(--accent)"
+    );
+  }
+}
+
+// Ensure packs render when the page loads
+document.addEventListener("DOMContentLoaded", () => {
+  renderGermanyPacks();
+});

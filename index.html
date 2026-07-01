@@ -200,9 +200,9 @@
 <!-- DIARY -->
 
 <div id="section-diary" class="section">
-
-    
-    <div class="card">
+  
+  <!-- MAIN DIARY CARD -->
+  <div class="card">
     <div class="card-title">📓 Heute's Tagebucheintrag <span style="font-size:.8rem;color:var(--text-muted);font-weight:400" id="diaryDate"></span></div>
     <div class="card-sub">Answer all 3 prompts in German. Even simple sentences are fine!</div>
 
@@ -214,7 +214,7 @@
     <div class="field">
       <div style="position:relative;">
         <textarea id="prompt1" rows="3" placeholder="Heute habe ich Java gelernt. Ich habe auch..."></textarea>
-        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt1', this)">&#127897;</button>
+        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt1', this)">🎙️</button>
       </div>
       <div class="word-count" id="wc1">0 words</div>
     </div>
@@ -227,7 +227,7 @@
     <div class="field">
       <div style="position:relative;">
         <textarea id="prompt2" rows="3" placeholder="Ich habe Docker gelernt. Ich habe auch neue deutsche Wörter gelernt..."></textarea>
-        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt2', this)">&#127897;</button>
+        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt2', this)">🎙️</button>
       </div>
       <div class="word-count" id="wc2">0 words</div>
     </div>
@@ -240,58 +240,58 @@
     <div class="field">
       <div style="position:relative;">
         <textarea id="prompt3" rows="3" placeholder="Morgen werde ich Kubernetes lernen. Ich werde auch..."></textarea>
-        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt3', this)">&#127897;</button>
+        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt3', this)">🎙️</button>
       </div>
       <div class="word-count" id="wc3">0 words</div>
     </div>
 
     <div class="prompt-box" style="border-color:var(--accent3);background:rgba(52,211,153,0.05)">
-      <div class="prompt-label" style="color:var(--accent3)">?? Daily Sentence Builder</div>
+      <div class="prompt-label" style="color:var(--accent3)">🎯 Daily Sentence Builder</div>
       <div class="prompt-de">Build a sentence using: <span id="builderWord" style="font-weight:800;color:var(--accent3);font-size:1.1rem;text-decoration:underline">...</span></div>
       <div class="prompt-en">Practice your vocabulary!</div>
     </div>
     <div class="field">
       <div style="position:relative;">
         <textarea id="prompt4" rows="2" placeholder="Ich lerne..."></textarea>
-        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt4', this)">&#127897;</button>
+        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt4', this)">🎙️</button>
       </div>
     </div>
     
     <div class="field">
-      <label>?? Free Writing (Optional)</label>
+      <label>✍️ Free Writing (Optional)</label>
       <div style="position:relative;">
-        <textarea id="prompt5" rows="3" placeholder="Ich bin sehr m�de heute..."></textarea>
-        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt5', this)">&#127897;</button>
+        <textarea id="prompt5" rows="3" placeholder="Ich bin sehr müde heute..."></textarea>
+        <button class="btn btn-outline" style="position:absolute; bottom:10px; right:10px; border-radius:50%; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--surface);" onclick="startVoiceTyping('prompt5', this)">🎙️</button>
       </div>
     </div>
 
+    <!-- ACTION BUTTONS -->
     <div style="display:flex;gap:12px;flex-wrap:wrap">
       <button class="btn btn-success" onclick="saveDiaryEntry()">💾 Save Entry</button>
       <button class="btn btn-primary" onclick="analyzeGrammar()">🔍 Analyze Grammar</button>
       <button class="btn btn-outline" onclick="clearDiary()">🗑️ Clear</button>
       <div style="position:relative; overflow:hidden; display:inline-block">
-        <button class="btn btn-outline" style="border-color:var(--gold); color:var(--gold)">&#128193; Upload Sentences (CSV)</button>
+        <button class="btn btn-outline" style="border-color:var(--gold); color:var(--gold)">📂 Upload Sentences (CSV)</button>
         <input type="file" accept=".csv" onchange="importSentenceCsv(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
       </div>
     </div>
 
-    
+    <!-- PHASE 7: GRAMMAR PANELS -->
+    <div id="grammarAnalysisResult" style="display:none; margin-top:20px; padding:15px; border-radius:8px; background:var(--surface2); border:1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.1);"></div>
+    <div id="grammarFeedback" style="margin-top:20px; display:none; padding:15px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid var(--danger);"></div>
 
-     <!-- Phase 7: Grammar Analysis Panel -->
-     <div id="grammarAnalysisResult" style="display:none; margin-top:20px; padding:15px; border-radius:8px; background:var(--surface2); border:1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.1);"></div>
+  </div> 
+  <!-- END OF MAIN DIARY CARD -->
 
-        
-      </div>
-      <div id="grammarFeedback" style="margin-top:20px; display:none; padding:15px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid var(--danger);"></div>
-      <div><!-- closing tag balancer -->
-    </div>
-  </div>
-
+  <!-- STARTER PHRASES CARD -->
   <div class="card">
     <div class="card-title">🔤 Useful Starter Phrases</div>
     <div class="card-sub">Click to copy into your diary</div>
-    <div id="phraseList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    <div id="phraseList" style="display:flex;flex-wrap:wrap;gap:8px">
+      <!-- Phrases inject here -->
+    </div>
   </div>
+
 </div>
 
 <!-- VOCABULARY -->
