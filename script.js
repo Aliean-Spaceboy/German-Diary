@@ -349,10 +349,6 @@ function renderDashboard() {
   document.getElementById("statEntries").textContent = diaryEntries.length;
   document.getElementById("statWords").textContent = vocab.length;
   document.getElementById("statStreak").textContent = streak;
-  document.getElementById(
-    "streakBadge"
-  ).textContent = `🔥 ${streak} Day Streak`;
-  document.getElementById("todayDate").textContent = formatDate(todayStr());
 
   const lv = getLevel(diaryEntries.length, vocab.length);
   document.getElementById("currentLevel").textContent = lv.label;
@@ -374,9 +370,10 @@ function renderDashboard() {
   document.getElementById("dashTipExample").textContent = tip.example;
 
   // Roadmap
-  renderRoadmap();
+  if (typeof renderRoadmap === "function") renderRoadmap();
 
   // Heatmap
+  if (typeof renderHeatmap === "function") renderHeatmap();
 }
 
 // ─── LEVEL ROADMAP ────────────────────────────────────────────────────────────
@@ -683,46 +680,82 @@ function updateTodayWordCount() {
   document.getElementById("todayWordCount").textContent = count;
 }
 
-function renderVocab(filter) {
-  currentFilter = filter;
-  const list = filter === "All" ? vocab : vocab.filter((v) => v.cat === filter);
-  document.getElementById("vocabCount").textContent = `(${list.length} words)`;
-  const el = document.getElementById("vocabList");
-  if (!list.length) {
-    el.innerHTML =
-      '<li style="text-align:center;padding:24px;color:var(--text-muted)">No words in this category yet.</li>';
-    return;
-  }
-  el.innerHTML = list
-    .map(
-      (v, i) => `
-    <li class="vocab-item">
-      <div>
-        <span class="vocab-de ${getNounClass(v.de)}">${escHtml(v.de)}</span>
-        <button onclick="speakWord('${v.de.replace(
-          /'/g,
-          "\\'"
-        )}')" style="background:none;border:none;cursor:pointer;font-size:1rem;margin-left:4px">🔊</button>
-        <span class="vocab-cat">${v.cat}</span>
-        <br><span class="vocab-en">${escHtml(v.en)}</span>
+function renderVocab(filter = "All") {
+  const list = document.getElementById("vocabList");
+  if (!list) return;
+  list.innerHTML = "";
+
+  let filtered =
+    filter === "All" ? vocab : vocab.filter((v) => v.cat === filter);
+
+  filtered.forEach((v, idx) => {
+    // Find the real ID in the main array
+    const realIdx = vocab.indexOf(v);
+
+    // Check if we have context sentences
+    let sentenceHtml = "";
+    if (v.sentenceDe) {
+      sentenceHtml = `
+        <div style="margin-top:12px; padding:12px; background:rgba(91,141,238,0.08); border-left:3px solid var(--accent); border-radius:6px;">
+          <div style="font-weight:600; color:var(--text); font-size:0.95rem;">📖 ${v.sentenceDe}</div>
+          <div style="color:var(--text-muted); font-size:0.85rem; margin-top:4px;">${v.sentenceEn}</div>
+        </div>
+      `;
+    } else {
+      sentenceHtml = `
+        <div style="margin-top:12px;">
+          <button class="btn btn-outline" style="font-size:0.75rem; padding:6px 10px; border-color:var(--border);" onclick="generateContextForWord(${realIdx})">✨ Add AI Context Sentence</button>
+        </div>
+      `;
+    }
+
+    // Safely escape for the speaker button
+    const safeWord = v.de.replace(/"/g, "&quot;").replace(/'/g, "\\'");
+
+    list.innerHTML += `
+      <div class="card" style="margin-bottom:15px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <div style="font-size:1.2rem; font-weight:bold; color:var(--text);">${v.de}</div>
+            <div style="color:var(--text-muted);">${v.en}</div>
+            <span class="badge" style="margin-top:8px;">${v.cat}</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-outline" style="padding:6px 10px;" onclick="speakWord('${safeWord}')">🔊</button>
+            <button class="btn btn-outline" style="padding:6px 10px; border-color:var(--danger); color:var(--danger);" onclick="deleteVocab(${realIdx})">🗑️</button>
+          </div>
+        </div>
+        ${sentenceHtml}
       </div>
-      <button class="delete-btn" onclick="deleteVocab('${v.de.replace(
-        /'/g,
-        "\\'"
-      )}')">✕</button>
-    </li>
-  `
-    )
-    .join("");
-  updateTodayWordCount();
+    `;
+  });
 }
 
-function deleteVocab(de) {
-  vocab = vocab.filter((v) => v.de !== de);
+function deleteVocab(index) {
+  // 1. Delete the item using its exact index number
+  vocab.splice(index, 1);
   save("dt_vocab", vocab);
+
+  // 2. Figure out which tab you are currently on so we don't switch you to 'All'
+  let currentFilter = "All";
+  const activeTab = document.querySelector(".tab-row .tab.active");
+  if (activeTab) {
+    if (activeTab.textContent.includes("Mined")) {
+      currentFilter = "Mined Sentences";
+    } else {
+      currentFilter = activeTab.textContent
+        .trim()
+        .replace(/^[^\w]+/, "")
+        .trim();
+    }
+  }
+
+  // 3. Refresh the UI
   renderVocab(currentFilter);
-  renderDashboard();
-  showToast("Word removed.");
+  if (typeof updateDashboardStats === "function") updateDashboardStats();
+  if (typeof renderDashboard === "function") renderDashboard();
+
+  showToast("🗑️ Card deleted.");
 }
 
 function getNounClass(word) {
@@ -1300,29 +1333,32 @@ function toggleRecording() {
 
 function renderAudio() {
   const el = document.getElementById("audioList");
-  if (!el) return;
   if (!audioDb.length) {
-    el.innerHTML =
-      '<div class="empty-state">No recordings yet. Do your first one!</div>';
+    if (el)
+      el.innerHTML =
+        '<div style="color:var(--text-muted);font-size:0.9rem">No recordings yet.</div>';
     return;
   }
-  el.innerHTML = audioDb
-    .map(
-      (a) => `
-    <div style="background:var(--surface2);padding:14px;border-radius:10px;border:1px solid var(--border)">
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600">📅 ${formatDate(
-          a.date
-        )}</span>
-      </div>
-      <audio controls src="${a.base64}" style="width:100%;height:40px"></audio>
-      <button class="btn btn-outline btn-sm" onclick="deleteAudio(${
-        a.id
-      })" style="margin-top:10px;font-size:0.75rem">🗑 Delete</button>
+  if (el)
+    el.innerHTML = audioDb
+      .map(
+        (a, i) => `
+    <div style="background:var(--surface); padding:10px; border-radius:8px; margin-bottom:10px; display:flex; align-items:center; gap:10px;">
+      <span style="font-size:0.8rem; color:var(--text-muted); min-width:60px;">${formatDate(
+        a.date
+      )}</span>
+      <audio controls src="${a.base64}" style="flex:1; height:30px;"></audio>
+      <button class="btn btn-danger btn-sm" onclick="deleteAudio(${i})">🗑</button>
     </div>
   `
-    )
-    .join("");
+      )
+      .join("");
+}
+
+function deleteAudio(i) {
+  audioDb.splice(i, 1);
+  save("dt_audio", audioDb);
+  renderAudio();
 }
 
 function deleteAudio(id) {
@@ -3381,235 +3417,529 @@ function saveLingqWord() {
   document.getElementById("lingqTooltip").style.display = "none";
 }
 
-// PHASE 5: AI CHAT PARTNER
-let chatMessages = []; // stores objects {role: 'user'|'model', parts: [{text: ''}]}
+// ==========================================
+// 🤖 AI GERMAN TUTOR — COMPLETE ENGINE
+// ==========================================
 
-function toggleChatSettings() {
-  const el = document.getElementById("chatSettings");
-  el.style.display = el.style.display === "none" ? "block" : "none";
-  document.getElementById("geminiApiKey").value =
-    localStorage.getItem("dt_gemini_key") || "";
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let _aiHistory = []; // Conversation history (max 10 messages)
+let _aiMode = "free"; // Current mode: free | interview | office | daily
+let _aiBusy = false; // Prevents double-sends while AI is thinking
+let _aiMsgCount = 0; // Session message counter
+let _ttsBtn = null; // Currently active TTS speaker button
+let _aiVoiceRec = null; // Voice recognition instance
+
+// ─── MODE NAMES ───────────────────────────────────────────────────────────────
+const AI_MODE_NAMES = {
+  free: { tutor: "Frau Schmidt", role: "German Tutor" },
+  interview: { tutor: "Herr Wagner", role: "HR Manager — TechCorp Berlin" },
+  office: { tutor: "Jonas", role: "Your German Colleague" },
+  daily: { tutor: "Various", role: "Daily Life Scenarios" },
+};
+
+// ─── SYSTEM PROMPTS ───────────────────────────────────────────────────────────
+function _aiSystemPrompt(mode, ctx) {
+  const base = `Student level: ${ctx.level}. Student goal: Work as IT professional in Germany. Context today: ${ctx.info}`;
+  const rules = `
+STRICT RULES (always follow these):
+1. Reply in German first. On a new line write "🇬🇧" followed by the English translation.
+2. Keep replies SHORT — 2 to 4 sentences maximum. This is a conversation not a lecture.
+3. Always end your reply with ONE follow-up question in German.
+4. If the student makes a grammar mistake: write "✏️ Correction:" on a new line, show the correct form in English, then continue the conversation in German.
+5. When you naturally introduce a new German word relevant to working in Germany, format it EXACTLY as: [Neues Wort: die Besprechung = the meeting]
+6. Never break character. Never speak in English as yourself.`;
+
+  const prompts = {
+    free: `You are "Frau Schmidt", a strict but encouraging German language tutor. ${base}\n${rules}`,
+    interview: `You are "Herr Wagner", a senior HR manager at TechCorp Berlin interviewing a Java developer candidate. Conduct a REAL German job interview. Only use formal Sie-form. Ask real interview questions: background, experience, strengths, salary, why Germany. ${base}\n${rules}\nSTART: "Guten Tag! Ich bin Herr Wagner von TechCorp Berlin. Bitte stellen Sie sich kurz vor."`,
+    office: `You are "Jonas", a friendly German software developer colleague at a Berlin startup. Use casual du-form. Simulate daily office scenarios: standup, code review, lunch, meetings. Mix in real IT vocabulary. ${base}\n${rules}\nSTART: "Hey! Morgen! Wie läuft's? Hast du den PR schon gereviewed?"`,
+    daily: `You are playing everyday German characters: neighbor, shop assistant, doctor receptionist, train conductor, landlord. Start with a random scenario and stay in character. ${base}\n${rules}`,
+  };
+  return prompts[mode] || prompts.free;
 }
 
-function saveApiKey() {
-  const key = document.getElementById("geminiApiKey").value.trim();
-  localStorage.setItem("dt_gemini_key", key);
-  showToast("API Key saved locally!", "var(--success)");
-  document.getElementById("chatSettings").style.display = "none";
-
-  if (chatMessages.length === 0) {
-    document.getElementById("chatHistory").innerHTML = `
-      <div style="align-self:flex-start; background:var(--surface); padding:12px 18px; border-radius:18px; border-bottom-left-radius:4px; max-width:80%; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-        Hallo! Ich bin dein deutscher Sprachpartner. Wor�ber m�chtest du heute sprechen?
-      </div>
-    `;
-  }
+// ─── CONTEXT BUILDER ──────────────────────────────────────────────────────────
+function _aiContext() {
+  const lv = getLevel(diaryEntries.length, vocab.length);
+  const todayWords = vocab.filter((v) => v.date === todayStr()).length;
+  const lastEntry = (
+    diaryEntries[0]?.p1 ||
+    diaryEntries[0]?.content ||
+    "None yet"
+  ).slice(0, 120);
+  return {
+    level: lv.label,
+    info: `Words added today: ${todayWords}. Last diary snippet: "${lastEntry}"`,
+  };
 }
 
-// --- FULLY UPDATED SEND CHAT MESSAGE WITH OFFLINE FALLBACK ---
-async function sendChatMessage() {
-  const inputEl = document.getElementById("chatInput");
-  const text = inputEl.value.trim();
-  const apiKey = localStorage.getItem("dt_gemini_key");
+// ─── KEY MANAGEMENT ───────────────────────────────────────────────────────────
+function _aiKey() {
+  return localStorage.getItem("dt_gemini_key") || "";
+}
 
-  if (!text) return;
-  if (!apiKey) {
-    showToast(
-      "Please enter your Gemini API Key in Settings first!",
-      "var(--danger)"
-    );
-    toggleChatSettings();
+function saveAIKey() {
+  const key = document.getElementById("aiKeyInput").value.trim();
+
+  // Relaxed check: Google API keys are usually 39-51 characters.
+  if (key.length < 30) {
+    showToast("⚠️ Invalid key! It looks too short.");
     return;
   }
 
-  const historyEl = document.getElementById("chatHistory");
-  if (chatMessages.length === 0) historyEl.innerHTML = "";
+  localStorage.setItem("dt_gemini_key", key);
+  document.getElementById("aiKeySetup").style.display = "none";
+  document.getElementById("aiChatMessages").style.display = "flex";
 
-  // User bubble
-  historyEl.innerHTML += `
-    <div style="align-self:flex-end; background:var(--accent); color:white; padding:12px 18px; border-radius:18px; border-bottom-right-radius:4px; max-width:80%; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
-      ${escHtml(text)}
-    </div>
-  `;
+  if (typeof _aiStartSession === "function") _aiStartSession();
+  showToast("✅ Connected! Frau Schmidt is ready to teach.");
+}
 
-  inputEl.value = "";
-  historyEl.scrollTop = historyEl.scrollHeight;
-  chatMessages.push({ role: "user", parts: [{ text: text }] });
+function clearAIKey() {
+  localStorage.removeItem("dt_gemini_key");
+  document.getElementById("aiKeyInput").value = "";
+  document.getElementById("aiKeySetup").style.display = "flex";
+  document.getElementById("aiChatMessages").style.display = "none";
+  showToast("🔑 API key removed.");
+}
 
-  // Loading indicator
-  const loadingId = "loading-" + Date.now();
-  historyEl.innerHTML += `
-    <div id="${loadingId}" style="align-self:flex-start; background:var(--surface); padding:12px 18px; border-radius:18px; border-bottom-left-radius:4px; max-width:80%; color:var(--text-muted);">
-      Typing...
-    </div>
-  `;
-  historyEl.scrollTop = historyEl.scrollHeight;
+// ─── MODAL TOGGLE ─────────────────────────────────────────────────────────────
+function toggleAITutor() {
+  const modal = document.getElementById("aiTutorModal");
+  const fab = document.getElementById("aiTutorBtn");
+  const isOpen = modal.classList.contains("ai-modal-open");
+
+  if (isOpen) {
+    modal.classList.remove("ai-modal-open");
+    fab.classList.remove("ai-open");
+    fab.textContent = "🤖";
+  } else {
+    modal.classList.add("ai-modal-open");
+    fab.classList.add("ai-open");
+    fab.textContent = "✕";
+
+    if (!_aiKey()) {
+      document.getElementById("aiKeySetup").style.display = "flex";
+      document.getElementById("aiChatMessages").style.display = "none";
+    } else {
+      document.getElementById("aiKeySetup").style.display = "none";
+      document.getElementById("aiChatMessages").style.display = "flex";
+      if (_aiHistory.length === 0) _aiStartSession();
+    }
+    setTimeout(() => document.getElementById("aiChatInput")?.focus(), 350);
+  }
+}
+
+// ─── SESSION START ─────────────────────────────────────────────────────────────
+function _aiStartSession() {
+  _aiHistory = [];
+  document.getElementById("aiChatMessages").innerHTML = "";
+  _updateTutorName();
+  _aiCallAPI(null, true); // Pass null = greeting message
+}
+
+function _updateTutorName() {
+  const info = AI_MODE_NAMES[_aiMode] || AI_MODE_NAMES.free;
+  const nameEl = document.getElementById("aiTutorName");
+  if (nameEl) nameEl.textContent = `${info.tutor} — ${info.role}`;
+}
+
+// ─── MODE SWITCH ──────────────────────────────────────────────────────────────
+function switchChatMode(mode) {
+  _aiMode = mode;
+  _aiHistory = [];
+  document.getElementById("aiChatMessages").innerHTML = "";
+  _updateTutorName();
+  const sel = document.getElementById("aiChatMode");
+  const label = sel ? sel.options[sel.selectedIndex].text : mode;
+  _appendSysMsg(`✅ Switched to: ${label}`);
+  if (_aiKey()) _aiCallAPI(null, true);
+}
+
+// ─── SEND MESSAGE ─────────────────────────────────────────────────────────────
+async function sendAIMessage() {
+  const input = document.getElementById("aiChatInput");
+  const text = (input.value || "").trim();
+  if (!text || _aiBusy) return;
+  if (!_aiKey()) {
+    showToast("⚠️ Please add your Gemini API key first!");
+    return;
+  }
+
+  input.value = "";
+  _appendUserBubble(text);
+  _aiCallAPI(text, false);
+}
+
+// ─── GEMINI API CALL ──────────────────────────────────────────────────────────
+async function _aiCallAPI(userText, isGreeting) {
+  _aiBusy = true;
+  _showTyping(true);
+
+  const ctx = _aiContext();
+  const sysPrompt = _aiSystemPrompt(_aiMode, ctx);
+
+  if (!isGreeting && userText) {
+    _aiHistory.push({ role: "user", parts: [{ text: userText }] });
+    if (_aiHistory.length > 10) _aiHistory = _aiHistory.slice(-10);
+  }
+
+  const contents = isGreeting
+    ? [
+        {
+          role: "user",
+          parts: [
+            {
+              text: "BEGIN. Start the session as described in your instructions.",
+            },
+          ],
+        },
+      ]
+    : _aiHistory;
+
+  // Just grab the key that your "Connect" button saved!
+  const key = localStorage.getItem("dt_gemini_key");
+
+  if (!key) {
+    _showTyping(false);
+    _aiBusy = false;
+    return alert(
+      "Please paste your Gemini API Key in the chat setup screen first!"
+    );
+  }
 
   try {
-    const payload = {
-      system_instruction: {
-        parts: [
-          {
-            text: "You are a friendly German language tutor. Chat with the user in German. Keep your sentences simple enough for an A2/B1 student to understand. If they make a grammar mistake, gently correct them in English, then continue the conversation in German. If the user asks to test their pronunciation, provide a specific German word or sentence for them to say. When they reply, analyze their transcribed text and tell them if they pronounced it correctly!",
-          },
-        ],
-      },
-      contents: chatMessages,
-    };
-
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${key}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: sysPrompt }] },
+          contents,
+          generationConfig: { maxOutputTokens: 300, temperature: 0.8 },
+        }),
       }
     );
 
-    // NOTE: Changed 'const' to 'let' so we can override it with our fake response if needed
-    let data = await res.json();
-    const loadingEl = document.getElementById(loadingId);
-    if (loadingEl) loadingEl.remove();
-
-    // IF GOOGLE RETURNED AN ERROR, HANDLE IT!
-    if (!res.ok || data.error) {
-      // If server is overloaded (503), use a mock response to test the UI!
-      if (data.error && data.error.code === 503) {
-        console.warn("Server overloaded! Using offline fallback mode.");
-        showToast(
-          "Google Servers overloaded! Testing UI via Fallback.",
-          "var(--accent)"
-        );
-        data = {
-          candidates: [
-            {
-              content: {
-                parts: [
-                  {
-                    text: "Hallo! Die Google-Server sind leider überlastet. Aber keine Sorge, deine Benutzeroberfläche funktioniert einwandfrei. Klicke auf den Lautsprecher, um meine Stimme zu testen!",
-                  },
-                ],
-              },
-            },
-          ],
-        };
-      } else {
-        console.error("GOOGLE API ERROR:", data.error);
-        alert("Google API Error: " + (data.error.message || "Unknown error"));
-        chatMessages.pop();
-        return;
-      }
+    if (res.status === 429) {
+      _showTyping(false);
+      _aiBusy = false;
+      _appendSysMsg(
+        "⏳ Rate limit reached! The free tier needs a 1-minute break. Come back shortly!"
+      );
+      return;
     }
 
-    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-      const aiText = data.candidates[0].content.parts[0].text;
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err?.error?.message || `HTTP ${res.status}`);
+    }
 
-      // Only push to memory if it's a real response so we don't confuse the AI later
-      if (res.ok) {
-        chatMessages.push({ role: "model", parts: [{ text: aiText }] });
-      }
+    const data = await res.json();
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!reply) throw new Error("Empty response from API");
 
-      const safeAiText = escHtml(aiText).replace(/\n/g, "<br>");
-      const speechParam = aiText
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'")
-        .replace(/"/g, "&quot;")
-        .replace(/\n/g, " ");
+    _aiHistory.push({ role: "model", parts: [{ text: reply }] });
+    _aiMsgCount++;
+    _updateUsageInfo();
+    _showTyping(false);
+    _aiBusy = false;
+    _appendAIBubble(reply);
+  } catch (err) {
+    console.error("AI Tutor error:", err);
+    _showTyping(false);
+    _aiBusy = false;
+    _appendSysMsg(
+      `❌ Error: ${err.message}. Check your API key or internet connection.`
+    );
+  }
+}
 
-      historyEl.innerHTML += `
-        <div style="align-self:flex-start; background:var(--surface); padding:12px 18px; border-radius:18px; border-bottom-left-radius:4px; max-width:80%; box-shadow:0 2px 5px rgba(0,0,0,0.05); position:relative;">
-          ${safeAiText}
-          <button onclick="speakWord('${speechParam}')" style="background:none; border:none; cursor:pointer; font-size:1.3rem; margin-top:8px; display:flex; margin-left:auto; transition:0.2s;" title="Listen to AI" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-            🔊
+// Check for saved key when the app first loads and hide it with stars!
+setTimeout(() => {
+  if (localStorage.getItem("dt_ai_key")) {
+    const aiBox = document.getElementById("aiKeyInput");
+    if (aiBox) aiBox.value = "********";
+  }
+}, 500);
+
+// ─── RENDER: AI BUBBLE ────────────────────────────────────────────────────────
+function _appendAIBubble(raw) {
+  let text = raw;
+  let translation = "";
+  let correction = "";
+  let newWord = null;
+
+  // Extract 🇬🇧 English translation
+  const tMatch = raw.match(/🇬🇧\s*([\s\S]+?)(?=✏️|$$|$)/);
+  if (tMatch) {
+    translation = tMatch[1].trim();
+    text = text.replace(tMatch[0], "");
+  }
+
+  // Extract ✏️ Correction
+  const cMatch = raw.match(/✏️\s*Correction:\s*([\s\S]+?)(?=🇬🇧|$$|$)/);
+  if (cMatch) {
+    correction = cMatch[1].trim();
+    text = text.replace(cMatch[0], "");
+  }
+
+  // Extract [Neues Wort: X = Y]
+  const wMatch = raw.match(/\[Neues Wort:\s*(.+?)\s*=\s*(.+?)\]/);
+  if (wMatch) {
+    newWord = { de: wMatch[1].trim(), en: wMatch[2].trim() };
+    text = text.replace(wMatch[0], "");
+  }
+
+  text = text.trim();
+  const ttsText = text.replace(/[^\w\s.,!?äöüÄÖÜß-]/g, "").trim();
+
+  const msgs = document.getElementById("aiChatMessages");
+  const wrap = document.createElement("div");
+  wrap.className = "ai-bubble-wrap";
+
+  // Create safe strings for HTML attributes
+  const safeTts = ttsText.replace(/"/g, "&quot;");
+
+  wrap.innerHTML = `
+    <div class="ai-bubble-avatar">👩‍🏫</div>
+    <div style="max-width:80%;">
+      <div class="ai-bubble ai-msg">
+        ${_safeHtml(text)}
+        ${
+          translation
+            ? `<div class="ai-translation">🇬🇧 ${_safeHtml(translation)}</div>`
+            : ""
+        }
+        <button class="ai-speaker-btn"
+          data-tts="${safeTts}"
+          onclick="aiSpeakToggle(this, this.getAttribute('data-tts'))"
+          title="Listen / Stop">🔊</button>
+      </div>
+      ${
+        correction
+          ? `
+        <div class="ai-bubble correction-msg">
+          ✏️ <strong>Correction:</strong> ${_safeHtml(correction)}
+          <button class="ai-save-note-btn"
+            data-note="${correction.replace(/"/g, "&quot;")}"
+            onclick="aiSaveNote(this.getAttribute('data-note'))">
+            💾 Save as Study Note
           </button>
-        </div>
-      `;
-      historyEl.scrollTop = historyEl.scrollHeight;
-    }
-  } catch (e) {
-    const loadingEl = document.getElementById(loadingId);
-    if (loadingEl) loadingEl.remove();
-    console.error("Fetch Error:", e);
-    showToast(
-      "Failed to connect. Open DevTools (F12) for details.",
-      "var(--danger)"
-    );
-    chatMessages.pop();
-  }
+        </div>`
+          : ""
+      }
+      ${
+        newWord
+          ? `
+        <div class="ai-new-word-badge"
+          data-de="${newWord.de.replace(/"/g, "&quot;")}"
+          data-en="${newWord.en.replace(/"/g, "&quot;")}"
+          onclick="aiSaveWord(this.getAttribute('data-de'), this.getAttribute('data-en'))">
+          ➕ <strong>${_safeHtml(newWord.de)}</strong> = ${_safeHtml(
+              newWord.en
+            )} — Tap to save!
+        </div>`
+          : ""
+      }
+    </div>`;
+  msgs.appendChild(wrap);
+  _aiScrollBottom();
 }
-function toggleAiChat() {
-  const widget = document.getElementById("aiChatWidget");
-  if (widget.style.display === "none" || widget.style.display === "") {
-    widget.style.display = "flex";
-  } else {
-    widget.style.display = "none";
-  }
-}
-// --- AI CHAT VOICE TYPING & AUTO-SEND ---
-let chatSpeechRec = null;
 
-function startChatVoiceTyping() {
-  if (
-    !("webkitSpeechRecognition" in window) &&
-    !("SpeechRecognition" in window)
-  ) {
-    showToast(
-      "Your browser does not support Voice Typing. Please use Chrome.",
-      "var(--danger)"
-    );
+// ─── RENDER: USER BUBBLE ──────────────────────────────────────────────────────
+function _appendUserBubble(text) {
+  const msgs = document.getElementById("aiChatMessages");
+  const wrap = document.createElement("div");
+  wrap.className = "ai-bubble-wrap user-wrap";
+  wrap.innerHTML = `
+    <div class="ai-bubble user-msg">${_safeHtml(text)}</div>
+    <div class="ai-bubble-avatar">👤</div>`;
+  msgs.appendChild(wrap);
+  _aiScrollBottom();
+}
+
+// ─── RENDER: SYSTEM MESSAGE ───────────────────────────────────────────────────
+function _appendSysMsg(text) {
+  const msgs = document.getElementById("aiChatMessages");
+  const div = document.createElement("div");
+  div.className = "ai-sys-msg";
+  div.textContent = text;
+  msgs.appendChild(div);
+  _aiScrollBottom();
+}
+
+// ─── HELPER: SAFE HTML ────────────────────────────────────────────────────────
+function _safeHtml(str) {
+  return (str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br>");
+}
+
+function _aiScrollBottom() {
+  const m = document.getElementById("aiChatMessages");
+  if (m) m.scrollTop = m.scrollHeight;
+}
+
+// ─── TYPING INDICATOR ─────────────────────────────────────────────────────────
+function _showTyping(show) {
+  const el = document.getElementById("aiTyping");
+  if (el) {
+    el.style.display = show ? "flex" : "none";
+    if (show) _aiScrollBottom();
+  }
+}
+
+// ─── SMART TTS TOGGLE (🔊 / ⏹️) ─────────────────────────────────────────────
+function aiSpeakToggle(btn, text) {
+  // Same button clicked while playing → STOP
+  if (_ttsBtn === btn) {
+    window.speechSynthesis.cancel();
+    _ttsReset(btn);
+    _ttsBtn = null;
+    return;
+  }
+  // Different button clicked → stop current, start new
+  if (_ttsBtn) {
+    window.speechSynthesis.cancel();
+    _ttsReset(_ttsBtn);
+  }
+
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = "de-DE";
+  utt.rate = 0.9;
+  const voices = window.speechSynthesis.getVoices();
+  const voice =
+    voices.find((v) => v.lang === "de-DE" && v.name.includes("Google")) ||
+    voices.find((v) => v.lang === "de-DE") ||
+    voices.find((v) => v.lang.startsWith("de"));
+  if (voice) utt.voice = voice;
+
+  btn.innerHTML = "⏹️";
+  btn.title = "Click to stop";
+  btn.style.color = "var(--danger)";
+  _ttsBtn = btn;
+
+  utt.onend = () => {
+    _ttsReset(btn);
+    _ttsBtn = null;
+  };
+  utt.onerror = () => {
+    _ttsReset(btn);
+    _ttsBtn = null;
+  };
+  window.speechSynthesis.speak(utt);
+}
+
+function _ttsReset(btn) {
+  if (!btn) return;
+  btn.innerHTML = "🔊";
+  btn.title = "Listen / Stop";
+  btn.style.color = "";
+}
+
+// ─── VOICE INPUT (🎙️) ────────────────────────────────────────────────────────
+function toggleAIVoiceInput() {
+  const btn = document.getElementById("aiMicBtn");
+
+  if (!("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
+    showToast("⚠️ Voice input is not supported in this browser. Try Chrome.");
     return;
   }
 
-  if (chatSpeechRec) {
-    chatSpeechRec.stop();
+  // If already recording → stop
+  if (_aiVoiceRec) {
+    _aiVoiceRec.stop();
+    _aiVoiceRec = null;
+    btn.classList.remove("ai-recording");
+    btn.textContent = "🎙️";
+    return;
   }
 
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-  chatSpeechRec = new SpeechRecognition();
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  _aiVoiceRec = new SR();
+  _aiVoiceRec.lang = "de-DE";
+  _aiVoiceRec.continuous = false;
+  _aiVoiceRec.interimResults = false;
 
-  chatSpeechRec.lang = "de-DE"; // Force German recognition
-  chatSpeechRec.interimResults = false;
-  chatSpeechRec.continuous = false; // Stop when they stop speaking
+  btn.classList.add("ai-recording");
+  btn.textContent = "🔴";
 
-  const inputEl = document.getElementById("chatInput");
-  const btnElement = document.getElementById("chatMicBtn");
-  const originalIcon = "🎙️";
-
-  btnElement.innerHTML = "🔴";
-  btnElement.style.color = "var(--danger)";
-
-  chatSpeechRec.onresult = (event) => {
-    let finalTranscript = "";
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      if (event.results[i].isFinal) {
-        finalTranscript += event.results[i][0].transcript;
-      }
-    }
-
-    inputEl.value = finalTranscript;
-
-    // Automatically send the message half a second after they finish speaking!
-    if (finalTranscript.trim().length > 0) {
-      setTimeout(sendChatMessage, 500);
-    }
+  _aiVoiceRec.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    document.getElementById("aiChatInput").value = transcript;
+    btn.classList.remove("ai-recording");
+    btn.textContent = "🎙️";
+    _aiVoiceRec = null;
+    // Auto-send after 400ms so user can see what was transcribed
+    setTimeout(() => sendAIMessage(), 400);
   };
 
-  chatSpeechRec.onerror = (event) => {
-    console.error("Speech recognition error", event.error);
-    showToast("Speech Recognition Error: " + event.error, "var(--danger)");
-    btnElement.innerHTML = originalIcon;
-    btnElement.style.color = "var(--text-muted)";
+  _aiVoiceRec.onerror = () => {
+    btn.classList.remove("ai-recording");
+    btn.textContent = "🎙️";
+    _aiVoiceRec = null;
+    showToast("⚠️ Could not hear you. Please try again!");
   };
 
-  chatSpeechRec.onend = () => {
-    btnElement.innerHTML = originalIcon;
-    btnElement.style.color = "var(--text-muted)";
-    chatSpeechRec = null;
+  _aiVoiceRec.onend = () => {
+    btn.classList.remove("ai-recording");
+    btn.textContent = "🎙️";
+    _aiVoiceRec = null;
   };
 
-  chatSpeechRec.start();
-  showToast("Listening... Speak your message in German!", "var(--success)");
+  _aiVoiceRec.start();
+}
+
+// ─── GRAMMAR NOTE SAVE ────────────────────────────────────────────────────────
+function aiSaveNote(correctionText) {
+  const notes = JSON.parse(localStorage.getItem("dt_grammar_notes") || "[]");
+  if (notes.some((n) => n.correction === correctionText)) {
+    showToast("⚠️ This correction is already in your notes!");
+    return;
+  }
+  notes.unshift({
+    date: todayStr(),
+    correction: correctionText,
+    level: getLevel(diaryEntries.length, vocab.length).label,
+  });
+  localStorage.setItem("dt_grammar_notes", JSON.stringify(notes));
+  showToast("💾 Saved to Grammar Notes!");
+}
+
+// ─── NEW WORD SAVE FROM CHAT ───────────────────────────────────────────────────
+function aiSaveWord(de, en) {
+  if (vocab.some((v) => v.de.toLowerCase() === de.toLowerCase())) {
+    showToast(`⚠️ "${de}" is already in your vocabulary!`);
+    return;
+  }
+  vocab.unshift({ de, en, cat: "AI Chat", date: todayStr() });
+  save("dt_vocab", vocab);
+  renderDashboard();
+  showToast(`✅ "${de}" added to Vocabulary!`);
+}
+
+// ─── CLEAR CHAT ───────────────────────────────────────────────────────────────
+function clearAIChat() {
+  if (_ttsBtn) {
+    window.speechSynthesis.cancel();
+    _ttsReset(_ttsBtn);
+    _ttsBtn = null;
+  }
+  _aiHistory = [];
+  _aiMsgCount = 0;
+  document.getElementById("aiChatMessages").innerHTML = "";
+  _updateUsageInfo();
+  if (_aiKey()) _aiStartSession();
+}
+
+// ─── USAGE INFO ───────────────────────────────────────────────────────────────
+function _updateUsageInfo() {
+  const el = document.getElementById("aiUsageInfo");
+  if (el) el.textContent = `${_aiMsgCount} messages sent today`;
 }
 
 // --- 3. LIVE NEWS & CACHING ---
@@ -4604,11 +4934,22 @@ let btc_hasAchievedGoalToday =
 function btc_markActive() {
   btc_lastActiveTime = Date.now();
   const statusEl = document.getElementById("antiCheatStatus");
+
+  // When we wake up from being paused...
   if (statusEl && statusEl.innerText.includes("PAUSED")) {
-    statusEl.innerHTML = "🟢 ENGINE ACTIVE";
-    statusEl.style.background = "rgba(16, 185, 129, 0.15)";
-    statusEl.style.color = "var(--success)";
-    statusEl.style.borderColor = "rgba(16, 185, 129, 0.3)";
+    // If we already hit the goal today, return to GOLD state!
+    if (btc_hasAchievedGoalToday) {
+      statusEl.innerHTML = "🏆 GOAL REACHED! (Active)";
+      statusEl.style.background = "rgba(251, 191, 36, 0.15)";
+      statusEl.style.color = "var(--gold)";
+      statusEl.style.borderColor = "var(--gold)";
+    } else {
+      // Otherwise, return to standard GREEN state
+      statusEl.innerHTML = "🟢 ENGINE ACTIVE";
+      statusEl.style.background = "rgba(16, 185, 129, 0.15)";
+      statusEl.style.color = "var(--success)";
+      statusEl.style.borderColor = "rgba(16, 185, 129, 0.3)";
+    }
   }
 }
 ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach((evt) => {
@@ -4639,58 +4980,50 @@ function btc_getDailyGoalSeconds() {
 setInterval(() => {
   const now = Date.now();
   const goalSecs = btc_getDailyGoalSeconds();
-
-  // Update Goal Text
   const goalEl = document.getElementById("bootcampGoalDisplay");
   if (goalEl)
     goalEl.innerText = `Goal: ${goalSecs / 60} Mins (${
       localStorage.getItem("dt_level") || "A1"
     })`;
-
-  // Check Idle Status (30 seconds of no mouse/keyboard = PAUSED)
+  // Check Idle Status
   const isIdle = now - btc_lastActiveTime > 30000;
-
-  if (isIdle && !btc_hasAchievedGoalToday) {
+  // STRICT MODE FOREVER: We removed the check, so it ALWAYS pauses when idle!
+  if (isIdle) {
     const statusEl = document.getElementById("antiCheatStatus");
-    if (statusEl && statusEl.innerText.includes("ACTIVE")) {
+    // If it's active OR showing goal reached, force it to PAUSE!
+    if (
+      statusEl &&
+      (statusEl.innerText.includes("ACTIVE") ||
+        statusEl.innerText.includes("REACHED"))
+    ) {
       statusEl.innerHTML = "⏸️ TIMER PAUSED (IDLE)";
       statusEl.style.background = "rgba(248, 113, 113, 0.15)";
       statusEl.style.color = "var(--danger)";
       statusEl.style.borderColor = "rgba(248, 113, 113, 0.3)";
     }
   } else {
-    // We are active (or we already hit the goal so keep counting up as extra credit!)
+    // We are active! Count up!
     btc_activeSecondsToday++;
-    localStorage.setItem(`dt_active_${todayStr()}`, btc_activeSecondsToday); // Auto-save continuously
-
-    // Update the UI
+    localStorage.setItem(`dt_active_${todayStr()}`, btc_activeSecondsToday);
     const timeEl = document.getElementById("bootcampTimeDisplay");
     const barEl = document.getElementById("bootcampProgressBar");
-
     if (timeEl) timeEl.innerText = btc_formatTime(btc_activeSecondsToday);
-
     if (barEl && !btc_hasAchievedGoalToday) {
       let pct = (btc_activeSecondsToday / goalSecs) * 100;
       if (pct > 100) pct = 100;
       barEl.style.width = pct + "%";
     }
-
     // CHECK VICTORY CONDITION!
     if (btc_activeSecondsToday >= goalSecs && !btc_hasAchievedGoalToday) {
       btc_hasAchievedGoalToday = true;
       localStorage.setItem(`dt_achieved_${todayStr()}`, "true");
-
-      // Update Streak permanently for the day
       let currentStreak = parseInt(localStorage.getItem("dt_streak") || "0");
       localStorage.setItem("dt_streak", currentStreak + 1);
-
-      // Save date to history array for the Heatmap
       let history = JSON.parse(localStorage.getItem("dt_history") || "[]");
       if (!history.includes(todayStr())) {
         history.push(todayStr());
         localStorage.setItem("dt_history", JSON.stringify(history));
       }
-
       btc_triggerVictoryUI();
       btc_renderHeatmap();
     }
@@ -4763,3 +5096,508 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   btc_renderHeatmap();
 });
+
+// ==========================================
+// 🚀 PHASE 6: ONBOARDING LOGIC
+// ==========================================
+let _onboardState = { level: null, goal: null, time: null, step: 1 };
+
+// Check if user needs onboarding when page loads
+document.addEventListener("DOMContentLoaded", () => {
+  if (!localStorage.getItem("dt_onboarded")) {
+    document.getElementById("onboardingModal").style.display = "flex";
+  }
+});
+
+function selectLevel(val, btn) {
+  _onboardState.level = val;
+  _highlightBtn(btn);
+  _showNextBtn();
+}
+function selectGoal(val, btn) {
+  _onboardState.goal = val;
+  _highlightBtn(btn);
+  _showNextBtn();
+}
+function selectTime(val, btn) {
+  _onboardState.time = val;
+  _highlightBtn(btn);
+  _showNextBtn();
+}
+
+function _highlightBtn(btn) {
+  const siblings = btn.parentElement.children;
+  for (let b of siblings) b.classList.remove("selected");
+  btn.classList.add("selected");
+}
+
+function _showNextBtn() {
+  document.getElementById("onboardNextBtn").style.display = "block";
+}
+
+function nextOnboardStep() {
+  if (_onboardState.step === 1 && !_onboardState.level) return;
+  if (_onboardState.step === 2 && !_onboardState.goal) return;
+  if (_onboardState.step === 3 && !_onboardState.time) return;
+
+  document
+    .getElementById(`onboardStep${_onboardState.step}`)
+    .classList.remove("active");
+  document.getElementById("onboardNextBtn").style.display = "none";
+
+  _onboardState.step++;
+
+  if (_onboardState.step > 3) {
+    completeOnboarding();
+  } else {
+    document
+      .getElementById(`onboardStep${_onboardState.step}`)
+      .classList.add("active");
+  }
+}
+
+function completeOnboarding() {
+  // Save to local storage so they never see it again unless they clear data
+  localStorage.setItem("dt_onboarded", "true");
+  localStorage.setItem("dt_user_level_start", _onboardState.level);
+  localStorage.setItem("dt_user_goal", _onboardState.goal);
+  localStorage.setItem("dt_daily_time", _onboardState.time);
+
+  // Auto-Config based on goal
+  if (_onboardState.goal === "work") {
+    if (typeof importItVocab === "function") {
+      importItVocab(); // Auto-load IT packs automatically
+      setTimeout(
+        () => showToast("💼 IT Vocabulary Pack Pre-loaded for Work!"),
+        800
+      );
+    }
+  }
+
+  // Hide Modal
+  document.getElementById("onboardingModal").style.display = "none";
+  setTimeout(
+    () => showToast("🎉 Setup complete! Welcome to your structured path."),
+    1500
+  );
+
+  // Refresh dashboard
+  if (typeof renderDashboard === "function") renderDashboard();
+}
+
+// (Optional) Run this in the console to test the modal again:
+// localStorage.removeItem('dt_onboarded'); location.reload();
+
+// ==========================================
+// 🚀 PHASE 1 & 5: MISSION ENGINE & DASHBOARD
+// ==========================================
+
+// USING VAR INSTEAD OF CONST TO PREVENT SYNTAX ERRORS FOREVER!
+var MISSION_TASKS_TEMPLATE = [
+  {
+    id: "vocab",
+    icon: "🧠",
+    title: "Learn 5 new words",
+    target: 5,
+    time: 5,
+    action: "showSection('vocab')",
+    btnText: "Open Vocab",
+  },
+  {
+    id: "diary",
+    icon: "✍️",
+    title: "Write 1 diary entry",
+    target: 1,
+    time: 10,
+    action: "showSection('diary')",
+    btnText: "Open Diary",
+  },
+  {
+    id: "reading",
+    icon: "📰",
+    title: "Read 1 news article",
+    target: 1,
+    time: 5,
+    action: "showSection('reading')",
+    btnText: "Open Reading",
+  },
+  {
+    id: "quiz",
+    icon: "🎯",
+    title: "Complete 1 quiz",
+    target: 1,
+    time: 5,
+    action: "showSection('quiz')",
+    btnText: "Start Quiz",
+  },
+];
+
+function generateDailyMission() {
+  const today = todayStr();
+  let missionState = load("dt_mission_state", { date: null, tasks: {} });
+  if (missionState.date !== today) {
+    missionState = { date: today, tasks: {} };
+    MISSION_TASKS_TEMPLATE.forEach((t) => (missionState.tasks[t.id] = 0));
+    save("dt_mission_state", missionState);
+  }
+  const todayVocab = vocab.filter((v) => v.date === today).length;
+  missionState.tasks["vocab"] = Math.min(todayVocab, 5);
+  const todayDiary = diaryEntries.filter((e) => e.date === today).length;
+  missionState.tasks["diary"] = Math.min(todayDiary, 1);
+  save("dt_mission_state", missionState);
+  renderMissionCard();
+}
+
+function renderMissionCard() {
+  const missionEl = document.getElementById("missionTaskList");
+  if (!missionEl) return;
+  const missionState = load("dt_mission_state", {
+    date: todayStr(),
+    tasks: {},
+  });
+  let totalTasks = MISSION_TASKS_TEMPLATE.length,
+    completedTasks = 0,
+    estTimeRemaining = 0;
+
+  const dEl = document.getElementById("missionDate");
+  if (dEl) dEl.textContent = formatDate(todayStr());
+
+  let html = "";
+  MISSION_TASKS_TEMPLATE.forEach((task) => {
+    const progress = missionState.tasks[task.id] || 0;
+    const isDone = progress >= task.target;
+    if (isDone) completedTasks++;
+    else estTimeRemaining += task.time;
+    html += `
+      <div class="mission-task-item ${
+        isDone ? "completed" : ""
+      }" style="display:flex; justify-content:space-between; padding:12px; background:rgba(255,255,255,0.03); margin-bottom:8px; border-radius:8px;">
+        <div><span style="margin-right:10px">${task.icon}</span> <span>${
+      task.title
+    }</span> <span style="font-size:0.8rem; color:var(--text-muted)">(${progress}/${
+      task.target
+    })</span></div>
+        ${
+          isDone
+            ? '<span style="color:var(--success); font-weight:bold;">✓ Done</span>'
+            : `<button class="btn btn-outline btn-sm" onclick="${task.action}">${task.btnText}</button>`
+        }
+      </div>`;
+  });
+  missionEl.innerHTML = html;
+
+  const pct = Math.round((completedTasks / totalTasks) * 100);
+  const pctEl = document.getElementById("missionPct");
+  if (pctEl) pctEl.textContent = `${pct}%`;
+
+  const timeEl = document.getElementById("missionEstTime");
+  if (timeEl) {
+    if (pct === 100) {
+      timeEl.innerHTML = "🎉 All daily tasks completed!";
+      timeEl.style.color = "var(--success)";
+    } else {
+      timeEl.innerHTML = `⏱️ Est. time: ${estTimeRemaining} mins`;
+      timeEl.style.color = "var(--text-muted)";
+    }
+  }
+}
+
+function updateDashboardStats() {
+  let known = 0,
+    learning = 0;
+  vocab.forEach((v) => {
+    if (v.interval && v.interval > 10) known++;
+    else learning++;
+  });
+  const totalSrs = known + learning;
+  const retention = totalSrs > 0 ? Math.round((known / totalSrs) * 100) : 0;
+
+  const elVocab = document.getElementById("statVocabHealth");
+  if (elVocab) elVocab.textContent = `${retention}%`;
+  const elVocabSub = document.getElementById("statVocabSub");
+  if (elVocabSub)
+    elVocabSub.textContent = `Known: ${known} | Learning: ${learning}`;
+
+  const quizScores = load("dt_quiz_history", []);
+  let totalScore = 0,
+    totalMax = 0;
+  quizScores.forEach((q) => {
+    totalScore += q.score;
+    totalMax += q.max;
+  });
+  const accuracy = totalMax > 0 ? Math.round((totalScore / totalMax) * 100) : 0;
+
+  const elQuiz = document.getElementById("statQuizAcc");
+  if (elQuiz) elQuiz.textContent = `${accuracy}%`;
+  const elQuizSub = document.getElementById("statQuizSub");
+  if (elQuizSub)
+    elQuizSub.textContent = `${quizScores.length} total quizzes taken`;
+
+  const vocabScore = Math.min(100, Math.round((vocab.length / 500) * 100));
+  const grammarScore = Math.min(
+    100,
+    Math.round(((diaryEntries.length * 3) / 100) * 100)
+  );
+  const writingScore = Math.min(
+    100,
+    Math.round((diaryEntries.length / 50) * 100)
+  );
+  const totalReadiness = Math.round(
+    (vocabScore + grammarScore + writingScore) / 3
+  );
+
+  const rEl = document.getElementById("readinessScore");
+  if (rEl) rEl.textContent = `${totalReadiness}%`;
+
+  const pbV = document.getElementById("pbVocab");
+  if (pbV) pbV.style.width = `${vocabScore}%`;
+  const pctV = document.getElementById("pctVocab");
+  if (pctV) pctV.textContent = `${vocabScore}%`;
+
+  const pbG = document.getElementById("pbGrammar");
+  if (pbG) pbG.style.width = `${grammarScore}%`;
+  const pctG = document.getElementById("pctGrammar");
+  if (pctG) pctG.textContent = `${grammarScore}%`;
+
+  const pbW = document.getElementById("pbWriting");
+  if (pbW) pbW.style.width = `${writingScore}%`;
+  const pctW = document.getElementById("pctWriting");
+  if (pctW) pctW.textContent = `${writingScore}%`;
+
+  const gList = document.getElementById("grammarUnlocksList");
+  if (gList) {
+    const levels = [
+      {
+        name: "A1 (Beginner)",
+        desc: "Articles, Present Tense",
+        reqV: 0,
+        reqD: 0,
+      },
+      {
+        name: "A2 (Elementary)",
+        desc: "Perfect Tense, Modals",
+        reqV: 50,
+        reqD: 5,
+      },
+      {
+        name: "B1 (Intermediate)",
+        desc: "Subordinate Clauses, weil/dass",
+        reqV: 150,
+        reqD: 20,
+      },
+      {
+        name: "B2 (Fluent)",
+        desc: "Konjunktiv II, Passive Voice",
+        reqV: 400,
+        reqD: 50,
+      },
+    ];
+    gList.innerHTML = levels
+      .map((lv) => {
+        const isUnlocked =
+          vocab.length >= lv.reqV && diaryEntries.length >= lv.reqD;
+        const progressStr = !isUnlocked
+          ? `<div style="font-size:0.75rem; color:var(--accent); margin-top:4px;">Need: ${Math.max(
+              0,
+              lv.reqV - vocab.length
+            )} words, ${Math.max(
+              0,
+              lv.reqD - diaryEntries.length
+            )} diaries</div>`
+          : "";
+        return `
+      <div style="padding:10px 12px; background:${
+        isUnlocked ? "rgba(16,185,129,0.08)" : "rgba(255,255,255,0.02)"
+      }; border:1px solid ${
+          isUnlocked ? "rgba(16,185,129,0.3)" : "rgba(255,255,255,0.08)"
+        }; border-radius:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-weight:700; color:var(--text);">${
+            isUnlocked ? "✅" : "🔒"
+          } ${lv.name}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted);">${
+            isUnlocked ? "Unlocked" : "Locked"
+          }</div>
+        </div>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">${
+          lv.desc
+        }</div>
+        ${progressStr}
+      </div>`;
+      })
+      .join("");
+  }
+}
+
+function forceGrammarTipRender() {
+  const fallbackTips = [
+    {
+      rule: "Articles: der / die / das",
+      example: "der Mann (the man), die Frau (the woman), das Kind (the child)",
+    },
+    {
+      rule: "Present tense: regular verbs",
+      example: "lernen -> ich lerne, du lernst, er lernt",
+    },
+    {
+      rule: "Negation with 'nicht'",
+      example: "Ich arbeite nicht. (I don't work.)",
+    },
+  ];
+  const tipPool =
+    typeof appState !== "undefined" &&
+    appState.grammar_pool &&
+    appState.grammar_pool.length > 0
+      ? appState.grammar_pool
+      : typeof GRAMMAR_TIPS !== "undefined"
+      ? GRAMMAR_TIPS
+      : fallbackTips;
+
+  const tip = tipPool[new Date().getDate() % tipPool.length];
+
+  const tr = document.getElementById("dashTipRule");
+  if (tr) tr.textContent = tip.rule || tip.text || "Grammar Tip";
+  const te = document.getElementById("dashTipExample");
+  if (te) te.textContent = tip.example || tip.hint || "Keep practicing!";
+}
+
+// 5. Override Render Engine safely!
+var fallbackDashRender = renderDashboard;
+renderDashboard = function () {
+  try {
+    fallbackDashRender();
+  } catch (e) {}
+
+  try {
+    generateDailyMission();
+  } catch (e) {
+    console.error("Mission failed", e);
+  }
+  try {
+    updateDashboardStats();
+  } catch (e) {
+    console.error("Stats failed", e);
+  }
+  try {
+    forceGrammarTipRender();
+  } catch (e) {
+    console.error("Tip failed", e);
+  }
+};
+
+setTimeout(() => {
+  if (localStorage.getItem("dt_gemini_key")) {
+    const aiBox = document.getElementById("aiKeyInput");
+    if (aiBox) aiBox.value = "********";
+  }
+}, 500);
+
+// ==========================================
+// 🔍 PHASE 7: LOCAL GRAMMAR HEURISTICS ENGINE
+// ==========================================
+
+function analyzeGrammar() {
+  const t1 = document.getElementById("prompt1").value.trim();
+  const t2 = document.getElementById("prompt2").value.trim();
+  const t3 = document.getElementById("prompt3").value.trim();
+  const t4 = document.getElementById("prompt4").value.trim();
+  const t5 = document.getElementById("prompt5").value.trim();
+
+  const allText = [t1, t2, t3, t4, t5].filter(Boolean).join(" ");
+  const panel = document.getElementById("grammarAnalysisResult");
+
+  if (!allText) {
+    alert("Please write something in your diary first!");
+    return;
+  }
+
+  panel.style.display = "block";
+  let html = `<h4 style="margin-top:0; color:var(--accent); display:flex; align-items:center; gap:8px;">🔍 Instant Grammar Analysis</h4>
+              <ul style="padding-left:20px; margin-bottom:0; display:flex; flex-direction:column; gap:10px; font-size:0.95rem;">`;
+
+  let issues = 0;
+
+  // 1. Subordinate Clauses (verb-at-end check)
+  const subClauses = allText.match(/\b(weil|dass|wenn)\b([^.,!?]+)/gi);
+  if (subClauses) {
+    subClauses.forEach((clause) => {
+      const words = clause.trim().split(" ");
+      const lastWord = words[words.length - 1].toLowerCase();
+      // Basic check: German verbs often end in -en, -t, or -e.
+      if (
+        !lastWord.endsWith("en") &&
+        !lastWord.endsWith("t") &&
+        !lastWord.endsWith("e")
+      ) {
+        html += `<li>⚠️ Check your verb placement after <b>${words[0]}</b>! In German, the verb must go to the very end of the sentence. (e.g., <i>weil ich müde <b>bin</b></i>)</li>`;
+        issues++;
+      } else {
+        html += `<li>✅ Great job using <b>${words[0]}</b> and sending the verb to the end!</li>`;
+      }
+    });
+  }
+
+  // 2. English words detected
+  const englishBlacklist = [
+    "and",
+    "but",
+    "because",
+    "the",
+    "is",
+    "you",
+    "my",
+    "with",
+    "work",
+    "job",
+    "good",
+    "bad",
+    "today",
+    "tomorrow",
+    "very",
+  ];
+  const words = allText.replace(/[.,!?]/g, "").split(/\s+/);
+  const foundEnglish = words.filter((w) =>
+    englishBlacklist.includes(w.toLowerCase())
+  );
+  if (foundEnglish.length > 0) {
+    const unique = [...new Set(foundEnglish)];
+    html += `<li>⚠️ Possible English words detected: <b>${unique.join(
+      ", "
+    )}</b>. Try to find the German equivalent!</li>`;
+    issues++;
+  }
+
+  // 3. Sentences under 6 words
+  const sentences = allText.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+  const shortSentences = sentences.filter(
+    (s) => s.trim().split(/\s+/).length < 6
+  );
+  if (shortSentences.length > 2) {
+    html += `<li>⚠️ You have several very short sentences. Try combining them using <i>und</i>, <i>aber</i>, or <i>weil</i> to sound more fluent!</li>`;
+    issues++;
+  }
+
+  // 4. Missing Umlauts
+  if (!/[äöüßÄÖÜ]/.test(allText) && allText.length > 50) {
+    html += `<li>ℹ️ No umlauts (ä, ö, ü) or ß detected. Make sure you are spelling words correctly!</li>`;
+  }
+
+  // 5. Positive reinforcement for Perfekt tense
+  if (
+    /\b(habe|hast|hat|haben|habt)\b\s+.*\b(ge[a-z]+t|ge[a-z]+en)\b/i.test(
+      allText
+    ) ||
+    /\b(bin|bist|ist|sind|seid)\b\s+.*\b(ge[a-z]+t|ge[a-z]+en|worden)\b/i.test(
+      allText
+    )
+  ) {
+    html += `<li>✅ Perfect! You successfully used the past tense (Perfekt) to describe what you did!</li>`;
+  }
+
+  if (issues === 0) {
+    html += `<li>🌟 <b>Fantastic writing!</b> No major basic errors detected. Keep practicing!</li>`;
+  }
+
+  html += `</ul>`;
+  panel.innerHTML = html;
+}

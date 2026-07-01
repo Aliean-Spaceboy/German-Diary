@@ -54,232 +54,148 @@
 
 <main>
 
-<!-- DASHBOARD -->
-<div id="section-dashboard" class="section">
-  
-  <div class="hero">
-    <h1>Dein Deutsches Tagebuch</h1>
-    <p>Your personal German language practice diary — write daily, track progress, speak confidently.</p>
-    <div class="date-display" id="todayDate"></div>
-  </div>
-
-  <!-- STATS -->
-  <div class="grid-3" style="margin-bottom:20px">
-    <div class="stat-card">
-      <div class="stat-num" id="statEntries" style="color:var(--accent)">0</div>
-      <div class="stat-label">📔 Total Diary Entries</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="statWords" style="color:var(--accent2)">0</div>
-      <div class="stat-label">🧠 Words Learned</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="statStreak" style="color:var(--gold)">0</div>
-      <div class="stat-label">🔥 Day Streak</div>
-    </div>
-  </div>
-
-  <!-- WORD & SENTENCE OF THE DAY -->
-  <div class="grid-2" style="margin-bottom:20px">
-    <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,rgba(91,141,238,0.1),transparent);border-color:var(--accent)">
-      <div class="card-title">📖 Word of the Day</div>
-      <div style="font-size:1.8rem;font-weight:800;color:var(--accent);margin-top:10px" id="wotdDe">Laden...</div>
-      <div style="font-size:1rem;color:var(--text-muted);margin-bottom:10px" id="wotdEn">Loading...</div>
-      <button class="btn btn-outline btn-sm" onclick="speakWord(document.getElementById('wotdDe').innerText)">🔊 Listen</button>
-    </div>
-    <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,rgba(167,139,250,0.1),transparent);border-color:var(--accent2)">
-      <div class="card-title">📝 Sentence of the Day</div>
-      <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-top:10px" id="sotdDe">Laden...</div>
-      <div style="font-size:0.9rem;color:var(--text-muted);margin-bottom:10px;margin-top:6px" id="sotdEn">Loading...</div>
-      <button class="btn btn-outline btn-sm" onclick="speakWord(document.getElementById('sotdDe').innerText)">🔊 Listen</button>
-    </div>
-  </div>
-
-  <!-- ROADMAP & BOOTCAMP TIMER GRID -->
-  <div class="grid-2" style="margin-bottom:20px;">
+  <!-- DASHBOARD -->
+  <div id="section-dashboard" class="section active">
     
-    <!-- LEFT SIDE: Level Roadmap Card -->
-    <div class="card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
-      <div>
-        <div class="card-title">🎯 Level Roadmap</div>
-        <div class="card-sub">Click to mark a level as completed ✅</div>
-        <div class="roadmap" id="roadmap"></div>
-      </div>
-      <div style="margin-top:14px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-size:.85rem">Overall Progress</span>
-          <span class="level-badge badge-a1" id="currentLevel">Beginner</span>
+    <!-- PHASE 1: MISSION CARD -->
+    <div class="mission-card">
+      <div class="mission-header">
+        <div>
+          <h2 style="margin:0; font-size:1.5rem; color:var(--text);">🎯 Today's Mission</h2>
+          <div id="missionDate" style="font-size:0.9rem; color:var(--text-muted); margin-top:4px;"></div>
         </div>
-        <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
-        <div style="font-size:.78rem;color:var(--text-muted);margin-top:8px" id="progressHint">Write 5 diary entries to reach A1!</div>
+        <div class="mission-progress-box">
+          <span id="missionPct">0%</span>
+        </div>
+      </div>
+      <div id="missionTaskList" class="mission-tasks">
+        <!-- JS will populate this -->
+      </div>
+      <div class="mission-footer">
+        <div id="missionEstTime" style="color:var(--text-muted); font-size:0.85rem;">⏱️ Est. time: 20 mins</div>
+        <div id="missionStreak" style="color:var(--gold); font-weight:bold; font-size:0.95rem;">🔥 0 Day Streak</div>
       </div>
     </div>
-    
-    <!-- RIGHT SIDE: The Compact Bootcamp Card -->
-    <div class="card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;">
-      
-      <!-- Glow Effect -->
-      <div id="bootcampGlow" style="position:absolute; inset:0; background:radial-gradient(circle at 50% -20%, rgba(251, 191, 36, 0.15), transparent 70%); opacity:0; transition:opacity 1s; pointer-events:none;"></div>
-      
-      <div style="position:relative; z-index:1;">
-        <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <div>🔥 Daily Bootcamp</div>
-            <div id="antiCheatStatus" style="font-size:0.7rem; font-weight:700; padding:4px 8px; border-radius:999px; background:rgba(16, 185, 129, 0.15); color:var(--success); border:1px solid rgba(16,185,129,0.3);">🟢 ACTIVE</div>
-        </div>
 
-        <!-- Compact Timer Display -->
-        <div style="text-align:center; margin-bottom:15px;">
-          <div id="bootcampTimeDisplay" style="font-size:2.8rem; font-weight:900; line-height:1; font-family:'Playfair Display', serif; color:var(--text); letter-spacing:-1px;">00:00</div>
-          <div id="bootcampGoalDisplay" style="font-size:0.8rem; color:var(--text-muted); margin-top:4px; font-weight:600; text-transform:uppercase;">Goal: 30 Mins</div>
-        </div>
-
-        <!-- The Progress Bar -->
-        <div style="height:10px; background:rgba(0,0,0,0.4); border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,0.05); margin-bottom:20px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.5);">
-          <div id="bootcampProgressBar" style="height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent2)); border-radius:999px; transition:width 1s linear, background 0.5s;"></div>
-        </div>
+    <!-- STATS (Phase 5: Real Progress) -->
+    <div class="grid-3" style="margin-bottom:20px">
+      <div class="stat-card">
+        <div class="stat-num" id="statVocabHealth" style="color:var(--accent)">0%</div>
+        <div class="stat-label">Vocab Retention</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;" id="statVocabSub">Known: 0 | Learning: 0</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statQuizAcc" style="color:var(--accent2)">0%</div>
+        <div class="stat-label">Average Quiz Accuracy</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;" id="statQuizSub">0 total quizzes taken</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statStreak" style="color:var(--gold)">0</div>
+        <div class="stat-label">Day Streak</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;" id="statStreakSub">Consistency is key!</div>
+      </div>
+    </div>
 
-      <!-- The Heatmap -->
-      <div style="position:relative; z-index:1;">
-        <div class="card-sub" style="text-align:center; font-weight:600; color:var(--text); margin-bottom:10px;">Last 35 Days</div>
-        <div class="heatmap-wrapper">
-          <div id="bootcampHeatmap">
-            <!-- JavaScript will inject the sleek Matrix Squares here automatically -->
+    <!-- WORD & SENTENCE OF THE DAY -->
+    <div class="grid-2" style="margin-bottom:20px">
+      <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,rgba(91,141,238,0.1),transparent);border-color:var(--accent)">
+        <div class="card-title">📖 Word of the Day</div>
+        <div style="font-size:1.8rem;font-weight:800;color:var(--accent);margin-top:10px" id="wotdDe">Laden...</div>
+        <div style="font-size:1rem;color:var(--text-muted);margin-bottom:10px" id="wotdEn">Loading...</div>
+        <button class="btn btn-outline btn-sm" onclick="speakWord(document.getElementById('wotdDe').innerText)">🔊 Listen</button>
+      </div>
+      <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,rgba(167,139,250,0.1),transparent);border-color:var(--accent2)">
+        <div class="card-title">📝 Sentence of the Day</div>
+        <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-top:10px" id="sotdDe">Laden...</div>
+        <div style="font-size:0.9rem;color:var(--text-muted);margin-bottom:10px;margin-top:6px" id="sotdEn">Loading...</div>
+        <button class="btn btn-outline btn-sm" onclick="speakWord(document.getElementById('sotdDe').innerText)">🔊 Listen</button>
+      </div>
+    </div>
+
+    <!-- READINESS & BOOTCAMP TIMER GRID -->
+    <div class="grid-2" style="margin-bottom:20px;">
+      
+      <!-- LEFT SIDE: Germany Readiness Score (Phase 5) -->
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-title">🇩🇪 Germany Readiness Score</div>
+        <div class="card-sub">Your overall capability to live and work in Germany.</div>
+        <div style="font-size:2.5rem; font-weight:800; color:var(--accent); margin-bottom:15px;" id="readinessScore">0%</div>
+        
+        <div class="progress-bar-wrap" style="margin-bottom:5px;"><div class="progress-bar" id="pbVocab" style="width:0%; background:#10b981;"></div></div>
+        <div style="font-size:0.8rem; margin-bottom:12px; display:flex; justify-content:space-between;"><span>Vocabulary</span><span id="pctVocab">0%</span></div>
+        
+        <div class="progress-bar-wrap" style="margin-bottom:5px;"><div class="progress-bar" id="pbGrammar" style="width:0%; background:#8b5cf6;"></div></div>
+        <div style="font-size:0.8rem; margin-bottom:12px; display:flex; justify-content:space-between;"><span>Grammar Mastery</span><span id="pctGrammar">0%</span></div>
+        
+        <div class="progress-bar-wrap" style="margin-bottom:5px;"><div class="progress-bar" id="pbWriting" style="width:0%; background:#f59e0b;"></div></div>
+        <div style="font-size:0.8rem; margin-bottom:12px; display:flex; justify-content:space-between;"><span>Writing (Diary)</span><span id="pctWriting">0%</span></div>
+        
+        <div style="padding:10px; background:var(--surface2); border-radius:6px; font-size:0.8rem; margin-top:15px; color:var(--accent);" id="readinessMilestone">
+          Next milestone: Add more words!
+        </div>
+        
+      </div>
+      
+      <!-- RIGHT SIDE: The Compact Bootcamp Card -->
+      <div class="card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;">
+        <div id="bootcampGlow" style="position:absolute; inset:0; background:radial-gradient(circle at 50% -20%, rgba(251, 191, 36, 0.15), transparent 70%); opacity:0; transition:opacity 1s; pointer-events:none;"></div>
+        <div style="position:relative; z-index:1;">
+          <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <div>🔥 Daily Bootcamp</div>
+              <div id="antiCheatStatus" style="font-size:0.7rem; font-weight:700; padding:4px 8px; border-radius:999px; background:rgba(16, 185, 129, 0.15); color:var(--success); border:1px solid rgba(16,185,129,0.3);">🟢 ACTIVE</div>
+          </div>
+          <div style="text-align:center; margin-bottom:15px;">
+            <div id="bootcampTimeDisplay" style="font-size:2.8rem; font-weight:900; line-height:1; font-family:'Playfair Display', serif; color:var(--text); letter-spacing:-1px;">00:00</div>
+            <div id="bootcampGoalDisplay" style="font-size:0.8rem; color:var(--text-muted); margin-top:4px; font-weight:600; text-transform:uppercase;">Goal: 30 Mins</div>
+          </div>
+          <div style="height:10px; background:rgba(0,0,0,0.4); border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,0.05); margin-bottom:20px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.5);">
+            <div id="bootcampProgressBar" style="height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent2)); border-radius:999px; transition:width 1s linear, background 0.5s;"></div>
+          </div>
+        </div>
+        <div style="position:relative; z-index:1;">
+          <div class="card-sub" style="text-align:center; font-weight:600; color:var(--text); margin-bottom:10px;">Last 35 Days</div>
+          <div class="heatmap-wrapper">
+            <div id="bootcampHeatmap">
+              <!-- JavaScript will inject the sleek Matrix Squares here automatically -->
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-  </div>
-
-  <!-- Grammar Tip -->
-  <div class="card tip-card" style="margin-bottom:0;">
-    <div class="tip-num">💡 Today's Grammar Tip</div>
-    <div class="tip-rule" id="dashTipRule"></div>
-    <div class="tip-example" id="dashTipExample"></div>
-  </div>
-
-  <!-- WRITE DIARY BUTTON -->
-  <div style="text-align:center;margin-top:24px">
-    <button class="btn btn-primary" onclick="showSection('diary')">✍️ Write Today's Diary Entry</button>
-  </div>
-
-  <!-- BACKUP & CLOUD SYNC -->
-  <div class="card" style="margin-top:24px; border-color:var(--danger)">
-    <div class="card-title">💾 Data Backup & Restore</div>
-    <div class="card-sub">Your data is stored locally in your browser. If you clear your history, it will be deleted! Export a backup regularly.</div>
-    
-    <!-- LOCAL BACKUP BUTTONS -->
-    <div style="display:flex; gap:12px; margin-top:14px; align-items:center; flex-wrap:wrap">
-      <button class="btn btn-outline" style="border-color:var(--success); color:var(--success)" onclick="exportData()">⬇️ Export Backup (JSON)</button>
-      <div style="position:relative; overflow:hidden; display:inline-block">
-        <button class="btn btn-outline" style="border-color:var(--danger); color:var(--danger)">⬆️ Import Backup</button>
-        <input type="file" accept=".json" onchange="importData(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+    <!-- Grammar Unlocks (Phase 5) -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title">🔓 Grammar Progression</div>
+      <div class="card-sub">Write diaries and learn words to unlock B2.</div>
+      <div id="grammarUnlocksList" style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+        <!-- JS generated -->
       </div>
+    </div>
+
+    <!-- Grammar Tip -->
+    <div class="card tip-card" style="margin-bottom:0;">
+      <div class="tip-num">💡 Today's Grammar Tip</div>
+      <div class="tip-rule" id="dashTipRule"></div>
+      <div class="tip-example" id="dashTipExample"></div>
+    </div>
+
+    <!-- WRITE DIARY BUTTON -->
+    <div style="text-align:center;margin-top:24px">
+      <button class="btn btn-primary" onclick="showSection('diary')">✍️ Write Today's Diary Entry</button>
+    </div>
+
+    <!-- CLEAN BOTTOM ACTION BAR -->
+    <div style="display:flex; justify-content:center; gap:15px; margin-top:40px; padding-top:20px; border-top:1px solid var(--border);">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('settingsModal').style.display='flex'">⚙️ Settings</button>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('wikiModal').style.display='flex'">📖 Wiki</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleFeedback()">💡 Feedback</button>
     </div>
     
-    <!-- ☁️ GITHUB CLOUD SYNC SECTION ☁️ -->
-    <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px;">
-      <h4 style="margin-top:0; color:var(--accent);">☁️ Advanced Cloud Sync</h4>
-      <div style="font-size:0.9rem; margin-bottom:15px; color:var(--text-muted);">
-        1. Get a <a href="https://github.com/settings/tokens/new?scopes=gist&description=GermanDiarySync" target="_blank" style="color:var(--accent);">GitHub Token here</a> (Leave defaults, just click Generate).<br>
-        2. Paste it below to connect your laptop, or paste a Token + Gist ID to restore your phone!
-      </div>
-      
-      <input type="password" id="ghTokenInput" class="input" placeholder="Paste GitHub Token here (ghp_...)" style="margin-bottom:10px;">
-      <input type="text" id="ghGistInput" class="input" placeholder="Gist ID (Leave blank if setting up for the first time)" style="margin-bottom:15px;">
-      
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="setupCloud()">🔗 Connect & Sync</button>
-        <button class="btn btn-outline" onclick="forcePullCloud()">⬇️ Pull Latest</button>
-      </div>
-      
-      <div id="syncStatus" style="margin-top:15px; font-weight:bold; font-size:0.9rem; color:var(--text-muted);">
-        Status: ⚪ Disconnected
-      </div>
-    </div>
   </div>
 
-  <!-- WIKI BUTTON -->
-  <div style="margin-top:14px; text-align:center">
-    <button class="btn btn-primary" onclick="toggleWiki()" style="width:100%; font-size:1.1rem">📖 Wiki (Study Guide)</button>
-  </div>
-  
-  <div id="wikiContent" style="display:none; margin-top:14px; background:var(--surface); border:1px solid var(--accent); border-radius:12px; padding:20px; text-align:left">
-    <div style="font-size:1.1rem; line-height:1.6; color:var(--text)">
-      
-      <p style="margin-bottom:30px; font-weight:500; color:var(--text-muted)">This application is designed to take you from a complete beginner (A1) to professional fluency (B2). To get the fastest results, follow this daily routine.</p>
-
-      <h3 style="color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:8px; margin-bottom:15px">⏱️ The Optimal Daily Routine (20-30 Minutes)</h3>
-      <ol style="margin-bottom:30px; padding-left:20px; display:flex; flex-direction:column; gap:10px">
-        <li><b>Check the Dashboard (2 mins):</b> Read the Word and Sentence of the Day. Click the "Listen" button and repeat the pronunciation out loud.</li>
-        <li><b>Review Vocabulary & SRS (5 mins):</b> Open <i>More > SRS Review</i>. Review flashcards due today. Add 5 to 10 new words you encountered at work to the Vocabulary tab.</li>
-        <li><b>Write Your Diary (10 mins):</b> Open the Diary tab. Do the Sentence Builder prompt first. Answer the 3 standard prompts. When saving, strictly follow the Grammar Checklist.</li>
-        <li><b>Take a Quick Quiz (5 mins):</b> Alternate daily: MCQ (Mon/Wed), Listening (Tue/Thu), Grammar & Verbs (Fri).</li>
-      </ol>
-
-      <div style="background:var(--surface2); border-left:4px solid var(--gold); padding:15px; margin-bottom:40px; border-radius:8px">
-        <b>💡 Weekly Habit:</b> Every Sunday, open the <i>Weekly Reflection</i> tab to review your progress, and export a <b>Data Backup</b> from your Dashboard to keep your words safe!
-      </div>
-
-      <h3 style="color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:8px; margin-bottom:20px">📈 How to Adapt Your Routine for Each Level</h3>
-      
-      <div style="margin-bottom:25px; padding:15px; border:1px solid var(--border); border-radius:10px">
-        <h4 style="margin-top:0; color:#34d399">🟢 A1 Level (Beginner)</h4>
-        <p style="margin:8px 0"><b>Goal:</b> Build basic vocabulary and get used to sounds.</p>
-        <ul style="padding-left:20px; margin:0">
-          <li><b>Vocab:</b> Add everyday words (Haus, essen). Pay attention to Gender Colors (Blue = der, Red = die, Green = das).</li>
-          <li><b>Diary:</b> Just write 1 simple sentence per prompt (e.g., <i>Ich lerne Deutsch</i>).</li>
-          <li><b>Tools:</b> Use the Sentence Builder manually and test the Pronunciation Checker.</li>
-        </ul>
-      </div>
-
-      <div style="margin-bottom:25px; padding:15px; border:1px solid var(--border); border-radius:10px">
-        <h4 style="margin-top:0; color:#fbbf24">🟡 A2 Level (Elementary)</h4>
-        <p style="margin:8px 0"><b>Goal:</b> Connect sentences and understand spoken German.</p>
-        <ul style="padding-left:20px; margin:0">
-          <li><b>Vocab:</b> Group words into categories (Verbs, Daily Life).</li>
-          <li><b>Diary:</b> Write 2 sentences per prompt. Combine them using <i>und, aber, weil</i>.</li>
-          <li><b>Tools:</b> Focus heavily on the Dictation Quiz to train your ear.</li>
-        </ul>
-      </div>
-
-      <div style="margin-bottom:25px; padding:15px; border:1px solid var(--border); border-radius:10px">
-        <h4 style="margin-top:0; color:#f97316">🟠 B1 Level (Intermediate)</h4>
-        <p style="margin:8px 0"><b>Goal:</b> Professional vocabulary and holding conversations.</p>
-        <ul style="padding-left:20px; margin:0">
-          <li><b>Vocab:</b> Import the IT Job Dataset. Focus on Tech/Software vocabulary.</li>
-          <li><b>Diary:</b> Write in the past tense (Perfekt/Präteritum). Write 3+ sentences per prompt.</li>
-          <li><b>Tools:</b> Start doing the Monthly Speaking Challenge (talk for 1 minute).</li>
-        </ul>
-      </div>
-
-      <div style="margin-bottom:20px; padding:15px; border:1px solid var(--border); border-radius:10px">
-        <h4 style="margin-top:0; color:#ef4444">🔴 B2 Level (Fluent)</h4>
-        <p style="margin:8px 0"><b>Goal:</b> Complex grammar and spontaneous speaking.</p>
-        <ul style="padding-left:20px; margin:0">
-          <li><b>Reading:</b> Read the Reading Practice stories daily to master tech context.</li>
-          <li><b>Tools:</b> Grind the Irregular Verbs trainer and Grammar Quiz.</li>
-          <li><b>Diary:</b> Write full paragraphs. The Grammar Checklist is critical here.</li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- QUIET FEEDBACK SECTION -->
-  <div style="text-align: center; margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border);">
-    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">Have a suggestion or found a bug?</p>
-    <button class="btn btn-outline" onclick="toggleFeedback()" style="font-size: 0.85rem;">💡 Send Feedback</button>
-  </div>
-  
-</div>
+ 
 
 
-  
-  </div>
-
-</div>
 
 <!-- DIARY -->
 
@@ -350,12 +266,21 @@
     </div>
 
     <div style="display:flex;gap:12px;flex-wrap:wrap">
-      <button class="btn btn-success" onclick="saveDiaryEntry()">&#128190; Save Entry</button>
-        <button class="btn btn-outline" onclick="clearDiary()">&#128465; Clear</button>
-        <div style="position:relative; overflow:hidden; display:inline-block">
-          <button class="btn btn-outline" style="border-color:var(--gold); color:var(--gold)">&#128193; Upload Sentences (CSV)</button>
-          <input type="file" accept=".csv" onchange="importSentenceCsv(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
-        </div>
+      <button class="btn btn-success" onclick="saveDiaryEntry()">💾 Save Entry</button>
+      <button class="btn btn-primary" onclick="analyzeGrammar()">🔍 Analyze Grammar</button>
+      <button class="btn btn-outline" onclick="clearDiary()">🗑️ Clear</button>
+      <div style="position:relative; overflow:hidden; display:inline-block">
+        <button class="btn btn-outline" style="border-color:var(--gold); color:var(--gold)">&#128193; Upload Sentences (CSV)</button>
+        <input type="file" accept=".csv" onchange="importSentenceCsv(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+      </div>
+    </div>
+
+    
+
+     <!-- Phase 7: Grammar Analysis Panel -->
+     <div id="grammarAnalysisResult" style="display:none; margin-top:20px; padding:15px; border-radius:8px; background:var(--surface2); border:1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.1);"></div>
+
+        
       </div>
       <div id="grammarFeedback" style="margin-top:20px; display:none; padding:15px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid var(--danger);"></div>
       <div><!-- closing tag balancer -->
@@ -371,9 +296,24 @@
 
 <!-- VOCABULARY -->
 <div id="section-vocab" class="section">
+  
+  <!-- ==========================================
+       🇩🇪 PHASE 2: GERMANY SCENARIO PACKS
+       ========================================== -->
+  <div class="card" style="border-color:var(--accent);">
+    <h3 style="color:var(--text); margin-bottom:5px; margin-top:0;">🇩🇪 Germany-Ready Scenario Packs</h3>
+    <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px;">Instantly add professional vocabulary packs directly to your flashcards.</p>
+    
+    <div id="germanyPacksContainer" class="grid-3" style="margin-bottom:10px;">
+      <!-- JS will dynamically load the beautiful cards here -->
+    </div>
+  </div>
+
+  <!-- ADD NEW WORD CARD -->
   <div class="card">
-    <div class="card-title">📚 Add New Words</div>
+    <div class="card-title">📚 Add Custom Words</div>
     <div class="card-sub">Goal: 10 words/day. <span id="todayWordCount" style="color:var(--accent3);font-weight:600">0</span> added today.</div>
+    
     <div class="vocab-row">
       <div class="field" style="margin:0">
         <label>German Word / Phrase</label>
@@ -399,9 +339,9 @@
         <option value="Verbs">⚡ Verbs</option>
       </select>
     </div>
-    
   </div>
   
+  <!-- OLD IT IMPORT -->
   <div class="card" style="margin-bottom:20px;background:var(--surface2)">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <div>
@@ -412,11 +352,11 @@
     </div>
   </div>
 
-  
+  <!-- BULK IMPORTER -->
   <div class="card" style="margin-bottom:20px;background:var(--surface2)">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
       <div>
-        <div style="font-weight:700">?? Bulk CSV Importers</div>
+        <div style="font-weight:700">⬇️ Bulk CSV Importers</div>
         <div style="font-size:0.8rem;color:var(--text-muted)">Upload .csv files (Format: German,English) to load thousands of words/sentences!</div>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap">
@@ -424,17 +364,16 @@
           <button class="btn btn-outline btn-sm">Upload Vocab (CSV)</button>
           <input type="file" accept=".csv" onchange="importCsv(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
         </div>
-        
-        
         <div style="position:relative; overflow:hidden; display:inline-block">
-          <button class="btn btn-outline btn-sm" style="border-color:#10b981; color:#10b981" onclick="fetchCsvFromWeb()">&#127183; Fetch from Web URL</button>
+          <button class="btn btn-outline btn-sm" style="border-color:#10b981; color:#10b981" onclick="fetchCsvFromWeb()">🌐 Fetch from Web URL</button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- FLASHCARDS -->
   <div class="card">
-    <div class="card-title">&#129300; Quick Test (Flashcard)</div>
+    <div class="card-title">🤔 Quick Test (Flashcard)</div>
     <div id="flashcard" style="text-align:center;padding:20px 0">
       <div id="flashFront" style="font-size:2rem;font-weight:800;color:var(--accent);margin-bottom:12px">—</div>
       <div id="flashBack" style="font-size:1.1rem;color:var(--text-muted);min-height:28px"></div>
@@ -445,27 +384,28 @@
           <button class="btn btn-primary btn-sm" style="flex:1" onclick="submitSrs('good')">Good (3d)</button>
           <button class="btn btn-success btn-sm" style="flex:1" onclick="submitSrs('easy')">Easy (7d)</button>
         </div>
-        <button id="nextFlashBtn" class="btn btn-primary btn-sm" onclick="nextFlash()" style="display:none">Skip ?</button>
+        <button id="nextFlashBtn" class="btn btn-primary btn-sm" onclick="nextFlash()" style="display:none">Skip ➔</button>
       </div>
     </div>
   </div>
 
-  <div class="tab-row">
+  <!-- TABS & LIST -->
+  <div class="tab-row" style="overflow-x:auto; white-space:nowrap; padding-bottom:10px;">
     <div class="tab active" onclick="filterVocab('All',this)">All</div>
+    <div class="tab" onclick="filterVocab('Mined Sentences',this)">⚡ Mined Sentences</div>
+    <div class="tab" onclick="filterVocab('Work',this)">💼 Work</div>
+    <div class="tab" onclick="filterVocab('Office',this)">🏢 Office</div>
+    <div class="tab" onclick="filterVocab('Housing',this)">🏠 Housing</div>
     <div class="tab" onclick="filterVocab('Java',this)">☕ Java</div>
     <div class="tab" onclick="filterVocab('SpringBoot',this)">🌱 Spring Boot</div>
     <div class="tab" onclick="filterVocab('Database',this)">🗄️ Database</div>
     <div class="tab" onclick="filterVocab('Cloud',this)">☁️ Cloud</div>
-    <div class="tab" onclick="filterVocab('Kubernetes',this)">⚙️ K8s/Docker</div>
-    <div class="tab" onclick="filterVocab('Work',this)">💼 Work</div>
-    <div class="tab" onclick="filterVocab('Daily',this)">🏠 Daily</div>
     <div class="tab" onclick="filterVocab('Verbs',this)">⚡ Verbs</div>
-    <div class="tab" onclick="filterVocab('General',this)">🌐 General</div>
   </div>
 
   <div class="card">
     <div class="card-title">📖 Your Vocabulary List <span id="vocabCount" style="font-size:.8rem;color:var(--text-muted);font-weight:400"></span></div>
-    <ul class="vocab-list" id="vocabList"></ul>
+    <ul class="vocab-list" id="vocabList" style="padding-left:0; list-style:none;"></ul>
   </div>
 </div>
 
@@ -693,7 +633,16 @@
     <div id="readingContent" style="display:none; background:var(--surface2); padding:20px; border-radius:12px; margin-bottom:20px; font-size:1.1rem; line-height:1.6">
       <h3 id="storyTitle" style="margin-top:0; color:var(--accent)"></h3>
       <div id="storyText" style="color:var(--text)"></div>
+      <div id="readingPipeline" style="margin-top: 25px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); display:none; gap:10px; flex-wrap:wrap; background:rgba(91,141,238,0.05); padding:15px; border-radius:8px;">
+        <div style="width:100%; font-weight:bold; color:var(--accent); font-size:0.9rem; margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">🚀 Next Steps Pipeline</div>
+        <button class="btn btn-outline" id="pipeListenBtn" onclick="pipelineListen()">🎧 Listen to Article</button>
+        <button class="btn btn-outline" onclick="pipelineToSpeaking()">🗣️ Speak Summary</button>
+        <button class="btn btn-primary" onclick="pipelineToDiary()">✍️ Write Diary Summary</button>
+      </div>
     </div>
+    
+    <!-- Phase 4: Connected Pipeline Actions -->
+
 
     <div id="readingQuestions" style="display:none">
       <h4 style="margin-bottom:10px">Fragen zum Text (Questions)</h4>
@@ -747,44 +696,89 @@
   </div>
 
   
-  <!-- AI CHAT WIDGET -->
-    <div id="aiChatWidget" style="display:none; position:fixed; bottom:80px; right:20px; width:350px; height:500px; background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.3); z-index:9999; flex-direction:column; overflow:hidden;">
-    <div style="background:var(--accent); color:white; padding:15px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
-      <span>🤖 AI Partner</span>
-      <div>
-        <button onclick="toggleChatSettings()" style="background:transparent; border:none; color:white; cursor:pointer; font-size:1.2rem; margin-right:10px;">⚙️</button>
-        <button onclick="toggleAiChat()" style="background:transparent; border:none; color:white; cursor:pointer; font-size:1.2rem;">✖</button>
-      </div>
-    </div>
-    <div style="padding:0px 15px;">
-      
-      <div id="chatSettings" style="display:none; margin-top:15px; padding-top:15px; border-top:1px solid var(--border);">
-        <div style="font-size:0.9rem; margin-bottom:10px;">To use the AI Chat, you need a free Google Gemini API Key. Since this app runs purely on your device, your key is stored locally and never sent to our servers!</div>
-        <div style="display:flex; gap:10px;">
-          <input type="password" id="geminiApiKey" placeholder="Paste your Gemini API Key here..." style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--surface);">
-          <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
-        </div>
-        <div style="font-size:0.8rem; margin-top:10px;"><a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent);">Get a free API key here</a></div>
-      </div>
-    </div>
-    
-    <div style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
-      <div id="chatHistory" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:15px; background:var(--surface2);">
-        <div style="text-align:center; color:var(--text-muted); margin-top:20px;">Provide your API key above to start chatting!</div>
-      </div>
-      
-      <!-- ONLY THIS BOTTOM PART CHANGED -->
-      <div style="padding:15px; background:var(--surface); border-top:1px solid var(--border); display:flex; gap:10px; align-items:center;">
-        <div style="position:relative; flex:1; display:flex;">
-          <input type="text" id="chatInput" placeholder="Type or speak in German..." style="flex:1; padding:12px; padding-right:45px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:1rem;" onkeypress="if(event.key==='Enter') sendChatMessage()">
-          <button id="chatMicBtn" onclick="startChatVoiceTyping()" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--text-muted); transition:0.2s;" title="Speak to AI">🎙️</button>
-        </div>
-        <button class="btn btn-primary" onclick="sendChatMessage()">Send</button>
-      </div>
-      <!-- END OF CHANGES -->
+ <!-- ==========================================
+     🤖 AI GERMAN TUTOR — COMPLETE HTML
+     ========================================== -->
 
+<!-- Floating Trigger Button -->
+<div id="aiTutorBtn" onclick="toggleAITutor()" title="Open AI Tutor">🤖</div>
+
+<!-- Chat Modal -->
+<div id="aiTutorModal" class="ai-chat-modal">
+
+  <!-- Header -->
+  <div class="ai-chat-header">
+    <div class="ai-chat-header-left">
+      <div class="ai-avatar">👩‍🏫</div>
+      <div>
+        <div class="ai-chat-name" id="aiTutorName">Frau Schmidt</div>
+        <div class="ai-chat-status" id="aiChatStatus">🟢 Online</div>
+      </div>
+    </div>
+    <div class="ai-chat-header-right">
+      <select id="aiChatMode" class="ai-mode-select" onchange="switchChatMode(this.value)">
+        <option value="free">💬 Free Chat</option>
+        <option value="interview">💼 Job Interview</option>
+        <option value="office">🏢 Office</option>
+        <option value="daily">🏠 Daily Life</option>
+      </select>
+      <button class="ai-chat-close" onclick="toggleAITutor()">✕</button>
     </div>
   </div>
+
+  <!-- API Key Setup Panel (shown when no key stored) -->
+  <div id="aiKeySetup" class="ai-key-setup">
+    <div style="font-size:2rem; margin-bottom:12px;">🔑</div>
+    <div style="font-weight:700; font-size:1rem; margin-bottom:8px;">Connect Gemini AI</div>
+    <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:18px; line-height:1.5;">
+      Get your free API key from<br>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank"
+         style="color:var(--accent); font-weight:600;">Google AI Studio →</a>
+    </div>
+    <input type="password" id="aiKeyInput" class="ai-key-input"
+           placeholder="Paste your key (AIzaSy...)" />
+    <button class="btn btn-primary" onclick="saveAIKey()"
+            style="width:100%; margin-top:12px; justify-content:center;">
+      🔗 Connect &amp; Start Learning
+    </button>
+    <button onclick="clearAIKey()"
+            style="background:none;border:none;color:var(--text-muted);font-size:0.75rem;
+                   cursor:pointer;margin-top:10px;text-decoration:underline;">
+      Remove saved key
+    </button>
+  </div>
+
+  <!-- Chat Messages Container -->
+  <div class="ai-chat-messages" id="aiChatMessages"></div>
+
+  <!-- Typing Indicator -->
+  <div class="ai-typing" id="aiTyping" style="display:none;">
+    <div class="ai-typing-avatar">👩‍🏫</div>
+    <div class="ai-typing-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <!-- Input Bar -->
+  <div class="ai-chat-input-bar">
+    <button class="ai-mic-btn" id="aiMicBtn"
+            onclick="toggleAIVoiceInput()" title="Speak in German (de-DE)">🎙️</button>
+    <input type="text" id="aiChatInput" class="ai-chat-input"
+           placeholder="Schreib auf Deutsch..."
+           onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendAIMessage(); }"
+           maxlength="500" />
+    <button class="ai-send-btn" onclick="sendAIMessage()" title="Send">➤</button>
+  </div>
+
+  <!-- Footer -->
+  <div class="ai-chat-footer">
+    <span id="aiUsageInfo">Ready to chat!</span>
+    <button onclick="clearAIChat()"
+            style="background:none;border:none;color:var(--text-muted);
+                   font-size:0.75rem;cursor:pointer;">🗑️ Clear chat</button>
+  </div>
+
+</div>
 
   <div id="section-srs" class="section">
   <div class="card">
@@ -919,9 +913,6 @@
   </script>
   
 
-  <button id="aiChatFab" onclick="toggleAiChat()" style="position:fixed; bottom:20px; right:20px; width:55px; height:55px; border-radius:50%; background:var(--accent); color:white; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.4); font-size:1.8rem; cursor:pointer; z-index:9999; display:flex; align-items:center; justify-content:center; transition:0.2s;">
-    &#129302;
-  </button>
 
   <!-- CENTERED FEEDBACK MODAL (Hidden by default) -->
 <div id="feedbackModal" class="feedback-modal">
@@ -952,7 +943,140 @@
     </button>
   </form>
 </div>
+
+<!-- ==========================================
+     🚀 PHASE 6: ONBOARDING MODAL
+     ========================================== -->
+     <div id="onboardingModal" class="onboard-overlay" style="display:none;">
+      <div class="onboard-card">
+        <div class="onboard-header">
+          <h2>Willkommen! 🇩🇪</h2>
+          <p>Let's set up your personal path to fluency.</p>
+        </div>
+    
+        <!-- Step 1: Level -->
+        <div id="onboardStep1" class="onboard-step active">
+          <h3>Step 1: What is your current level?</h3>
+          <div class="onboard-options">
+            <button class="onboard-btn" onclick="selectLevel('beginner', this)">🌱 Complete Beginner</button>
+            <button class="onboard-btn" onclick="selectLevel('a1', this)">📘 A1 (Elementary)</button>
+            <button class="onboard-btn" onclick="selectLevel('a2', this)">📙 A2 (Pre-Intermediate)</button>
+            <button class="onboard-btn" onclick="selectLevel('b1', this)">📗 B1 (Intermediate)</button>
+          </div>
+        </div>
+    
+        <!-- Step 2: Goal -->
+        <div id="onboardStep2" class="onboard-step">
+          <h3>Step 2: What is your main goal?</h3>
+          <div class="onboard-options">
+            <button class="onboard-btn" onclick="selectGoal('work', this)">💼 Work in Germany (IT)</button>
+            <button class="onboard-btn" onclick="selectGoal('university', this)">🎓 University / Study</button>
+            <button class="onboard-btn" onclick="selectGoal('travel', this)">✈️ Travel & Culture</button>
+            <button class="onboard-btn" onclick="selectGoal('general', this)">📚 General Learning</button>
+          </div>
+        </div>
+    
+        <!-- Step 3: Time -->
+        <div id="onboardStep3" class="onboard-step">
+          <h3>Step 3: Daily time commitment?</h3>
+          <div class="onboard-options">
+            <button class="onboard-btn" onclick="selectTime(15, this)">⏱️ 15 mins / day</button>
+            <button class="onboard-btn" onclick="selectTime(30, this)">⏱️ 30 mins / day</button>
+            <button class="onboard-btn" onclick="selectTime(60, this)">⏱️ 1 hour / day</button>
+            <button class="onboard-btn" onclick="selectTime(120, this)">⏱️ 2 hours / day</button>
+          </div>
+        </div>
+    
+        <div class="onboard-footer">
+          <button id="onboardNextBtn" class="btn btn-primary" style="display:none; width:100%; margin-top:20px; font-size:1.1rem; padding:12px;" onclick="nextOnboardStep()">Continue ➔</button>
+        </div>
+      </div>
+    </div>
   
+    <!-- SETTINGS MODAL -->
+<div id="settingsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
+  <div class="card" style="max-width:500px; width:90%; position:relative;">
+    <button onclick="document.getElementById('settingsModal').style.display='none'" style="position:absolute; top:15px; right:15px; background:none; border:none; color:var(--text); font-size:1.2rem; cursor:pointer;">✖</button>
+    
+    <div class="card-title">⚙️ App Settings</div>
+    
+    <!-- Local Backup -->
+    <div style="margin-top:20px;">
+      <div style="font-weight:bold; margin-bottom:8px;">💾 Local Data Backup</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Export a JSON file to your hard drive, or restore one.</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="exportData()">⬇️ Export Backup (JSON)</button>
+        <div style="position:relative; overflow:hidden; display:inline-block">
+          <button class="btn btn-outline btn-sm">⬆️ Import Backup</button>
+          <input type="file" accept=".json" onchange="importData(event)" style="position:absolute; left:0; top:0; opacity:0; cursor:pointer; height:100%">
+        </div>
+      </div>
+    </div>
+        
+    <!-- Cloud Sync -->
+    <div style="margin-top:25px; padding-top:20px; border-top:1px solid var(--border);">
+      <div style="font-weight:bold; margin-bottom:8px; color:var(--accent);">☁️ GitHub Cloud Sync</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">
+        1. Get a <a href="https://github.com/settings/tokens/new?scopes=gist&description=GermanDiarySync" target="_blank" style="color:var(--accent);">GitHub Token here</a> (Leave defaults, generate).<br>
+        2. Paste to connect your laptop, or use Token + Gist ID to restore your phone!
+      </div>
+      <input type="password" id="ghTokenInput" placeholder="Paste GitHub Token here (ghp_...)" style="width:100%; padding:10px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text); margin-bottom:10px;">
+      <input type="text" id="ghGistInput" placeholder="Gist ID (Leave blank if first time)" style="width:100%; padding:10px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text); margin-bottom:15px;">
+      
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-primary" onclick="setupCloud()">Save & Sync</button>
+        <button class="btn btn-outline" onclick="forcePullCloud()">Force Pull Data</button>
+      </div>
+      <div id="syncStatus" style="margin-top:12px; font-weight:bold; font-size:0.8rem; color:var(--text-muted);">Status: ⚪ Disconnected</div>
+    </div>
+  </div>
+</div>
+
+<!-- WIKI MODAL -->
+<div id="wikiModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
+  <div class="card" style="max-width:600px; width:90%; max-height:85vh; overflow-y:auto; position:relative;">
+    <button onclick="document.getElementById('wikiModal').style.display='none'" style="position:absolute; top:15px; right:15px; background:none; border:none; color:var(--text); font-size:1.2rem; cursor:pointer;">✖</button>
+    <div class="card-title">📖 Study Guide & Wiki</div>
+    <!-- WIKI CONTENT -->
+    <div style="font-size:1.0rem; line-height:1.6; color:var(--text); margin-top:20px;">
+      <p style="margin-bottom:20px; font-weight:500; color:var(--text-muted)">Follow this daily routine for the fastest results to B2 fluency.</p>
+
+      <h3 style="color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:8px; margin-bottom:15px">⏱️ The Optimal Daily Routine (20-30 Minutes)</h3>
+      <ol style="margin-bottom:30px; padding-left:20px; display:flex; flex-direction:column; gap:10px">
+        <li><b>Check Dashboard (2m):</b> Read Word/Sentence of the Day. Listen & repeat.</li>
+        <li><b>Review SRS (5m):</b> Open <i>More > SRS Review</i>. Add 5-10 new words you encountered.</li>
+        <li><b>Write Diary (10m):</b> Open Diary tab. Use Sentence Builder first. Write freely.</li>
+        <li><b>Take a Quiz (5m):</b> Alternate daily: MCQ, Listening, Grammar, Verbs.</li>
+      </ol>
+
+      <div style="background:var(--surface2); border-left:4px solid var(--gold); padding:15px; margin-bottom:30px; border-radius:8px">
+        <b>💡 Weekly Habit:</b> Every Sunday, open the <i>Weekly Reflection</i> tab to review your progress!
+      </div>
+
+      <h3 style="color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:8px; margin-bottom:15px">📈 Adapt for Each Level</h3>
+      
+      <div style="margin-bottom:15px; padding:12px; border:1px solid var(--border); border-radius:8px">
+        <h4 style="margin-top:0; color:#34d399">🟢 A1 (Beginner)</h4>
+        <p style="margin:4px 0; font-size:0.9rem;">Add everyday words. Write 1 simple sentence per prompt (e.g., <i>Ich lerne Deutsch</i>).</p>
+      </div>
+
+      <div style="margin-bottom:15px; padding:12px; border:1px solid var(--border); border-radius:8px">
+        <h4 style="margin-top:0; color:#fbbf24">🟡 A2 (Elementary)</h4>
+        <p style="margin:4px 0; font-size:0.9rem;">Write 2 sentences per prompt. Combine them using <i>und, aber, weil</i>. Train your ear with Dictation.</p>
+      </div>
+
+      <div style="margin-bottom:15px; padding:12px; border:1px solid var(--border); border-radius:8px">
+        <h4 style="margin-top:0; color:#f97316">🟠 B1 (Intermediate)</h4>
+        <p style="margin:4px 0; font-size:0.9rem;">Import IT Job Dataset. Write in past tense (Perfekt). Record a monthly 1-minute speech.</p>
+      </div>
+
+      <div style="margin-bottom:15px; padding:12px; border:1px solid var(--border); border-radius:8px">
+        <h4 style="margin-top:0; color:#ef4444">🔴 B2 (Fluent)</h4>
+        <p style="margin:4px 0; font-size:0.9rem;">Read DW news daily. Master irregular verbs. Write full paragraphs using the strict Grammar Checklist.</p>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 <script src="script.js"></script>
 </html>
